@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Time Evanston - Crisis Copilot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --crisis-red: #e53935;
+            --urgent-orange: #ff9800;
+            --recovery-green: #4caf50;
+            --dark-bg: #1a237e;
+            --light-bg: #e8eaf6;
+            --card-bg: #ffffff;
+            --text-dark: #212121;
+            --text-light: #f5f5f5;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #283593 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            background: var(--crisis-red);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+        
+        .header-text h1 {
+            color: white;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .header-text p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+        }
+        
+        .crisis-alert {
+            background: var(--crisis-red);
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(229, 57, 53, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); }
+        }
+        
+        .crisis-alert i {
+            font-size: 32px;
+        }
+        
+        .crisis-alert h2 {
+            color: white;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        
+        .crisis-alert p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .card-header h2 {
+            font-size: 20px;
+            color: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-header i {
+            font-size: 24px;
+        }
+        
+        .card-content {
+            margin-top: 15px;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar {
+            height: 25px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            background: var(--recovery-green);
+            transition: width 1s ease;
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .data-item {
+            background: #f5f7ff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .data-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-item h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .data-item .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark-bg);
+        }
+        
+        .data-item .sub-value {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .critical .value {
+            color: var(--crisis-red);
+        }
+        
+        .warning .value {
+            color: var(--urgent-orange);
+        }
+        
+        .positive .value {
+            color: var(--recovery-green);
+        }
+        
+        .trainer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .trainer-card {
+            background: #f5f7ff;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .trainer-card:hover {
+            background: #e8ebff;
+            transform: translateX(5px);
+        }
+        
+        .trainer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--dark-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .trainer-info {
+            flex-grow: 1;
+        }
+        
+        .trainer-name {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .trainer-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .status-critical {
+            color: var(--crisis-red);
+        }
+        
+        .status-warning {
+            color: var(--urgent-orange);
+        }
+        
+        .status-stable {
+            color: var(--recovery-green);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--dark-bg);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #283593;
+            transform: translateY(-3px);
+        }
+        
+        .btn-danger {
+            background: var(--crisis-red);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c62828;
+            transform: translateY(-3px);
+        }
+        
+        .btn-success {
+            background: var(--recovery-green);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #2e7d32;
+            transform: translateY(-3px);
+        }
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .action-card {
+            background: #f5f7ff;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .action-card-header i {
+            font-size: 24px;
+            color: var(--dark-bg);
+        }
+        
+        .action-card h3 {
+            font-size: 18px;
+            color: var(--dark-bg);
+        }
+        
+        .action-card p {
+            color: #666;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+        
+        .action-card-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .settings-panel {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+            margin-top: 30px;
+        }
+        
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .setting-item label {
+            font-weight: 600;
+            color: var(--dark-bg);
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider {
+            flex-grow: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--dark-bg);
+            cursor: pointer;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--recovery-green);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 40px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .crisis-alert {
+                flex-direction: column;
+                text-align: center;
+                margin-top: 20px;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-section">
+                <div class="logo">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Life Time Evanston</h1>
+                    <p>AI Copilot Crisis Management System</p>
+                </div>
+            </div>
+            
+            <div class="crisis-alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <h2>CODE RED: JULY 4 LAYOFF PREVENTION</h2>
+                    <p>5 trainer terminations pending | $75K monthly deficit</p>
+                </div>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-fire"></i> Crisis Overview</h2>
+                    <span class="btn btn-danger">Emergency Mode</span>
+                </div>
+                <div class="card-content">
+                    <div class="data-grid">
+                        <div class="data-item critical">
+                            <h3>MONTHLY DEFICIT</h3>
+                            <div class="value">$75,000</div>
+                            <div class="sub-value">Since March 2025</div>
+                        </div>
+                        <div class="data-item critical">
+                            <h3>TRAINERS AT RISK</h3>
+                            <div class="value">5</div>
+                            <div class="sub-value">Termination date: July 4, 2025</div>
+                        </div>
+                        <div class="data-item">
+                            <h3>TOTAL MEMBERS</h3>
+                            <div class="value">700</div>
+                            <div class="sub-value">350 active, 350 inactive</div>
+                        </div>
+                        <div class="data-item positive">
+                            <h3>RECOVERY POTENTIAL</h3>
+                            <div class="value">$210K</div>
+                            <div class="sub-value">From inactive members</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-labels">
+                            <span>Layoff Prevention Progress</span>
+                            <span>43%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 43%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-user-clock"></i> Trainer Viability</h2>
+                    <span class="btn btn-primary">Reallocate</span>
+                </div>
+                <div class="card-content">
+                    <div class="trainer-list">
+                        <div class="trainer-card">
+                            <div class="trainer-avatar">J</div>
+                            <div class="trainer-info">
+                                <div class="trainer-name">Jessica Miller</div>
+                                <div class="trainer-status status-critical">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Critical: 8/15 clients (53%)
+                                </div>
+                            </div>
+                            <button class="btn btn-danger">Save</button>
+                        </div>
+                        
+                        <div class="trainer-card">
+                            <div class="trainer-avatar">M</div>
+                            <div class="trainer-info">
+                                <div class="trainer-name">Michael Chen</div>
+                                <div class="trainer-status status-critical">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    Critical: 5/15 clients (33%)
+                                </div>
+                            </div>
+                            <button class="btn btn-danger">Save</button>
+                        </div>
+                        
+                        <div class="trainer-card">
+                            <div class="trainer-avatar">S</div>
+                            <div class="trainer-info">
+                                <div class="trainer-name">Sarah Johnson</div>
+                                <div class="trainer-status status-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Warning: 10/15 clients (67%)
+                                </div>
+                            </div>
+                            <button class="btn btn-primary">Support</button>
+                        </div>
+                        
+                        <div class="trainer-card">
+                            <div class="trainer-avatar">D</div>
+                            <div class="trainer-info">
+                                <div class="trainer-name">David Wilson</div>
+                                <div class="trainer-status status-stable">
+                                    <i class="fas fa-check-circle"></i>
+                                    Stable: 14/15 clients (93%)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-bolt"></i> Emergency Actions</h2>
+                    <span class="btn btn-success">Deploy All</span>
+                </div>
+                <div class="card-content">
+                    <div class="action-grid">
+                        <div class="action-card">
+                            <div class="action-card-header">
+                                <i class="fas fa-crown"></i>
+                                <h3>Platinum Reactivation</h3>
+                            </div>
+                            <p>Reactivate 22 Platinum members to generate $38.7K revenue and save 2 jobs.</p>
+                            <div class="action-card-footer">
+                                <span>High Priority</span>
+                                <button class="btn btn-primary">Execute</button>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card">
+                            <div class="action-card-header">
+                                <i class="fas fa-users"></i>
+                                <h3>Client Reallocation</h3>
+                            </div>
+                            <p>Assign 15 "orphaned" Gold members to at-risk trainers Jessica and Michael.</p>
+                            <div class="action-card-footer">
+                                <span>Medium Priority</span>
+                                <button class="btn btn-primary">Execute</button>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card">
+                            <div class="action-card-header">
+                                <i class="fas fa-chart-line"></i>
+                                <h3>Bronze to Silver Upgrade</h3>
+                            </div>
+                            <p>Launch upgrade blitz targeting 40 Bronze members to convert to Silver tier.</p>
+                            <div class="action-card-footer">
+                                <span>High Priority</span>
+                                <button class="btn btn-primary">Execute</button>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card">
+                            <div class="action-card-header">
+                                <i class="fas fa-calendar-check"></i>
+                                <h3>Schedule Optimization</h3>
+                            </div>
+                            <p>Optimize trainer schedules to maximize availability during peak hours.</p>
+                            <div class="action-card-footer">
+                                <span>Medium Priority</span>
+                                <button class="btn btn-primary">Execute</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-panel">
+            <div class="settings-header">
+                <h2><i class="fas fa-cog"></i> Report Configuration</h2>
+                <span class="btn btn-primary">Save Settings</span>
+            </div>
+            
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label>Detail Level</label>
+                    <div class="slider-container">
+                        <span>Crisis Mode</span>
+                        <input type="range" min="1" max="3" value="1" class="slider" id="detailLevel">
+                        <span>Full Audit</span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label>Days Until Layoffs</label>
+                    <div class="slider-container">
+                        <span>5</span>
+                        <input type="range" min="5" max="21" value="14" class="slider" id="daysLeft">
+                        <span>21</span>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <label>Mask Member Names</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <label>Show Financial Details</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-item">
+                    <label>Audience View</label>
+                    <select style="padding: 10px; border-radius: 8px; width: 100%;">
+                        <option>Club Manager (Full Access)</option>
+                        <option>Trainer (Limited View)</option>
+                        <option>Corporate (Financials Only)</option>
+                    </select>
+                </div>
+                
+                <div class="setting-item">
+                    <label>Include Social Chatter</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Life Time Evanston Crisis Copilot | Last Updated: June 10, 2025 14:28 EST</p>
+            <p>Confidential - For internal use only</p>
+        </div>
+    </div>
+    
+    <script>
+        // Simulate progress bar animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressFill = document.querySelector('.progress-fill');
+            progressFill.style.width = '0%';
+            
+            setTimeout(() => {
+                progressFill.style.width = '43%';
+            }, 500);
+            
+            // Add interaction to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if(this.classList.contains('btn-danger')) {
+                        alert('Emergency protocol activated! Trainer rescue initiated.');
+                    } else if(this.classList.contains('btn-success')) {
+                        alert('All emergency actions deployed! AI is optimizing execution.');
+                    } else if(this.classList.contains('btn-primary')) {
+                        alert('Action executed! Copilot is monitoring results.');
+                    }
+                });
+            });
+            
+            // Simulate crisis alert pulse
+            const crisisAlert = document.querySelector('.crisis-alert');
+            setInterval(() => {
+                crisisAlert.classList.toggle('pulse');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
