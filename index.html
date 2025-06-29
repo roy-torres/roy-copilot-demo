@@ -3,787 +3,820 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Time Evanston - Crisis Copilot</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Crisis Mode - Trainer Reports</title>
     <style>
-        :root {
-            --crisis-red: #e53935;
-            --urgent-orange: #ff9800;
-            --recovery-green: #4caf50;
-            --dark-bg: #1a237e;
-            --light-bg: #e8eaf6;
-            --card-bg: #ffffff;
-            --text-dark: #212121;
-            --text-light: #f5f5f5;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, var(--dark-bg) 0%, #283593 100%);
-            color: var(--text-dark);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
             min-height: 100vh;
             padding: 20px;
         }
         
-        .container {
-            max-width: 1200px;
+        .phone-container {
+            width: 375px;
+            height: 812px;
             margin: 0 auto;
+            background: #000;
+            border-radius: 40px;
+            padding: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
         
-        header {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .logo {
-            background: var(--crisis-red);
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: white;
-        }
-        
-        .header-text h1 {
-            color: white;
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-        
-        .header-text p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 16px;
-        }
-        
-        .crisis-alert {
-            background: var(--crisis-red);
-            padding: 15px 25px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(229, 57, 53, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); }
-        }
-        
-        .crisis-alert i {
-            font-size: 32px;
-        }
-        
-        .crisis-alert h2 {
-            color: white;
-            font-size: 22px;
-            margin-bottom: 5px;
-        }
-        
-        .crisis-alert p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 16px;
-        }
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-            transition: transform 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
-        }
-        
-        .card-header h2 {
-            font-size: 20px;
-            color: var(--dark-bg);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .card-header i {
-            font-size: 24px;
-        }
-        
-        .card-content {
-            margin-top: 15px;
-        }
-        
-        .progress-container {
-            margin: 20px 0;
-        }
-        
-        .progress-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        
-        .progress-bar {
-            height: 25px;
-            background: #e0e0e0;
-            border-radius: 12px;
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 30px;
             overflow: hidden;
             position: relative;
         }
         
-        .progress-fill {
-            height: 100%;
-            border-radius: 12px;
-            background: var(--recovery-green);
-            transition: width 1s ease;
-        }
-        
-        .data-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        
-        .data-item {
-            background: #f5f7ff;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .data-item:hover {
-            transform: scale(1.03);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .data-item h3 {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-        
-        .data-item .value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--dark-bg);
-        }
-        
-        .data-item .sub-value {
-            font-size: 14px;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .critical .value {
-            color: var(--crisis-red);
-        }
-        
-        .warning .value {
-            color: var(--urgent-orange);
-        }
-        
-        .positive .value {
-            color: var(--recovery-green);
-        }
-        
-        .trainer-list {
+        .status-bar {
+            height: 44px;
+            background: #f8f9fa;
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .trainer-card {
-            background: #f5f7ff;
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            transition: all 0.3s ease;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
         }
         
-        .trainer-card:hover {
-            background: #e8ebff;
-            transform: translateX(5px);
-        }
-        
-        .trainer-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--dark-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .crisis-alert {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
             color: white;
-            font-weight: bold;
-            font-size: 20px;
-        }
-        
-        .trainer-info {
-            flex-grow: 1;
-        }
-        
-        .trainer-name {
+            padding: 8px 20px;
+            text-align: center;
+            font-size: 12px;
             font-weight: 700;
-            margin-bottom: 5px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .survival-status {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .content {
+            height: calc(100% - 180px);
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .countdown-banner {
+            background: #fef2f2;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .countdown-number {
+            font-size: 24px;
+            font-weight: 900;
+            color: #dc2626;
+        }
+        
+        .countdown-label {
+            font-size: 12px;
+            color: #991b1b;
+            font-weight: 600;
+        }
+        
+        .report-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .tab-btn {
+            flex-shrink: 0;
+            background: #e5e7eb;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn.active {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .tab-btn.crisis {
+            background: #fca5a5;
+            color: #7f1d1d;
+        }
+        
+        .critical-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .metric-card.danger {
+            border-left: 4px solid #ef4444;
+            background: #fef2f2;
+        }
+        
+        .metric-card.warning {
+            border-left: 4px solid #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .metric-card.success {
+            border-left: 4px solid #10b981;
+            background: #f0fdf4;
+        }
+        
+        .metric-value {
+            font-size: 20px;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+        
+        .metric-value.danger { color: #dc2626; }
+        .metric-value.warning { color: #d97706; }
+        .metric-value.success { color: #059669; }
+        
+        .metric-label {
+            font-size: 10px;
+            color: #6b7280;
+            font-weight: 600;
         }
         
         .trainer-status {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            background: #f3f4f6;
+            padding: 10px 16px;
+            border-bottom: 1px solid #e5e7eb;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 5px;
-            font-size: 14px;
         }
         
-        .status-critical {
-            color: var(--crisis-red);
+        .section-title {
+            font-weight: 700;
+            font-size: 13px;
+            color: #374151;
         }
         
-        .status-warning {
-            color: var(--urgent-orange);
-        }
-        
-        .status-stable {
-            color: var(--recovery-green);
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border-radius: 8px;
+        .crisis-toggle {
+            background: #dc2626;
+            color: white;
             border: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
+        }
+        
+        .section-content {
+            padding: 12px 16px;
+        }
+        
+        .trainer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .trainer-info {
+            display: flex;
             align-items: center;
             gap: 8px;
         }
         
-        .btn-primary {
-            background: var(--dark-bg);
-            color: white;
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
         }
         
-        .btn-primary:hover {
-            background: #283593;
-            transform: translateY(-3px);
+        .status-indicator.critical { background: #ef4444; }
+        .status-indicator.warning { background: #f59e0b; }
+        .status-indicator.safe { background: #10b981; }
+        
+        .trainer-name {
+            font-weight: 600;
+            font-size: 13px;
         }
         
-        .btn-danger {
-            background: var(--crisis-red);
-            color: white;
+        .trainer-risk {
+            font-size: 11px;
+            color: #6b7280;
         }
         
-        .btn-danger:hover {
-            background: #c62828;
-            transform: translateY(-3px);
+        .revenue-target {
+            font-size: 11px;
+            font-weight: 600;
         }
         
-        .btn-success {
-            background: var(--recovery-green);
-            color: white;
-        }
+        .revenue-target.behind { color: #dc2626; }
+        .revenue-target.close { color: #d97706; }
+        .revenue-target.ahead { color: #059669; }
         
-        .btn-success:hover {
-            background: #2e7d32;
-            transform: translateY(-3px);
-        }
-        
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        
-        .action-card {
-            background: #f5f7ff;
+        .urgent-actions {
+            background: #fef2f2;
+            border: 2px solid #fca5a5;
             border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            transition: all 0.3s ease;
+            padding: 12px;
+            margin-bottom: 15px;
         }
         
-        .action-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        .urgent-header {
+            font-weight: 700;
+            color: #7f1d1d;
+            font-size: 13px;
+            margin-bottom: 8px;
         }
         
-        .action-card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .action-item {
+            background: white;
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin: 6px 0;
+            font-size: 12px;
+            border-left: 3px solid #ef4444;
         }
         
-        .action-card-header i {
-            font-size: 24px;
-            color: var(--dark-bg);
+        .member-pipeline {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
-        .action-card h3 {
-            font-size: 18px;
-            color: var(--dark-bg);
+        .pipeline-header {
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: #374151;
         }
         
-        .action-card p {
-            color: #666;
-            line-height: 1.5;
-            font-size: 15px;
-        }
-        
-        .action-card-footer {
+        .member-item {
             display: flex;
             justify-content: space-between;
-            margin-top: 10px;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #f3f4f6;
         }
         
-        .settings-panel {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-            margin-top: 30px;
+        .member-name {
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .member-status {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .member-status.hot { background: #fef2f2; color: #7f1d1d; }
+        .member-status.warm { background: #fffbeb; color: #92400e; }
+        .member-status.cold { background: #f0f9ff; color: #1e40af; }
+        
+        .member-value {
+            font-size: 11px;
+            font-weight: 600;
+            color: #059669;
+        }
+        
+        .crisis-settings {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .crisis-settings.open {
+            right: 0;
         }
         
         .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            font-size: 18px;
+            font-weight: 700;
             margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ef4444;
+            color: #dc2626;
         }
         
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        .crisis-mode-toggle {
+            background: #fef2f2;
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .crisis-mode-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .setting-group {
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .setting-label {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #374151;
         }
         
         .setting-item {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .setting-item label {
-            font-weight: 600;
-            color: var(--dark-bg);
-        }
-        
-        .slider-container {
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 15px;
-        }
-        
-        .slider {
-            flex-grow: 1;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-        
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--dark-bg);
-            cursor: pointer;
+            padding: 6px 0;
+            font-size: 12px;
         }
         
         .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
             position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 30px;
-        }
-        
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .toggle-slider {
-            position: absolute;
             cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .toggle-switch.active {
+            background: #dc2626;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 8px;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+        
+        .floating-settings {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: #dc2626;
+            border-radius: 28px;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 999;
+        }
+        
+        .crisis-question {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 300px;
+            background: #fef2f2;
+            border: 2px solid #ef4444;
+            border-radius: 25px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #7f1d1d;
+        }
+        
+        .overlay {
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 30px;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
         }
         
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
         
-        input:checked + .toggle-slider {
-            background-color: var(--recovery-green);
-        }
-        
-        input:checked + .toggle-slider:before {
-            transform: translateX(30px);
-        }
-        
-        .footer {
+        .break-even-tracker {
+            background: linear-gradient(135deg, #fef3c7, #fed7aa);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
             text-align: center;
-            padding: 20px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 40px;
-            font-size: 14px;
         }
         
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .crisis-alert {
-                flex-direction: column;
-                text-align: center;
-                margin-top: 20px;
-            }
-            
-            header {
-                flex-direction: column;
-                align-items: stretch;
-            }
+        .break-even-label {
+            font-size: 11px;
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .break-even-progress {
+            font-size: 18px;
+            font-weight: 900;
+            color: #d97706;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #fed7aa;
+            border-radius: 4px;
+            margin: 8px 0 4px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #d97706;
+            width: 34%;
+            transition: width 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo-section">
-                <div class="logo">
-                    <i class="fas fa-dumbbell"></i>
-                </div>
-                <div class="header-text">
-                    <h1>Life Time Evanston</h1>
-                    <p>AI Copilot Crisis Management System</p>
-                </div>
+    <div class="phone-container">
+        <div class="screen">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span style="color: #dc2626; font-weight: 700;">CRISIS MODE</span>
+                <span>100% 🔋</span>
             </div>
             
             <div class="crisis-alert">
-                <i class="fas fa-exclamation-triangle"></i>
+                🚨 TERMINATION DEADLINE: 23 DAYS REMAINING
+            </div>
+            
+            <div class="header">
                 <div>
-                    <h2>CODE RED: JULY 4 LAYOFF PREVENTION</h2>
-                    <p>5 trainer terminations pending | $75K monthly deficit</p>
+                    <h1>Survival Report</h1>
+                    <div class="survival-status">$73,753 MONTHLY LOSS</div>
                 </div>
-            </div>
-        </header>
-        
-        <div class="dashboard">
-            <div class="card">
-                <div class="card-header">
-                    <h2><i class="fas fa-fire"></i> Crisis Overview</h2>
-                    <span class="btn btn-danger">Emergency Mode</span>
-                </div>
-                <div class="card-content">
-                    <div class="data-grid">
-                        <div class="data-item critical">
-                            <h3>MONTHLY DEFICIT</h3>
-                            <div class="value">$75,000</div>
-                            <div class="sub-value">Since March 2025</div>
-                        </div>
-                        <div class="data-item critical">
-                            <h3>TRAINERS AT RISK</h3>
-                            <div class="value">5</div>
-                            <div class="sub-value">Termination date: July 4, 2025</div>
-                        </div>
-                        <div class="data-item">
-                            <h3>TOTAL MEMBERS</h3>
-                            <div class="value">700</div>
-                            <div class="sub-value">350 active, 350 inactive</div>
-                        </div>
-                        <div class="data-item positive">
-                            <h3>RECOVERY POTENTIAL</h3>
-                            <div class="value">$210K</div>
-                            <div class="sub-value">From inactive members</div>
-                        </div>
-                    </div>
-                    
-                    <div class="progress-container">
-                        <div class="progress-labels">
-                            <span>Layoff Prevention Progress</span>
-                            <span>43%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 43%;"></div>
-                        </div>
-                    </div>
-                </div>
+                <button class="crisis-toggle" onclick="toggleSettings()">⚙️</button>
             </div>
             
-            <div class="card">
-                <div class="card-header">
-                    <h2><i class="fas fa-user-clock"></i> Trainer Viability</h2>
-                    <span class="btn btn-primary">Reallocate</span>
+            <div class="content">
+                <div class="countdown-banner">
+                    <div class="countdown-number">23</div>
+                    <div class="countdown-label">DAYS TO JULY 4TH DEADLINE</div>
                 </div>
-                <div class="card-content">
-                    <div class="trainer-list">
-                        <div class="trainer-card">
-                            <div class="trainer-avatar">J</div>
-                            <div class="trainer-info">
-                                <div class="trainer-name">Jessica Miller</div>
-                                <div class="trainer-status status-critical">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    Critical: 8/15 clients (53%)
-                                </div>
-                            </div>
-                            <button class="btn btn-danger">Save</button>
-                        </div>
-                        
-                        <div class="trainer-card">
-                            <div class="trainer-avatar">M</div>
-                            <div class="trainer-info">
-                                <div class="trainer-name">Michael Chen</div>
-                                <div class="trainer-status status-critical">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    Critical: 5/15 clients (33%)
-                                </div>
-                            </div>
-                            <button class="btn btn-danger">Save</button>
-                        </div>
-                        
-                        <div class="trainer-card">
-                            <div class="trainer-avatar">S</div>
-                            <div class="trainer-info">
-                                <div class="trainer-name">Sarah Johnson</div>
-                                <div class="trainer-status status-warning">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    Warning: 10/15 clients (67%)
-                                </div>
-                            </div>
-                            <button class="btn btn-primary">Support</button>
-                        </div>
-                        
-                        <div class="trainer-card">
-                            <div class="trainer-avatar">D</div>
-                            <div class="trainer-info">
-                                <div class="trainer-name">David Wilson</div>
-                                <div class="trainer-status status-stable">
-                                    <i class="fas fa-check-circle"></i>
-                                    Stable: 14/15 clients (93%)
-                                </div>
-                            </div>
-                        </div>
+                
+                <div class="break-even-tracker">
+                    <div class="break-even-label">TODAY'S BREAK-EVEN PROGRESS</div>
+                    <div class="break-even-progress">$847 / $2,500</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
                     </div>
+                    <div style="font-size: 10px; color: #92400e;">34% of daily target</div>
                 </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <h2><i class="fas fa-bolt"></i> Emergency Actions</h2>
-                    <span class="btn btn-success">Deploy All</span>
+                
+                <div class="report-tabs">
+                    <button class="tab-btn active crisis" onclick="switchTab('crisis')">URGENT</button>
+                    <button class="tab-btn" onclick="switchTab('daily')">Daily</button>
+                    <button class="tab-btn" onclick="switchTab('trainers')">Trainers</button>
+                    <button class="tab-btn" onclick="switchTab('corporate')">Corporate</button>
                 </div>
-                <div class="card-content">
-                    <div class="action-grid">
-                        <div class="action-card">
-                            <div class="action-card-header">
-                                <i class="fas fa-crown"></i>
-                                <h3>Platinum Reactivation</h3>
-                            </div>
-                            <p>Reactivate 22 Platinum members to generate $38.7K revenue and save 2 jobs.</p>
-                            <div class="action-card-footer">
-                                <span>High Priority</span>
-                                <button class="btn btn-primary">Execute</button>
-                            </div>
-                        </div>
-                        
-                        <div class="action-card">
-                            <div class="action-card-header">
-                                <i class="fas fa-users"></i>
-                                <h3>Client Reallocation</h3>
-                            </div>
-                            <p>Assign 15 "orphaned" Gold members to at-risk trainers Jessica and Michael.</p>
-                            <div class="action-card-footer">
-                                <span>Medium Priority</span>
-                                <button class="btn btn-primary">Execute</button>
-                            </div>
-                        </div>
-                        
-                        <div class="action-card">
-                            <div class="action-card-header">
-                                <i class="fas fa-chart-line"></i>
-                                <h3>Bronze to Silver Upgrade</h3>
-                            </div>
-                            <p>Launch upgrade blitz targeting 40 Bronze members to convert to Silver tier.</p>
-                            <div class="action-card-footer">
-                                <span>High Priority</span>
-                                <button class="btn btn-primary">Execute</button>
-                            </div>
-                        </div>
-                        
-                        <div class="action-card">
-                            <div class="action-card-header">
-                                <i class="fas fa-calendar-check"></i>
-                                <h3>Schedule Optimization</h3>
-                            </div>
-                            <p>Optimize trainer schedules to maximize availability during peak hours.</p>
-                            <div class="action-card-footer">
-                                <span>Medium Priority</span>
-                                <button class="btn btn-primary">Execute</button>
-                            </div>
-                        </div>
+                
+                <div class="critical-metrics">
+                    <div class="metric-card danger">
+                        <div class="metric-value danger">5</div>
+                        <div class="metric-label">TRAINERS AT RISK</div>
                     </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="settings-panel">
-            <div class="settings-header">
-                <h2><i class="fas fa-cog"></i> Report Configuration</h2>
-                <span class="btn btn-primary">Save Settings</span>
-            </div>
-            
-            <div class="settings-grid">
-                <div class="setting-item">
-                    <label>Detail Level</label>
-                    <div class="slider-container">
-                        <span>Crisis Mode</span>
-                        <input type="range" min="1" max="3" value="1" class="slider" id="detailLevel">
-                        <span>Full Audit</span>
+                    <div class="metric-card warning">
+                        <div class="metric-value warning">350</div>
+                        <div class="metric-label">INACTIVE MEMBERS</div>
+                    </div>
+                    <div class="metric-card success">
+                        <div class="metric-value success">3</div>
+                        <div class="metric-label">CONVERSIONS TODAY</div>
+                    </div>
+                    <div class="metric-card danger">
+                        <div class="metric-value danger">$1,247</div>
+                        <div class="metric-label">BEHIND TARGET</div>
                     </div>
                 </div>
                 
-                <div class="setting-item">
-                    <label>Days Until Layoffs</label>
-                    <div class="slider-container">
-                        <span>5</span>
-                        <input type="range" min="5" max="21" value="14" class="slider" id="daysLeft">
-                        <span>21</span>
+                <div class="urgent-actions">
+                    <div class="urgent-header">🚨 IMMEDIATE ACTIONS REQUIRED</div>
+                    <div class="action-item">
+                        <strong>Tom Wilson:</strong> Must convert 2 leads by Friday or termination review
+                    </div>
+                    <div class="action-item">
+                        <strong>Mark Torres (Member):</strong> Hot lead worth $760/month - follow up in 2 hours
+                    </div>
+                    <div class="action-item">
+                        <strong>Sarah Chen:</strong> Reassign 3 high-value prospects from underperforming trainers
                     </div>
                 </div>
                 
-                <div class="setting-item">
-                    <label>Mask Member Names</label>
-                    <label class="toggle-switch">
-                        <input type="checkbox" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
+                <div class="trainer-status">
+                    <div class="section-header">
+                        <span class="section-title">👥 TRAINER SURVIVAL STATUS</span>
+                        <button class="crisis-toggle">EDIT</button>
+                    </div>
+                    <div class="section-content">
+                        <div class="trainer-item">
+                            <div class="trainer-info">
+                                <div class="status-indicator critical"></div>
+                                <div>
+                                    <div class="trainer-name">Tom Wilson</div>
+                                    <div class="trainer-risk">HIGH RISK - July 4th</div>
+                                </div>
+                            </div>
+                            <div class="revenue-target behind">$1,230 / $5,500</div>
+                        </div>
+                        <div class="trainer-item">
+                            <div class="trainer-info">
+                                <div class="status-indicator warning"></div>
+                                <div>
+                                    <div class="trainer-name">Lisa Park</div>
+                                    <div class="trainer-risk">MODERATE RISK</div>
+                                </div>
+                            </div>
+                            <div class="revenue-target close">$4,100 / $5,500</div>
+                        </div>
+                        <div class="trainer-item">
+                            <div class="trainer-info">
+                                <div class="status-indicator safe"></div>
+                                <div>
+                                    <div class="trainer-name">Sarah Chen</div>
+                                    <div class="trainer-risk">SAFE - TOP PERFORMER</div>
+                                </div>
+                            </div>
+                            <div class="revenue-target ahead">$6,340 / $5,500</div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="setting-item">
-                    <label>Show Financial Details</label>
-                    <label class="toggle-switch">
-                        <input type="checkbox">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                
-                <div class="setting-item">
-                    <label>Audience View</label>
-                    <select style="padding: 10px; border-radius: 8px; width: 100%;">
-                        <option>Club Manager (Full Access)</option>
-                        <option>Trainer (Limited View)</option>
-                        <option>Corporate (Financials Only)</option>
-                    </select>
-                </div>
-                
-                <div class="setting-item">
-                    <label>Include Social Chatter</label>
-                    <label class="toggle-switch">
-                        <input type="checkbox">
-                        <span class="toggle-slider"></span>
-                    </label>
+                <div class="member-pipeline">
+                    <div class="pipeline-header">🎯 HIGH-VALUE MEMBER PIPELINE</div>
+                    <div class="member-item">
+                        <div>
+                            <div class="member-name">Mark Torres</div>
+                            <div class="member-status hot">HOT - 2hrs</div>
+                        </div>
+                        <div class="member-value">$760/mo</div>
+                    </div>
+                    <div class="member-item">
+                        <div>
+                            <div class="member-name">Jennifer Wu</div>
+                            <div class="member-status warm">WARM - 1 day</div>
+                        </div>
+                        <div class="member-value">$1,040/mo</div>
+                    </div>
+                    <div class="member-item">
+                        <div>
+                            <div class="member-name">David Kim</div>
+                            <div class="member-status cold">INACTIVE</div>
+                        </div>
+                        <div class="member-value">$600/mo</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="footer">
-            <p>Life Time Evanston Crisis Copilot | Last Updated: June 10, 2025 14:28 EST</p>
-            <p>Confidential - For internal use only</p>
         </div>
     </div>
     
+    <div class="overlay" id="overlay" onclick="toggleSettings()"></div>
+    
+    <div class="crisis-settings" id="crisis-settings">
+        <div class="settings-header">🚨 Crisis Settings</div>
+        
+        <div class="crisis-mode-toggle">
+            <div style="margin-bottom: 8px; font-weight: 600; color: #7f1d1d;">SURVIVAL MODE ACTIVE</div>
+            <button class="crisis-mode-btn">DISABLE CRISIS MODE</button>
+        </div>
+        
+        <div class="setting-group">
+            <div class="setting-label">Emergency Alerts</div>
+            <div class="setting-item">
+                <span>Termination countdown</span>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+            </div>
+            <div class="setting-item">
+                <span>Revenue deficit alerts</span>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+            </div>
+            <div class="setting-item">
+                <span>Break-even tracking</span>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+            </div>
+        </div>
+        
+        <div class="setting-group">
+            <div class="setting-label">Crisis Content Priority</div>
+            <div class="setting-item">
+                <span>Revenue conversations only</span>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+            </div>
+            <div class="setting-item">
+                <span>Trainer risk alerts</span>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+            </div>
+            <div class="setting-item">
+                <span>Competitive threats</span>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+            </div>
+        </div>
+        
+        <div class="setting-group">
+            <div class="setting-label">Emergency Sharing</div>
+            <div class="setting-item">
+                <span>Management alerts</span>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+            </div>
+            <div class="setting-item">
+                <span>Corporate escalation</span>
+                <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+            </div>
+            <div class="setting-item">
+                <span>HR documentation</span>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"></div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="floating-settings" onclick="toggleSettings()">⚙️</button>
+    
+    <input type="text" class="crisis-question" placeholder="Crisis Q&A: 'Will Tom make it to July 4th?'" id="crisis-input">
+    
     <script>
-        // Simulate progress bar animation
-        document.addEventListener('DOMContentLoaded', function() {
-            const progressFill = document.querySelector('.progress-fill');
-            progressFill.style.width = '0%';
+        function toggleSettings() {
+            const panel = document.getElementById('crisis-settings');
+            const overlay = document.getElementById('overlay');
             
-            setTimeout(() => {
-                progressFill.style.width = '43%';
-            }, 500);
+            panel.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+        
+        function toggleSwitch(element) {
+            element.classList.toggle('active');
+        }
+        
+        function switchTab(tabType) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        // Crisis countdown timer
+        let daysRemaining = 23;
+        setInterval(() => {
+            const hours = new Date().getHours();
+            if (hours === 0) { // Midnight
+                daysRemaining--;
+                document.querySelector('.countdown-number').textContent = daysRemaining;
+                document.querySelector('.crisis-alert').textContent = 
+                    `🚨 TERMINATION DEADLINE: ${daysRemaining} DAYS REMAINING`;
+            }
+        }, 3600000); // Check every hour
+        
+        // Real-time revenue progress
+        let dailyRevenue = 847;
+        const dailyTarget = 2500;
+        
+        setInterval(() => {
+            dailyRevenue += Math.floor(Math.random() * 150);
+            const percentage = Math.min((dailyRevenue / dailyTarget) * 100, 100);
             
-            // Add interaction to buttons
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', function() {
-                    if(this.classList.contains('btn-danger')) {
-                        alert('Emergency protocol activated! Trainer rescue initiated.');
-                    } else if(this.classList.contains('btn-success')) {
-                        alert('All emergency actions deployed! AI is optimizing execution.');
-                    } else if(this.classList.contains('btn-primary')) {
-                        alert('Action executed! Copilot is monitoring results.');
-                    }
-                });
-            });
-            
-            // Simulate crisis alert pulse
-            const crisisAlert = document.querySelector('.crisis-alert');
-            setInterval(() => {
-                crisisAlert.classList.toggle('pulse');
-            }, 2000);
+            document.querySelector('.break-even-progress').textContent = 
+                `$${dailyRevenue.toLocaleString()} / $${dailyTarget.toLocaleString()}`;
+            document.querySelector('.progress-fill').style.width = `${percentage}%`;
+            document.querySelector('.progress-bar + div').textContent = 
+                `${Math.round(percentage)}% of daily target`;
+                
+            // Update monthly loss
+            const monthlyReduction = (dailyRevenue * 30) - (dailyTarget * 30);
+            const newLoss = 75000 + monthlyReduction;
+            document.querySelector('.survival-status').textContent = 
+                `$${Math.abs(newLoss).toLocaleString()} MONTHLY ${newLoss > 0 ? 'LOSS' : 'PROFIT'}`;
+        }, 10000); // Update every 10 seconds
+        
+        // Crisis Q&A simulation
+        document.getElementById('crisis-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const responses = [
+                    "CRITICAL: Tom needs 2 conversions by Friday. Probability: 34% based on current pipeline.",
+                    "ALERT: Reassign Mark Torres ($760/mo) to Sarah Chen for 67% higher conversion probability.",
+                    "PROJECTION: Current trajectory reaches break-even in 47 days. Need 15% improvement to make August deadline.",
+                    "RECOMMENDATION: Focus on 127 inactive members for reactivation - fastest path to revenue recovery."
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                alert(randomResponse);
+                this.value = '';
+            }
         });
+        
+        // Simulate trainer risk updates
+        setInterval(() => {
+            const riskLevels = ['HIGH RISK - July 4th', 'MODERATE RISK', 'IMPROVING', 'SAFE - TARGET MET'];
+            const trainers = document.querySelectorAll('.trainer-risk');
+            
+            trainers.forEach(trainer => {
+                if (Math.random() < 0.1) { // 10% chance of update
+                    const currentText = trainer.textContent;
+                    if (currentText.includes('HIGH RISK') && Math.random() < 0.3) {
+                        trainer.textContent = 'MODERATE RISK';
+                        trainer.parentElement.parentElement.querySelector('.status-indicator').className = 'status-indicator warning';
+                    }
+                }
+            });
+        }, 30000); // Check every 30 seconds
     </script>
 </body>
 </html>
