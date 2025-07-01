@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Copilot Crisis Report Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7f7fa; margin: 0; padding: 0; }
+    .container { max-width: 480px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #0001; padding: 24px; }
+    h1 { font-size: 1.3rem; color: #b80000; margin-bottom: 8px; }
+    label { font-weight: 500; display: block; margin: 18px 0 6px; }
+    select, input[type="checkbox"], input[type="radio"] { margin-right: 8px; }
+    .section-toggle { margin-bottom: 8px; }
+    .report { background: #fff8f0; border-radius: 8px; padding: 18px; margin: 20px 0; border: 1px solid #e0b4b4;}
+    .report-section { margin-bottom: 14px; position: relative; }
+    .pin, .hide { cursor: pointer; font-size: 1.1em; margin-left: 10px; color: #888; }
+    .pinned { color: #ff9800; }
+    .hidden { display: none; }
+    .ask-bar { display: flex; margin-top: 18px; }
+    .ask-bar input { flex: 1; padding: 8px; border: 1px solid #bbb; border-radius: 6px 0 0 6px; }
+    .ask-bar button { padding: 8px 14px; border: none; background: #b80000; color: #fff; border-radius: 0 6px 6px 0; cursor: pointer; }
+    .privacy { margin: 16px 0 0 0; }
+    .share-btn { background: #b80000; color: #fff; border: none; border-radius: 6px; padding: 8px 18px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    @media (max-width: 600px) {
+      .container { padding: 10px; }
+      h1 { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Copilot Crisis Report Generator</h1>
+    <!-- Report Configuration Controls -->
+    <label for="reportType">Report Type:</label>
+    <select id="reportType">
+      <option value="crisis">Crisis Update</option>
+      <option value="weekly">Weekly Summary</option>
+      <option value="engagement">Engagement Focus</option>
+    </select>
+
+    <label for="detailLevel">Level of Detail:</label>
+    <select id="detailLevel">
+      <option value="brief">Brief</option>
+      <option value="standard" selected>Standard</option>
+      <option value="detailed">Detailed</option>
+    </select>
+
+    <label>Sections to Include:</label>
+    <div class="section-toggle">
+      <input type="checkbox" id="alerts" checked> <label for="alerts" style="display:inline;">Urgent Alerts</label>
+    </div>
+    <div class="section-toggle">
+      <input type="checkbox" id="members" checked> <label for="members" style="display:inline;">Active vs. Inactive Members</label>
+    </div>
+    <div class="section-toggle">
+      <input type="checkbox" id="utilization" checked> <label for="utilization" style="display:inline;">Trainer Utilization</label>
+    </div>
+    <div class="section-toggle">
+      <input type="checkbox" id="actions" checked> <label for="actions" style="display:inline;">Immediate Action Items</label>
+    </div>
+    <div class="section-toggle">
+      <input type="checkbox" id="projection"> <label for="projection" style="display:inline;">Projected Impact</label>
+    </div>
+
+    <label class="privacy">Privacy Level:</label>
+    <select id="privacyLevel">
+      <option value="internal">Internal Only</option>
+      <option value="shareable">Shareable</option>
+      <option value="confidential">Confidential</option>
+    </select>
+
+    <button class="share-btn" onclick="generateReport()">Generate Report</button>
+
+    <!-- Generated Report -->
+    <div id="report" class="report" style="display:none;">
+      <h3>Generated Report</h3>
+      <div id="reportSections"></div>
+      <div class="ask-bar">
+        <input type="text" id="askInput" placeholder="Ask Copilot about this report...">
+        <button onclick="askCopilot()">Ask</button>
+      </div>
+      <div id="askResponse" style="margin-top:10px; color:#b80000;"></div>
+    </div>
+  </div>
+  <script>
+    // Report sections content
+    const sections = {
+      alerts: {
+        label: "Urgent Alerts",
+        text: "⚠️ Five trainers will be laid off (last week July 4) due to low client volume. The club has operated at a $75,000 loss since March."
+      },
+      members: {
+        label: "Active vs. Inactive Members",
+        text: "Current membership: 700. Active: 350. Inactive: 350. Immediate risk of further churn if engagement does not improve."
+      },
+      utilization: {
+        label: "Trainer Utilization",
+        text: "Trainer utilization below corporate target. RED/YELLOW status increasing. Layoffs directly linked to low session bookings and member inactivity."
+      },
+      actions: {
+        label: "Immediate Action Items",
+        text: "1. Launch member reactivation campaign.\n2. Prioritize high-propensity leads for remaining trainers.\n3. Schedule urgent onboarding refreshers.\n4. Monitor and report on engagement weekly."
+      },
+      projection: {
+        label: "Projected Impact",
+        text: "If trends continue: Further layoffs, increased member churn, and deeper operating losses. With intervention: Potential to stabilize trainer headcount, reactivate 100+ members, and return to profitability within 6 months."
+      }
+    };
+
+    // Pins and hides state
+    let pinned = {};
+    let hidden = {};
+
+    function generateReport() {
+      const report = document.getElementById('report');
+      const reportSections = document.getElementById('reportSections');
+      reportSections.innerHTML = '';
+      pinned = {};
+      hidden = {};
+
+      // Get selected sections
+      Object.keys(sections).forEach(key => {
+        const checkbox = document.getElementById(key);
+        if (checkbox.checked) {
+          const sectionDiv = document.createElement('div');
+          sectionDiv.className = 'report-section';
+          sectionDiv.id = `section-${key}`;
+          // Section header and controls
+          const header = document.createElement('strong');
+          header.textContent = sections[key].label;
+          sectionDiv.appendChild(header);
+
+          // Pin/Hide controls
+          const pin = document.createElement('span');
+          pin.className = 'pin';
+          pin.innerHTML = '📌';
+          pin.title = 'Pin/Unpin';
+          pin.onclick = () => togglePin(key, pin);
+          sectionDiv.appendChild(pin);
+
+          const hide = document.createElement('span');
+          hide.className = 'hide';
+          hide.innerHTML = '❌';
+          hide.title = 'Hide Section';
+          hide.onclick = () => hideSection(key, sectionDiv);
+          sectionDiv.appendChild(hide);
+
+          // Section text
+          const text = document.createElement('div');
+          text.style.whiteSpace = 'pre-line';
+          text.textContent = sections[key].text;
+          sectionDiv.appendChild(text);
+
+          reportSections.appendChild(sectionDiv);
+        }
+      });
+
+      report.style.display = 'block';
+      document.getElementById('askResponse').textContent = '';
+    }
+
+    function togglePin(key, pinElem) {
+      pinned[key] = !pinned[key];
+      pinElem.classList.toggle('pinned', pinned[key]);
+      // Move pinned section to top
+      const sectionDiv = document.getElementById(`section-${key}`);
+      const parent = sectionDiv.parentNode;
+      if (pinned[key]) {
+        parent.insertBefore(sectionDiv, parent.firstChild);
+      } else {
+        // Move to end (simple, not perfect order restoration)
+        parent.appendChild(sectionDiv);
+      }
+    }
+
+    function hideSection(key, sectionDiv) {
+      hidden[key] = true;
+      sectionDiv.classList.add('hidden');
+    }
+
+    function askCopilot() {
+      const input = document.getElementById('askInput').value.trim().toLowerCase();
+      const response = document.getElementById('askResponse');
+      if (!input) {
+        response.textContent = '';
+        return;
+      }
+      // Simple canned responses for prototype
+      if (input.includes('layoff')) {
+        response.textContent = "Trainer layoffs are due to persistent low session bookings and lack of client engagement. Improving member activation is critical.";
+      } else if (input.includes('loss')) {
+        response.textContent = "The $75,000 loss is primarily driven by inactive members and underutilized trainers. Reactivation and better matching are urgent priorities.";
+      } else if (input.includes('reactivat')) {
+        response.textContent = "A targeted campaign could reactivate 100+ members, improving both session bookings and club revenue.";
+      } else if (input.includes('projection')) {
+        response.textContent = "If trends continue, expect further layoffs and higher churn. With intervention, profitability is achievable in 6 months.";
+      } else {
+        response.textContent = "Ask about layoffs, losses, reactivation, or projections for more details.";
+      }
+    }
+  </script>
+</body>
+</html>
