@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Copilot Report with Business Context</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f9; }
+    .toolbar { display: flex; gap: 10px; margin-bottom: 20px; }
+    button { padding: 8px 12px; border: none; border-radius: 4px; background: #0072c3; color: white; cursor: pointer; }
+    button:hover { background: #005fa3; }
+    #settingsBtn { background: #555; }
+    #settingsBtn:hover { background: #333; }
+
+    .report { background: white; padding: 20px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .report.hidden, .drawer.hidden { display: none; }
+    .report h2 { margin-top: 0; }
+
+    #reportList { list-style: none; padding-left: 0; }
+    #reportList li { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #eee; }
+    #reportList li:last-child { border-bottom: none; }
+    .item-text { flex: 1; }
+
+    .controls span { margin-left: 8px; cursor: pointer; }
+    .controls span:hover { opacity: 0.7; }
+
+    .report-actions { margin-top: 20px; display: flex; gap: 10px; }
+
+    .qa { margin-top: 30px; }
+    .qa input { width: calc(100% - 84px); padding: 8px; }
+    .qa button { margin-left: 4px; }
+
+    /* Settings drawer */
+    .drawer { 
+      position: fixed; bottom: 0; left: 0; right: 0; 
+      background: #fff; border-top: 1px solid #ddd; padding: 20px; 
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    }
+    .drawer.hidden { display: none; }
+    .drawer h3 { margin-top: 0; }
+    .drawer label { display: block; margin: 10px 0; }
+    .drawer select, .drawer input[type=range] { width: 100%; margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <button id="generateBtn">Generate Report</button>
+    <button id="settingsBtn">⚙️ Settings</button>
+  </div>
+
+  <div id="reportSection" class="report hidden">
+    <h2 id="reportTitle">Report</h2>
+    <ul id="reportList"></ul>
+    <div class="report-actions">
+      <button id="shareBtn">Share as PDF</button>
+      <button id="saveBtn">Save to History</button>
+    </div>
+    <div class="qa">
+      <h3>Ask a follow-up</h3>
+      <input id="qaInput" placeholder="Type your question..."/>
+      <button id="askBtn">Ask</button>
+      <div id="qaOutput"></div>
+    </div>
+  </div>
+
+  <div id="settingsDrawer" class="drawer hidden">
+    <h3>Report Settings</h3>
+    <label>
+      Template:
+      <select id="templateSelect">
+        <option>Emergent Alert</option>
+        <option>Daily Stand-Up</option>
+        <option>Weekly Executive Brief</option>
+      </select>
+    </label>
+    <label>
+      <input type="checkbox" id="toggleMetrics" checked/>
+      Include Metrics
+    </label>
+    <label>
+      <input type="checkbox" id="toggleValueMatrix" checked/>
+      Include Value Matrix
+    </label>
+    <label>
+      <input type="checkbox" id="toggleFeedback" checked/>
+      Include Member Feedback
+    </label>
+    <label>
+      Detail Level: <span id="detailValue">3</span>
+      <input type="range" id="detailSlider" min="1" max="6" value="3"/>
+    </label>
+    <label>
+      <input type="checkbox" id="maskFinancials"/>
+      Mask Financials
+    </label>
+    <label>
+      <input type="checkbox" id="maskPII"/>
+      Mask PII
+    </label>
+    <button id="regenerateBtn">Regenerate</button>
+  </div>
+
+  <script>
+    // Elements
+    const generateBtn    = document.getElementById('generateBtn');
+    const settingsBtn    = document.getElementById('settingsBtn');
+    const reportSection  = document.getElementById('reportSection');
+    const reportTitle    = document.getElementById('reportTitle');
+    const reportList     = document.getElementById('reportList');
+    const shareBtn       = document.getElementById('shareBtn');
+    const saveBtn        = document.getElementById('saveBtn');
+    const qaInput        = document.getElementById('qaInput');
+    const askBtn         = document.getElementById('askBtn');
+    const qaOutput       = document.getElementById('qaOutput');
+    const drawer         = document.getElementById('settingsDrawer');
+    const templateSelect = document.getElementById('templateSelect');
+    const toggleMetrics  = document.getElementById('toggleMetrics');
+    const toggleValue    = document.getElementById('toggleValueMatrix');
+    const toggleFeedback = document.getElementById('toggleFeedback');
+    const detailSlider   = document.getElementById('detailSlider');
+    const detailValue    = document.getElementById('detailValue');
+    const maskFinancials = document.getElementById('maskFinancials');
+    const maskPII        = document.getElementById('maskPII');
+    const regenerateBtn  = document.getElementById('regenerateBtn');
+
+    // Report templates with business context
+    const templates = {
+      "Emergent Alert": [
+        "Club P&L to date: –$75,000 since March",
+        "700 total members; 350 active (50%)",
+        "5 trainers at risk of separation by July 4",
+        "Recommendation: Run 'Anomaly Investigator' promptbook"
+      ],
+      "Daily Stand-Up": [
+        "Sessions booked vs. goal: 48 / 50",
+        "Average Match Confidence: 82%",
+        "3 FNs at a cost of $3,120",
+        "Member feedback: “Loved the personalized plan”",
+        "Recommendation: Adjust match threshold to 75%"
+      ],
+      "Weekly Executive Brief": [
+        "Monthly revenue impact: +$15,400",
+        "ROI (Value Matrix): 32% over baseline",
+        "Key risk: 4 FNs among top-tier members",
+        "5 trainers at risk of separation by July 4",
+        "Club P&L to date: –$75,000 since March"
+      ]
+    };
+
+    // Toggle drawer
+    settingsBtn.addEventListener('click', () => drawer.classList.toggle('hidden'));
+
+    // Update slider label
+    detailSlider.addEventListener('input', () => detailValue.textContent = detailSlider.value);
+
+    // Generate / regenerate report
+    function generateReport() {
+      const tpl = templateSelect.value;
+      reportTitle.textContent = tpl;
+      reportList.innerHTML = "";
+
+      // Clone template items
+      let items = [...templates[tpl]];
+
+      // Apply masks & filters
+      items = items.filter(item => {
+        // metrics
+        if (!toggleMetrics.checked 
+            && /sessions|match confidence|members|trainers/i.test(item)) 
+          return false;
+        // value matrix
+        if (!toggleValue.checked 
+            && /cost|roi|value matrix/i.test(item)) 
+          return false;
+        // feedback
+        if (!toggleFeedback.checked 
+            && /feedback/i.test(item)) 
+          return false;
+        return true;
+      });
+
+      // Mask financials only if not Weekly Exec Brief
+      if (maskFinancials.checked && tpl !== "Weekly Executive Brief") {
+        items = items.filter(i => !/[\$–\+]\d/.test(i));
+      }
+
+      // Mask PII
+      if (maskPII.checked) {
+        items = items.map(i =>
+          i.replace(/Member [^;]+/i, "Member [***]")
+           .replace(/trainer[s]? at risk/i, "trainers at risk")
+        );
+      }
+
+      // Detail level
+      items = items.slice(0, detailSlider.value);
+
+      // Render each line with controls
+      items.forEach(text => {
+        const li = document.createElement('li');
+        const span = document.createElement('span');
+        span.className = 'item-text';
+        span.textContent = text;
+        const ctr = document.createElement('div');
+        ctr.className = 'controls';
+        ['✏️','📌','❌'].forEach(icon => {
+          const btn = document.createElement('span');
+          btn.textContent = icon;
+          btn.addEventListener('click', () => handleControl(icon, span, li));
+          ctr.appendChild(btn);
+        });
+        li.append(span, ctr);
+        reportList.appendChild(li);
+      });
+
+      reportSection.classList.remove('hidden');
+      if (!drawer.classList.contains('hidden')) drawer.classList.add('hidden');
+    }
+
+    // Inline control logic
+    function handleControl(icon, span, li) {
+      if (icon === '✏️') {
+        const newText = prompt("Edit this line:", span.textContent);
+        if (newText !== null) span.textContent = newText;
+      }
+      if (icon === '📌') {
+        span.style.fontWeight = span.style.fontWeight === 'bold' ? 'normal' : 'bold';
+      }
+      if (icon === '❌') {
+        li.remove();
+      }
+    }
+
+    // Event bindings
+    generateBtn.addEventListener('click', generateReport);
+    regenerateBtn.addEventListener('click', generateReport);
+
+    shareBtn.addEventListener('click', () =>
+      alert("🔗 Exporting report as PDF...")
+    );
+    saveBtn.addEventListener('click', () =>
+      alert("💾 Saved report to history")
+    );
+
+    askBtn.addEventListener('click', () => {
+      const q = qaInput.value.trim();
+      if (!q) return;
+      const pYou = document.createElement('p');
+      pYou.innerHTML = `<strong>You:</strong> ${q}`;
+      const pAI = document.createElement('p');
+      pAI.innerHTML = `<strong>Copilot:</strong> Fetching insight on "${q}"...`;
+      qaOutput.append(pYou, pAI);
+      qaInput.value = '';
+    });
+  </script>
+</body>
+</html>
