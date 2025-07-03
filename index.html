@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Crisis Copilot - LLM Patterns</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .phone-container {
+            width: 375px;
+            height: 812px;
+            margin: 20px auto;
+            background: #000;
+            border-radius: 40px;
+            padding: 10px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .status-bar {
+            height: 44px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .crisis-alert {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+            color: white;
+            padding: 6px 20px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .trainer-status {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .content {
+            height: calc(100% - 180px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-area {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .member-context {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        
+        .context-header {
+            font-weight: 700;
+            color: #7f1d1d;
+            margin-bottom: 4px;
+        }
+        
+        .message {
+            margin-bottom: 12px;
+            max-width: 85%;
+        }
+        
+        .message.ai {
+            margin-left: 0;
+        }
+        
+        .message.user {
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .message-bubble {
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .message.ai .message-bubble {
+            background: #fff;
+            border-bottom-left-radius: 6px;
+        }
+        
+        .message.user .message-bubble {
+            background: #dc2626;
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+        
+        .ai-restating {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin: 8px 0;
+            font-size: 12px;
+            font-style: italic;
+        }
+        
+        .restating-header {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 4px;
+            font-size: 11px;
+        }
+        
+        .talk-back {
+            background: #fff7ed;
+            border: 1px solid #fb923c;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 8px 0;
+        }
+        
+        .talk-back-header {
+            font-weight: 600;
+            color: #ea580c;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        
+        .talk-back-options {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .talk-back-option {
+            background: #fed7aa;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s;
+        }
+        
+        .talk-back-option:hover {
+            background: #fdba74;
+        }
+        
+        .next-steps {
+            background: #f0fdf4;
+            border: 1px solid #22c55e;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 8px 0;
+        }
+        
+        .next-steps-header {
+            font-weight: 600;
+            color: #16a34a;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+        
+        .step-number {
+            background: #22c55e;
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .regen-tweaks {
+            background: #faf5ff;
+            border: 1px solid #a855f7;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 8px 0;
+        }
+        
+        .regen-header {
+            font-weight: 600;
+            color: #7c3aed;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        
+        .regen-options {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .regen-btn {
+            background: #e9d5ff;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6b21a8;
+        }
+        
+        .regen-btn:hover {
+            background: #ddd6fe;
+        }
+        
+        .conversation-starter {
+            background: #e0f2fe;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin: 4px 0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .conversation-starter:hover {
+            background: #0ea5e9;
+            color: white;
+        }
+        
+        .auto-complete-container {
+            position: relative;
+        }
+        
+        .auto-complete-suggestions {
+            position: absolute;
+            top: -120px;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 100px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+        
+        .auto-complete-suggestions.active {
+            display: block;
+        }
+        
+        .suggestion-item {
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .suggestion-item:hover {
+            background: #f3f4f6;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .input-area {
+            padding: 12px 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            position: relative;
+        }
+        
+        .input-field {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .input-field:focus {
+            border-color: #dc2626;
+        }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            background: #dc2626;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .guardrail-warning {
+            background: #fef2f2;
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 8px 0;
+        }
+        
+        .guardrail-header {
+            font-weight: 600;
+            color: #dc2626;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .guardrail-text {
+            font-size: 11px;
+            color: #7f1d1d;
+        }
+        
+        .initial-suggestions {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        
+        .suggestion-chip {
+            flex-shrink: 0;
+            background: #f3f4f6;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-chip.crisis {
+            background: #fef2f2;
+            color: #7f1d1d;
+            border: 1px solid #fca5a5;
+        }
+        
+        .suggestion-chip:hover {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .typing-indicator {
+            display: none;
+            margin: 8px 0;
+        }
+        
+        .typing-indicator.active {
+            display: block;
+        }
+        
+        .typing-dots {
+            background: #e5e7eb;
+            padding: 8px 12px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+        
+        .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 3px;
+            background: #9ca3af;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+        
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        .revenue-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #10b981;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        
+        .crisis-timer {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: #ef4444;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="screen">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span style="color: #dc2626; font-weight: 700;">CRISIS MODE</span>
+                <span>100% 🔋</span>
+            </div>
+            
+            <div class="crisis-alert">
+                🚨 TERMINATION DEADLINE: 23 DAYS REMAINING
+            </div>
+            
+            <div class="header">
+                <div>
+                    <h1>Crisis Copilot</h1>
+                    <div class="trainer-status">Tom Wilson • HIGH RISK</div>
+                </div>
+                <div class="revenue-indicator">$347 behind</div>
+            </div>
+            
+            <div class="content">
+                <div class="chat-area">
+                    <div class="crisis-timer">⏰ 2hrs until Mark Torres follow-up</div>
+                    
+                    <div class="member-context">
+                        <div class="context-header">🎯 Active Opportunity: Mark Torres</div>
+                        <div>Goals: Marathon training • Budget: Concerned • Value: $760/month • Status: HOT</div>
+                    </div>
+                    
+                    <div class="message ai">
+                        <div class="message-bubble">
+                            Critical opportunity detected: Mark Torres mentioned "serious about marathon training" but expressed budget concerns. This is a $760/month prospect that could significantly help your survival metrics.
+                            
+                            <div class="conversation-starter">💬 "I understand marathon training is a serious investment - let me show you how to think about cost vs injury prevention"</div>
+                            <div class="conversation-starter">💬 "What's your biggest concern about committing to a structured training program?"</div>
+                        </div>
+                    </div>
+                    
+                    <div class="message user">
+                        <div class="message-bubble">
+                            He keeps mentioning the monthly cost. How do I handle price objections for
+                        </div>
+                    </div>
+                    
+                    <div class="auto-complete-container">
+                        <div class="auto-complete-suggestions active">
+                            <div class="suggestion-item">...handle price objections for $760/month marathon training?</div>
+                            <div class="suggestion-item">...overcome budget concerns with payment plans?</div>
+                            <div class="suggestion-item">...position training as injury prevention investment?</div>
+                        </div>
+                    </div>
+                    
+                    <div class="typing-indicator active">
+                        <div class="typing-dots">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="message ai" style="display: none;" id="ai-response">
+                        <div class="message-bubble">
+                            <div class="ai-restating">
+                                <div class="restating-header">🤖 I understand you're asking:</div>
+                                How to overcome Mark's price objections for the $760/month marathon training package, considering his budget concerns and your July 4th deadline.
+                            </div>
+                            
+                            <div class="talk-back">
+                                <div class="talk-back-header">💭 I need clarification to give you the best strategy:</div>
+                                <div class="talk-back-options">
+                                    <button class="talk-back-option">Is this his first mention of budget concerns, or has he brought this up multiple times?</button>
+                                    <button class="talk-back-option">Did he mention any specific dollar amount he's comfortable with?</button>
+                                    <button class="talk-back-option">Has he mentioned comparing prices with other gyms or trainers?</button>
+                                </div>
+                            </div>
+                            
+                            Based on crisis context, here's your immediate strategy:
+                            
+                            <div class="next-steps">
+                                <div class="next-steps-header">🎯 Next Steps (Execute in Order):</div>
+                                <div class="step-item">
+                                    <div class="step-number">1</div>
+                                    <div>Reframe as injury prevention: "A single running injury costs $3,000+ in medical bills"</div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-number">2</div>
+                                    <div>Offer payment plan: "We can split this into $380 bi-weekly to make it manageable"</div>
+                                </div>
+                                <div class="step-item">
+                                    <div class="step-number">3</div>
+                                    <div>Create urgency: "Marathon training takes 16 weeks - starting now gets you ready for spring races"</div>
+                                </div>
+                            </div>
+                            
+                            <div class="regen-tweaks">
+                                <div class="regen-header">🔄 Try Different Approaches:</div>
+                                <div class="regen-options">
+                                    <button class="regen-btn">Data-Driven</button>
+                                    <button class="regen-btn">Emotional</button>
+                                    <button class="regen-btn">Competitive</button>
+                                    <button class="regen-btn">Payment Focus</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-area">
+                    <div class="initial-suggestions">
+                        <button class="suggestion-chip crisis">Price objections</button>
+                        <button class="suggestion-chip crisis">Payment plans</button>
+                        <button class="suggestion-chip crisis">Urgency tactics</button>
+                        <button class="suggestion-chip crisis">Competitor response</button>
+                    </div>
+                    
+                    <div class="input-container">
+                        <input type="text" class="input-field" placeholder="Ask about converting Mark Torres..." id="user-input" autocomplete="off">
+                        <button class="send-btn" onclick="sendMessage()">→</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let conversationStep = 0;
+        const inputField = document.getElementById('user-input');
+        const autoComplete = document.querySelector('.auto-complete-suggestions');
+        
+        // Auto-complete functionality
+        inputField.addEventListener('input', function() {
+            const value = this.value.toLowerCase();
+            if (value.includes('price') || value.includes('objection') || value.includes('budget')) {
+                autoComplete.classList.add('active');
+            } else if (value.length < 3) {
+                autoComplete.classList.remove('active');
+            }
+        });
+        
+        // Auto-complete selection
+        document.querySelectorAll('.suggestion-item').forEach(item => {
+            item.addEventListener('click', function() {
+                inputField.value = this.textContent.replace('...', '');
+                autoComplete.classList.remove('active');
+                inputField.focus();
+            });
+        });
+        
+        // Initial suggestions
+        document.querySelectorAll('.suggestion-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                const suggestions = {
+                    'Price objections': 'How do I overcome price objections for $760/month training?',
+                    'Payment plans': 'What payment plan options can I offer to reduce financial barriers?',
+                    'Urgency tactics': 'How do I create urgency without being pushy?',
+                    'Competitor response': 'How do I handle "I can get training cheaper elsewhere"?'
+                };
+                inputField.value = suggestions[this.textContent] || this.textContent;
+                inputField.focus();
+            });
+        });
+        
+        // Talk-back options
+        document.querySelectorAll('.talk-back-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Simulate providing more context
+                addUserMessage('First time mentioning budget - seemed interested until I mentioned the monthly cost');
+                
+                setTimeout(() => {
+                    addAIResponse('Perfect context! Since this is his first objection, he\'s still qualified. Try: "I totally understand - $760 feels like a lot until you break it down. That\'s $25 per day to prevent a $3,000 injury. Plus, I can set up bi-weekly payments to make it easier."');
+                }, 1000);
+            });
+        });
+        
+        // Regen tweaks
+        document.querySelectorAll('.regen-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const approaches = {
+                    'Data-Driven': 'Show him the numbers: Training reduces injury risk by 73%, average running injury costs $3,200. Your program pays for itself if it prevents one injury.',
+                    'Emotional': 'Connect to his marathon goal: "This isn\'t just training - it\'s your marathon insurance policy. What would it feel like to miss your race due to injury?"',
+                    'Competitive': 'Acknowledge alternatives: "I know you can find cheaper options. But can you find someone with my marathon PR who\'ll design periodized training specifically for your race date?"',
+                    'Payment Focus': 'Make it manageable: "Instead of thinking $760/month, think $25/day - less than most people spend on coffee. And we can do bi-weekly payments."'
+                };
+                
+                const response = approaches[this.textContent];
+                addAIResponse(response);
+            });
+        });
+        
+        // Send message functionality
+        function sendMessage() {
+            const message = inputField.value.trim();
+            if (message) {
+                addUserMessage(message);
+                inputField.value = '';
+                autoComplete.classList.remove('active');
+                
+                // Check for inappropriate content (Guardrails)
+                if (checkGuardrails(message)) {
+                    return;
+                }
+                
+                // Simulate AI processing
+                showTyping();
+                setTimeout(() => {
+                    hideTyping();
+                    generateAIResponse(message);
+                }, 2000);
+            }
+        }
+        
+        // Enter key support
+        inputField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Guardrails check
+        function checkGuardrails(message) {
+            const inappropriate = ['discriminate', 'personal life', 'attract', 'date', 'appearance', 'religion', 'politics'];
+            const violations = inappropriate.filter(word => message.toLowerCase().includes(word));
+            
+            if (violations.length > 0) {
+                addGuardrailWarning('This request involves personal or demographic factors that could lead to discrimination. Let\'s focus on fitness goals, availability, and training preferences instead.');
+                return true;
+            }
+            
+            if (message.toLowerCase().includes('guarantee') || message.toLowerCase().includes('promise results')) {
+                addGuardrailWarning('I can\'t suggest making guarantees about fitness results. Instead, focus on your experience, approach, and commitment to helping members reach their goals safely.');
+                return true;
+            }
+            
+            return false;
+        }
+        
+        function addGuardrailWarning(text) {
+            const warningHTML = `
+                <div class="guardrail-warning">
+                    <div class="guardrail-header">⚠️ Content Policy Alert</div>
+                    <div class="guardrail-text">${text}</div>
+                </div>
+            `;
+            
+            const chatArea = document.querySelector('.chat-area');
+            chatArea.insertAdjacentHTML('beforeend', warningHTML);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        function addUserMessage(text) {
+            const messageHTML = `
+                <div class="message user">
+                    <div class="message-bubble">${text}</div>
+                </div>
+            `;
+            
+            const chatArea = document.querySelector('.chat-area');
+            chatArea.insertAdjacentHTML('beforeend', messageHTML);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        function addAIResponse(text) {
+            const messageHTML = `
+                <div class="message ai">
+                    <div class="message-bubble">${text}</div>
+                </div>
+            `;
+            
+            const chatArea = document.querySelector('.chat-area');
+            chatArea.insertAdjacentHTML('beforeend', messageHTML);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        function showTyping() {
+            document.querySelector('.typing-indicator').classList.add('active');
+            document.querySelector('.chat-area').scrollTop = document.querySelector('.chat-area').scrollHeight;
+        }
+        
+        function hideTyping() {
+            document.querySelector('.typing-indicator').classList.remove('active');
+        }
+        
+        function generateAIResponse(message) {
+            // Show the pre-built AI response
+            document.getElementById('ai-response').style.display = 'block';
+            document.querySelector('.chat-area').scrollTop = document.querySelector('.chat-area').scrollHeight;
+        }
+        
+        // Simulate real-time updates
+        setInterval(() => {
+            const revenueIndicator = document.querySelector('.revenue-indicator');
+            const currentBehind = parseInt(revenueIndicator.textContent.replace('$', '').replace(' behind', ''));
+            const newBehind = Math.max(0, currentBehind - Math.floor(Math.random() * 25));
+            revenueIndicator.textContent = `$${newBehind} behind`;
+            
+            if (newBehind < 100) {
+                revenueIndicator.style.background = '#10b981';
+                revenueIndicator.textContent = `$${Math.abs(newBehind - 100)} ahead`;
+            }
+        }, 15000);
+    </script>
+</body>
+</html>
