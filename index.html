@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Time AI Trainer Copilot</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --secondary: #d32f2f;
+            --warning: #ff9800;
+            --dark: #1e3a28;
+            --light: #f5f9f6;
+        }
+        
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1e3a28 0%, #2e7d32 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .copilot-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+        
+        .crisis-header {
+            background: linear-gradient(90deg, var(--secondary) 0%, #c62828 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .crisis-countdown {
+            background: rgba(0,0,0,0.3);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .chat-history {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: var(--light);
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            line-height: 1.4;
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .copilot-message {
+            background: white;
+            border: 1px solid #e0e0e0;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .system-alert {
+            background: #fff8e1;
+            border-left: 4px solid var(--warning);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        
+        .input-area {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #copilot-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        #copilot-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+        }
+        
+        .suggestions-bar {
+            display: flex;
+            gap: 8px;
+            padding: 0 15px 15px;
+            overflow-x: auto;
+            background: white;
+        }
+        
+        .suggestion-btn {
+            background: #edf7ed;
+            color: var(--primary);
+            border: 1px solid #c8e6c9;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggestion-btn:hover {
+            background: #e1f0e1;
+        }
+        
+        .action-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background 0.3s;
+        }
+        
+        .action-btn:hover {
+            background: #1b5e20;
+        }
+        
+        .autocomplete-suggestions {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 15px;
+            margin-top: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .suggestion-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .suggestion-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .regen-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .regen-variant {
+            background: #f5f5f5;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .regen-variant:hover {
+            background: #e8f5e9;
+            border-color: #c8e6c9;
+        }
+        
+        .next-steps-container {
+            background: #e8f5e9;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .next-step {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #dcedc8;
+        }
+        
+        .next-step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-badge {
+            background: var(--primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            margin-right: 10px;
+        }
+        
+        .guardrail-alert {
+            background: #ffebee;
+            border-left: 4px solid var(--secondary);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            color: #c62828;
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+        
+        .status-red {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+        
+        .status-green {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+        
+        .talkback-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .talkback-option {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 12px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        
+        .talkback-option:hover {
+            background: #d1e9fa;
+        }
+        
+        .value-highlight {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .risk-highlight {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="copilot-container">
+        <div class="crisis-header">
+            <div>Life Time Evanston AI Copilot</div>
+            <div class="crisis-countdown">🚨 23 days until terminations</div>
+        </div>
+        
+        <div class="suggestions-bar">
+            <div class="suggestion-btn">⚠️ Show RED members</div>
+            <div class="suggestion-btn">💎 Reactivate Platinum</div>
+            <div class="suggestion-btn">📊 Revenue report</div>
+            <div class="suggestion-btn">🔄 Override matches</div>
+            <div class="suggestion-btn">📝 Generate waiver</div>
+        </div>
+        
+        <div class="chat-history" id="chat-history">
+            <!-- Messages will be added here dynamically -->
+            <div class="system-alert">
+                <strong>Crisis Status</strong>: Operating at $75K monthly loss. 
+                5 trainers at termination risk. 50% member activation.
+            </div>
+            
+            <div class="message copilot-message">
+                <strong>Initial Suggestions</strong>: How can I assist?<br><br>
+                • Check member engagement risk<br>
+                • Generate reactivation message<br>
+                • Override trainer status<br>
+                • Create termination report
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <div style="position: relative; flex: 1;">
+                <input type="text" id="copilot-input" placeholder="Ask about members, reports, or matches...">
+                <div id="autocomplete-suggestions" class="autocomplete-suggestions" style="display: none;"></div>
+            </div>
+            <button class="action-btn" id="send-btn">→</button>
+        </div>
+    </div>
+
+    <script>
+        // Crisis data model
+        const crisisData = {
+            monthlyLoss: 75000,
+            terminationDate: new Date('2025-07-04'),
+            daysLeft: 23,
+            trainersAtRisk: 5,
+            totalMembers: 700,
+            activeMembers: 350,
+            redMembers: [
+                {id: 1023, name: "Sarah Miller", status: "Platinum", inactiveDays: 21, value: 1760},
+                {id: 1045, name: "James Wilson", status: "Gold", inactiveDays: 14, value: 1200}
+            ]
+        };
+        
+        // DOM elements
+        const chatHistory = document.getElementById('chat-history');
+        const copilotInput = document.getElementById('copilot-input');
+        const sendBtn = document.getElementById('send-btn');
+        const autocompleteSuggestions = document.getElementById('autocomplete-suggestions');
+        
+        // Add message to chat
+        function addMessage(text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(isUser ? 'user-message' : 'copilot-message');
+            messageDiv.innerHTML = text;
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+        
+        // Auto-complete suggestions
+        const suggestions = [
+            {text: "Show RED members needing intervention", icon: "⚠️"},
+            {text: "Generate Platinum reactivation message", icon: "💎"},
+            {text: "Override match for Sarah Miller", icon: "🔄"},
+            {text: "Create termination risk report", icon: "📊"},
+            {text: "Give discount to James Wilson", icon: "💲"},
+            {text: "Show Sarah's health data", icon: "🩺"},
+            {text: "Assign untrained trainer", icon: "👨‍🏫"}
+        ];
+        
+        // Handle input for auto-complete
+        copilotInput.addEventListener('input', function() {
+            const value = this.value.toLowerCase();
+            autocompleteSuggestions.innerHTML = '';
+            
+            if (value.length > 1) {
+                const filtered = suggestions.filter(item => 
+                    item.text.toLowerCase().includes(value)
+                );
+                
+                if (filtered.length > 0) {
+                    autocompleteSuggestions.style.display = 'block';
+                    filtered.forEach(item => {
+                        const div = document.createElement('div');
+                        div.classList.add('suggestion-item');
+                        div.innerHTML = `${item.icon} ${item.text}`;
+                        div.addEventListener('click', () => {
+                            copilotInput.value = item.text;
+                            autocompleteSuggestions.style.display = 'none';
+                        });
+                        autocompleteSuggestions.appendChild(div);
+                    });
+                } else {
+                    autocompleteSuggestions.style.display = 'none';
+                }
+            } else {
+                autocompleteSuggestions.style.display = 'none';
+            }
+        });
+        
+        // Handle send button
+        sendBtn.addEventListener('click', processInput);
+        copilotInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') processInput();
+        });
+        
+        // Process user input
+        function processInput() {
+            const inputText = copilotInput.value.trim();
+            if (!inputText) return;
+            
+            // Add user message
+            addMessage(inputText, true);
+            
+            // Restating pattern
+            const restated = restateQuery(inputText);
+            addMessage(restated);
+            
+            // Process based on content
+            if (inputText.includes("Sarah") || inputText.includes("Miller")) {
+                handleSarahRequest(inputText);
+            } 
+            else if (inputText.includes("report")) {
+                generateReport();
+            }
+            else if (inputText.includes("discount")) {
+                handleDiscountRequest(inputText);
+            }
+            else if (inputText.includes("RED")) {
+                showRedMembers();
+            }
+            else {
+                setTimeout(() => {
+                    addMessage("I can help with:<br>" +
+                        "• Member reactivations<br>" +
+                        "• Trainer assignments<br>" +
+                        "• Revenue reports<br>" +
+                        "• Crisis interventions");
+                }, 800);
+            }
+            
+            copilotInput.value = '';
+            autocompleteSuggestions.style.display = 'none';
+        }
+        
+        // Restating pattern
+        function restateQuery(query) {
+            let restated = `<strong>Restating your request</strong>: I understand you want to <em>${query}</em>. `;
+            
+            if (query.includes("Sarah") || query.includes("Miller")) {
+                restated += "I'll check Sarah Miller's status (Platinum member, inactive 21 days).";
+            } 
+            else if (query.includes("discount")) {
+                restated += "I'll verify discount policies and member value.";
+            }
+            else if (query.includes("report")) {
+                restated += "I'll generate the latest crisis report.";
+            }
+            else {
+                restated += "I'll handle this based on our crisis protocols.";
+            }
+            
+            return restated;
+        }
+        
+        // Handle Sarah request with Talk-Back and Regen Tweaks
+        function handleSarahRequest(query) {
+            setTimeout(() => {
+                let response = `<strong>Sarah Miller</strong> <span class="status-badge status-red">RED STATUS</span><br>
+                Platinum member | Inactive 21 days | Value: <span class="value-highlight">$1,760/month</span><br>
+                Retention risk: <span class="risk-highlight">68%</span>`;
+                
+                if (query.includes("reactivation") || query.includes("message")) {
+                    response += `<br><br><strong>Generated reactivation message:</strong><br>
+                    "Hi Sarah, we miss you at Life Time! Your favorite trainer has new availability. Book now?"`;
+                    
+                    // Regen Tweaks pattern
+                    response += `<div class="regen-container">
+                        <div class="regen-variant">⚠️ "Your $1,040 credit expires Friday!"</div>
+                        <div class="regen-variant">👋 "We miss you! New yoga slots open"</div>
+                        <div class="regen-variant">🎁 "Lock in 4 sessions @ 15% off"</div>
+                    </div>`;
+                    
+                    // Next Steps pattern
+                    response += `<div class="next-steps-container">
+                        <strong>Next Steps:</strong>
+                        <div class="next-step"><div class="step-badge">1</div> Send message now</div>
+                        <div class="next-step"><div class="step-badge">2</div> Schedule for 9AM tomorrow</div>
+                        <div class="step-badge">3</div> Add to reactivation campaign
+                    </div>`;
+                } 
+                else if (query.includes("override")) {
+                    // Talk-Back pattern
+                    response += `<br><br><strong>Talk-Back: Override requires justification</strong><br>
+                    <div class="talkback-options">
+                        <div class="talkback-option">1. Prevent $1,760 revenue loss</div>
+                        <div class="talkback-option">2. Save trainer job (Tom Harrison)</div>
+                        <div class="talkback-option">3. Member special request</div>
+                    </div>`;
+                }
+                
+                addMessage(response);
+            }, 1000);
+        }
+        
+        // Guardrails pattern implementation
+        function handleDiscountRequest(query) {
+            setTimeout(() => {
+                if (query.includes("30%") || query.includes("40%")) {
+                    addMessage(`<div class="guardrail-alert">
+                        <strong>🚫 Policy Restricted</strong>: Discounts >20% require manager approval. 
+                        I can suggest a 15% discount? Or request manager override?
+                    </div>`);
+                } else {
+                    addMessage(`Approved 15% discount for James Wilson.<br>
+                    <span class="value-highlight">$1,020 value preserved</span> | 
+                    <span class="risk-highlight">Termination risk ↓8%</span>`);
+                    
+                    // Next Steps pattern
+                    addMessage(`<div class="next-steps-container">
+                        <strong>Next Steps:</strong>
+                        <div class="next-step"><div class="step-badge">1</div> Send confirmation</div>
+                        <div class="next-step"><div class="step-badge">2</div> Schedule first session</div>
+                        <div class="next-step"><div class="step-badge">3</div> Add to winback campaign</div>
+                    </div>`);
+                }
+            }, 1000);
+        }
+        
+        // Show RED members
+        function showRedMembers() {
+            setTimeout(() => {
+                let response = `<strong>RED Members Needing Intervention</strong><br>`;
+                
+                crisisData.redMembers.forEach(member => {
+                    response += `<br>• ${member.name} <span class="status-badge status-red">RED</span>
+                    <br>  Status: ${member.status} | Value: <span class="value-highlight">$${member.value}/month</span>
+                    <br>  <button class="suggestion-btn" style="margin:5px 0">Message</button>
+                    <button class="suggestion-btn">Override</button>`;
+                });
+                
+                // Next Steps pattern
+                response += `<div class="next-steps-container" style="margin-top:15px;">
+                    <strong>Recommended Actions:</strong>
+                    <div class="next-step"><div class="step-badge">1</div> Contact Sarah Miller first ($1,760 value)</div>
+                    <div class="next-step"><div class="step-badge">2</div> Create winback campaign</div>
+                </div>`;
+                
+                addMessage(response);
+            }, 1000);
+        }
+        
+        // Generate crisis report
+        function generateReport() {
+            setTimeout(() => {
+                addMessage(`<strong>Crisis Report: Life Time Evanston</strong><br>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                    <div style="background:#ffebee; padding:10px; border-radius:10px; text-align:center;">
+                        <div style="font-size:0.9rem;">Monthly Loss</div>
+                        <div style="font-weight:700; color:#c62828;">-$75,000</div>
+                    </div>
+                    <div style="background:#ffecb3; padding:10px; border-radius:10px; text-align:center;">
+                        <div style="font-size:0.9rem;">Days Until Terminations</div>
+                        <div style="font-weight:700; color:#f57f17;">23</div>
+                    </div>
+                    <div style="background:#e0f7fa; padding:10px; border-radius:10px; text-align:center;">
+                        <div style="font-size:0.9rem;">Active Members</div>
+                        <div style="font-weight:700; color:#00838f;">350/700</div>
+                    </div>
+                    <div style="background:#f1f8e9; padding:10px; border-radius:10px; text-align:center;">
+                        <div style="font-size:0.9rem;">Daily Revenue Target</div>
+                        <div style="font-weight:700; color:#2e7d32;">$2,500</div>
+                    </div>
+                </div>
+                
+                <div class="next-steps-container" style="margin-top:15px;">
+                    <strong>Next Steps:</strong>
+                    <div class="next-step"><div class="step-badge">1</div> Focus on Platinum reactivation</div>
+                    <div class="next-step"><div class="step-badge">2</div> Override 2 RED statuses</div>
+                    <div class="next-step"><div class="step-badge">3</div> Generate termination report</div>
+                </div>`);
+            }, 1000);
+        }
+        
+        // Initial message to demonstrate patterns
+        setTimeout(() => {
+            addMessage("Welcome to the enhanced Life Time AI Copilot! Try asking:<br>" +
+                "• \"Override match for Sarah Miller\"<br>" +
+                "• \"Generate reactivation message\"<br>" +
+                "• \"Give 30% discount to James\"<br>" +
+                "• \"Show RED members\"");
+        }, 1000);
+    </script>
+</body>
+</html>
