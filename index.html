@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LLM Search UI Prototype</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7f7fa; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #0001; padding: 24px; }
+    h1 { font-size: 1.4rem; color: #004080; margin-bottom: 18px; }
+    .search-bar { display: flex; margin-bottom: 18px; }
+    .search-bar input { flex: 1; padding: 10px; border: 1px solid #bbb; border-radius: 6px 0 0 6px; font-size: 1rem; }
+    .search-bar button { padding: 10px 18px; border: none; background: #004080; color: #fff; border-radius: 0 6px 6px 0; font-size: 1rem; cursor: pointer; }
+    .ai-answer { background: #eaf4ff; border-left: 4px solid #4a90e2; border-radius: 6px; padding: 16px; margin-bottom: 14px; position: relative; }
+    .ai-badge { position: absolute; top: 8px; right: 12px; background: #4a90e2; color: #fff; font-size: 0.8em; padding: 2px 8px; border-radius: 10px; }
+    .clarify { background: #fffbe6; border-left: 4px solid #ffd700; border-radius: 6px; padding: 12px; margin-bottom: 14px; }
+    .facets { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+    .facet { background: #f0f0f0; border-radius: 16px; padding: 6px 14px; font-size: 0.95em; cursor: pointer; border: 1px solid #ddd; }
+    .facet.selected { background: #4a90e2; color: #fff; border-color: #4a90e2; }
+    .results { background: #f8f8fa; border-radius: 6px; padding: 14px; }
+    .result-item { padding: 10px 0; border-bottom: 1px solid #eee; }
+    .result-item:last-child { border-bottom: none; }
+    .action-btn { background: #22bb66; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.95em; margin-right: 8px; cursor: pointer; }
+    @media (max-width: 700px) {
+      .container { padding: 10px; }
+      h1 { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>LLM-Enhanced Search</h1>
+    <div class="search-bar">
+      <input id="searchInput" type="text" placeholder="Search for trainers, classes, or info..." autocomplete="off" oninput="autoComplete()">
+      <button onclick="runSearch()">🔍</button>
+    </div>
+    <div id="autoCompleteBox" style="margin-bottom:10px; color:#888;"></div>
+    <div id="aiAnswer"></div>
+    <div id="clarify"></div>
+    <div id="facets"></div>
+    <div id="results"></div>
+  </div>
+  <script>
+    // Example data for demonstration
+    const trainers = [
+      { name: "Alex", specialty: "Yoga, Injury Recovery", day: "Tuesday", time: "7am", tags: ["Yoga", "Injury Recovery", "Tuesday", "Morning"] },
+      { name: "Jamie", specialty: "Pilates, Endurance", day: "Tuesday", time: "6pm", tags: ["Pilates", "Endurance", "Tuesday", "Evening"] },
+      { name: "Morgan", specialty: "HIIT, Strength", day: "Monday", time: "8am", tags: ["HIIT", "Strength", "Monday", "Morning"] }
+    ];
+    const facetsList = [
+      { label: "Class Type", options: ["Yoga", "Pilates", "HIIT"] },
+      { label: "Trainer Specialty", options: ["Injury Recovery", "Endurance", "Strength"] },
+      { label: "Day", options: ["Monday", "Tuesday", "Wednesday"] },
+      { label: "Time", options: ["Morning", "Evening"] }
+    ];
+    let selectedFacets = {};
+
+    function autoComplete() {
+      const val = document.getElementById('searchInput').value.trim().toLowerCase();
+      const box = document.getElementById('autoCompleteBox');
+      if (!val) { box.textContent = ""; return; }
+      if (val.startsWith("book a")) {
+        box.textContent = "Book a personal training session with Alex | Book a group class | Book a nutrition consultation";
+      } else if (val.includes("knee")) {
+        box.textContent = "Find a trainer for knee pain recovery | Show yoga classes for injury rehab";
+      } else {
+        box.textContent = "";
+      }
+    }
+
+    function runSearch() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      document.getElementById('aiAnswer').innerHTML = "";
+      document.getElementById('clarify').innerHTML = "";
+      document.getElementById('facets').innerHTML = "";
+      document.getElementById('results').innerHTML = "";
+
+      // Simulate ambiguous query
+      if (query.includes("yoga") && query.includes("knee")) {
+        showAIPoweredAnswer();
+        showClarify();
+        showFacets();
+        showResults(["Yoga", "Injury Recovery", "Tuesday"]);
+      } else if (query.includes("book a")) {
+        document.getElementById('aiAnswer').innerHTML =
+          `<div class="ai-answer">
+            <span class="ai-badge">AI</span>
+            Would you like to book a personal training session with Alex, a group class, or a nutrition consultation?
+            <div style="margin-top:8px;">
+              <button class="action-btn" onclick="alert('Booking with Alex...')">Book with Alex</button>
+              <button class="action-btn" onclick="alert('Booking group class...')">Book Group Class</button>
+              <button class="action-btn" onclick="alert('Booking nutrition...')">Book Nutrition</button>
+            </div>
+          </div>`;
+        showFacets();
+        showResults();
+      } else {
+        document.getElementById('aiAnswer').innerHTML =
+          `<div class="ai-answer">
+            <span class="ai-badge">AI</span>
+            Sorry, I couldn't find an exact match. Would you like to try searching by class type, trainer specialty, or day?
+          </div>`;
+        showFacets();
+        showResults();
+      }
+    }
+
+    function showAIPoweredAnswer() {
+      document.getElementById('aiAnswer').innerHTML =
+        `<div class="ai-answer">
+          <span class="ai-badge">AI</span>
+          You might be looking for <b>Trainer Alex</b>, who specializes in yoga and injury recovery and leads Tuesday morning classes. Would you like to see their profile or book a session?
+          <div style="margin-top:8px;">
+            <button class="action-btn" onclick="alert('Viewing Alex profile...')">See Profile</button>
+            <button class="action-btn" onclick="alert('Booking with Alex...')">Book Session</button>
+            <button class="action-btn" onclick="showMoreOptions()">Show More Options</button>
+          </div>
+        </div>`;
+    }
+
+    function showClarify() {
+      document.getElementById('clarify').innerHTML =
+        `<div class="clarify">
+          Did you mean:
+          <ul style="margin:8px 0 0 18px;">
+            <li><button class="action-btn" onclick="showResults(['Yoga', 'Tuesday', 'Morning'])">Yoga class on Tuesday mornings?</button></li>
+            <li><button class="action-btn" onclick="showResults(['Injury Recovery'])">Trainer for knee pain recovery?</button></li>
+            <li><button class="action-btn" onclick="showResults(['Yoga', 'Injury Recovery', 'Tuesday'])">Both?</button></li>
+          </ul>
+        </div>`;
+    }
+
+    function showFacets() {
+      const facetsDiv = document.getElementById('facets');
+      facetsDiv.innerHTML = "";
+      facetsList.forEach(facet => {
+        const group = document.createElement('div');
+        group.style.marginBottom = "4px";
+        group.innerHTML = `<strong>${facet.label}:</strong> `;
+        facet.options.forEach(opt => {
+          const btn = document.createElement('span');
+          btn.className = 'facet' + (selectedFacets[facet.label] === opt ? ' selected' : '');
+          btn.textContent = opt;
+          btn.onclick = () => { selectedFacets[facet.label] = opt; showResults(); showFacets(); };
+          group.appendChild(btn);
+        });
+        facetsDiv.appendChild(group);
+      });
+    }
+
+    function showResults(filterTags) {
+      const resultsDiv = document.getElementById('results');
+      let filtered = trainers;
+      if (filterTags && filterTags.length) {
+        filtered = trainers.filter(t => filterTags.every(tag => t.tags.includes(tag)));
+      } else {
+        // Filter by selected facets
+        Object.keys(selectedFacets).forEach(facetLabel => {
+          filtered = filtered.filter(t => t.tags.includes(selectedFacets[facetLabel]));
+        });
+      }
+      if (!filtered.length) {
+        resultsDiv.innerHTML = "<div class='results'>No results found. Try adjusting your filters or search terms.</div>";
+        return;
+      }
+      resultsDiv.innerHTML = `<div class='results'>` +
+        filtered.map(t =>
+          `<div class='result-item'>
+            <b>${t.name}</b> – ${t.specialty} <br>
+            <span style="color:#888;">${t.day} ${t.time}</span>
+            <div style="margin-top:6px;">
+              <button class="action-btn" onclick="alert('Viewing ${t.name} profile...')">See Profile</button>
+              <button class="action-btn" onclick="alert('Booking with ${t.name}...')">Book Session</button>
+            </div>
+          </div>`
+        ).join('') +
+        `</div>`;
+    }
+
+    function showMoreOptions() {
+      alert("Showing more trainer and class options...");
+    }
+  </script>
+</body>
+</html>
