@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Time Trainer Copilot - LLM Search UI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        .chat-container {
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            background-color: #f9fafb;
+        }
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.25rem; /* More rounded corners */
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background-color: #3b82f6; /* Blue for user */
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 0.5rem; /* Pointy end */
+        }
+        .ai-message {
+            background-color: #e5e7eb; /* Light gray for AI */
+            color: #374151;
+            align-self: flex-start;
+            margin-right: auto;
+            border-bottom-left-radius: 0.5rem; /* Pointy end */
+        }
+        /* Styles for the Report Display */
+        .report-card {
+            background-color: #e0f2fe; /* Very light blue */
+            border: 1px solid #90cdf4;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin: 0.75rem 0;
+            max-width: 95%; /* Adjust max-width for report */
+            align-self: center; /* Center the report */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            color: #1e40af; /* Dark blue text */
+        }
+        .report-card h4 {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+        .report-card p {
+            font-size: 0.875rem;
+            line-height: 1.4;
+            margin-bottom: 0.25rem;
+        }
+        .report-card ul {
+            list-style: disc;
+            margin-left: 1.25rem;
+            margin-top: 0.5rem;
+        }
+        .report-card li {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Styles for Search Results (Trainer List) */
+        .search-result-card {
+            background-color: #f0f9ff; /* Even lighter blue */
+            border: 1px solid #a7d9f7;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin: 0.75rem 0;
+            max-width: 95%;
+            align-self: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            color: #0c4a6e; /* Darker blue text */
+        }
+        .search-result-card h5 {
+            font-weight: 600;
+            color: #0c4a6e;
+            margin-bottom: 0.25rem;
+        }
+        .search-result-card p {
+            font-size: 0.875rem;
+            line-height: 1.4;
+            margin-bottom: 0.25rem;
+        }
+        .search-result-card .tag {
+            display: inline-block;
+            background-color: #bfdbfe;
+            color: #1e40af;
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+
+        .smart-chip {
+            background-color: #bfdbfe; /* Lighter blue */
+            color: #1e40af; /* Darker blue */
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem; /* Pill shape */
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 0.875rem; /* sm text */
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+        }
+        .smart-chip:hover {
+            background-color: #93c5fd;
+        }
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .modal-close-button {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        .copy-button, .regenerate-button {
+            background-color: #60a5fa;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .copy-button:hover, .regenerate-button:hover {
+            background-color: #3b82f6;
+        }
+
+        /* Auto-complete suggestions */
+        .autocomplete-suggestions {
+            position: absolute;
+            bottom: calc(1rem + 60px); /* Adjust based on input/send button height + padding */
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 2rem); /* Full width minus padding */
+            max-width: 480px; /* Max width of chat container minus padding */
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 500;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+        }
+        .autocomplete-suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+        .autocomplete-suggestion-item:last-child {
+            border-bottom: none;
+        }
+        .autocomplete-suggestion-item:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
+    <div class="chat-container w-full h-[90vh] md:h-[95vh] rounded-2xl">
+        <!-- Header -->
+        <div class="bg-blue-600 text-white p-4 flex justify-between items-center rounded-t-xl">
+            <h1 class="text-xl font-semibold">Trainer Copilot</h1>
+            <div class="flex space-x-3">
+                <button id="reportsButton" class="text-white hover:text-blue-200 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m2 9H7a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2z" />
+                    </svg>
+                </button>
+                <button id="promptbookButton" class="text-white hover:text-blue-200 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 19.477 5.754 20 7.5 20s3.332-.477 4.5-1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332-.477 4.5-1.253v13C19.832 19.477 18.246 20 16.5 20s-3.332-.477-4.5-1.253" />
+                    </svg>
+                </button>
+                <button id="historyButton" class="text-white hover:text-blue-200 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+                <button id="newChatButton" class="text-white hover:text-blue-200 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m0 0h-3m-6 3l2-2m0 0l2-2m-2 2l-2-2m2 2l-2 2m9-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Messages Display -->
+        <div id="chatMessages" class="chat-messages flex flex-col p-4 overflow-y-auto">
+            <!-- Initial AI welcome message -->
+            <div class="ai-message self-start rounded-xl mb-2">
+                <p>Hello! I'm your Life Time Trainer Copilot. How can I assist you today?</p>
+            </div>
+        </div>
+
+        <!-- Auto-complete Suggestions -->
+        <div id="autocompleteSuggestions" class="autocomplete-suggestions hidden">
+            <!-- Suggestions will be injected here -->
+        </div>
+
+        <!-- Smart Chips Area -->
+        <div id="smartChips" class="p-4 flex flex-wrap gap-2 justify-center bg-gray-50 border-t border-gray-200">
+            <!-- Smart chips will be injected here by JavaScript -->
+        </div>
+
+        <!-- Chat Input -->
+        <div class="p-4 bg-white border-t border-gray-200 flex items-center rounded-b-xl">
+            <input type="text" id="userInput" placeholder="Type your message..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg">
+            <button id="sendButton" class="ml-3 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Promptbooks Modal -->
+    <div id="promptbooksModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-button" onclick="toggleModal('promptbooksModal')">&times;</button>
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Promptbooks</h3>
+            <ul id="promptbookList" class="space-y-2">
+                <li><button class="promptbook-item w-full text-left p-2 rounded-md hover:bg-blue-50" data-prompt="Analyze lead for match">Analyze Lead for Match</button></li>
+                <li><button class="promptbook-item w-full text-left p-2 rounded-md hover:bg-blue-50" data-prompt="Client retention check-up">Client Retention Check-up</button></li>
+                <li><button class="promptbook-item w-full text-left p-2 rounded-md hover:bg-blue-50" data-prompt="Generate personalized icebreaker">Generate Personalized Icebreaker</button></li>
+                <li><button class="promptbook-item w-full text-left p-2 rounded-md hover:bg-blue-50" data-prompt="Optimize my performance">Optimize My Performance</button></li>
+                <li><button class="promptbook-item w-full text-left p-2 rounded-md hover:bg-blue-50" data-prompt="Find trainers for specific need">Find trainers for specific need</button></li>
+                <li><button class="promptbook-item w-full text-left p-2 rounded-md hover:bg-blue-50" data-prompt="Generate a report">Generate a Report</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-button" onclick="toggleModal('historyModal')">&times;</button>
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Chat History</h3>
+            <ul id="historyList" class="space-y-2 max-h-60 overflow-y-auto">
+                <!-- History items will be loaded here -->
+            </ul>
+            <button id="clearHistoryButton" class="mt-4 w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600">Clear All History</button>
+        </div>
+    </div>
+
+    <!-- Report Configuration Modal -->
+    <div id="reportConfigModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-button" onclick="toggleModal('reportConfigModal')">&times;</button>
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Generate Report</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="reportType">
+                        Report Type:
+                    </label>
+                    <select id="reportType" class="shadow border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="weekly_performance">Weekly Performance Summary</option>
+                        <option value="monthly_client_retention">Monthly Client Retention</option>
+                        <option value="lead_funnel_analysis">Lead Funnel Analysis</option>
+                        <option value="quarterly_impact">Quarterly Impact for Leadership</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="reportPeriod">
+                        Time Period:
+                    </label>
+                    <select id="reportPeriod" class="shadow border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="last_week">Last Week</option>
+                        <option value="last_month">Last Month</option>
+                        <option value="current_quarter">Current Quarter</option>
+                        <option value="custom">Custom (e.g., July 1-7)</option>
+                    </select>
+                    <input type="text" id="customPeriod" placeholder="e.g., July 1-7" class="mt-2 hidden shadow border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        Focus Areas:
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        <label class="inline-flex items-center text-gray-700 text-sm">
+                            <input type="checkbox" name="focusArea" value="lead_conversion" class="form-checkbox rounded text-blue-600">
+                            <span class="ml-2">Lead Conversion</span>
+                        </label>
+                        <label class="inline-flex items-center text-gray-700 text-sm">
+                            <input type="checkbox" name="focusArea" value="client_retention" class="form-checkbox rounded text-blue-600">
+                            <span class="ml-2">Client Retention</span>
+                        </label>
+                        <label class="inline-flex items-center text-gray-700 text-sm">
+                            <input type="checkbox" name="focusArea" value="revenue_growth" class="form-checkbox rounded text-blue-600">
+                            <span class="ml-2">Revenue Growth</span>
+                        </label>
+                        <label class="inline-flex items-center text-gray-700 text-sm">
+                            <input type="checkbox" name="focusArea" value="trainer_status" class="form-checkbox rounded text-blue-600">
+                            <span class="ml-2">Trainer Status</span>
+                        </label>
+                        <label class="inline-flex items-center text-gray-700 text-sm">
+                            <input type="checkbox" name="focusArea" value="job_security" class="form-checkbox rounded text-blue-600">
+                            <span class="ml-2">Job Security Impact</span>
+                        </label>
+                    </div>
+                </div>
+                <button id="generateReportButton" class="mt-4 w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700">Generate Report</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const smartChipsContainer = document.getElementById('smartChips');
+        const promptbookButton = document.getElementById('promptbookButton');
+        const historyButton = document.getElementById('historyButton');
+        const newChatButton = document.getElementById('newChatButton');
+        const reportsButton = document.getElementById('reportsButton');
+        const promptbooksModal = document.getElementById('promptbooksModal');
+        const historyModal = document.getElementById('historyModal');
+        const reportConfigModal = document.getElementById('reportConfigModal');
+        const promptbookList = document.getElementById('promptbookList');
+        const historyList = document.getElementById('historyList');
+        const clearHistoryButton = document.getElementById('clearHistoryButton');
+        const reportTypeSelect = document.getElementById('reportType');
+        const reportPeriodSelect = document.getElementById('reportPeriod');
+        const customPeriodInput = document.getElementById('customPeriod');
+        const generateReportBtn = document.getElementById('generateReportButton');
+        const autocompleteSuggestions = document.getElementById('autocompleteSuggestions');
+
+        let currentChat = {
+            id: Date.now(),
+            timestamp: new Date().toLocaleString(),
+            messages: [{ role: 'ai', text: "Hello! I'm your Life Time Trainer Copilot. How can I assist you today?" }]
+        };
+        let chatHistory = [];
+        let lastCreativeOutput = null; // To store the last generated creative text for Regen Tweaks
+
+        // --- Utility Functions ---
+
+        function generateUniqueId() {
+            return 'chat_' + Date.now() + Math.random().toString(16).slice(2);
+        }
+
+        function saveCurrentChat() {
+            if (currentChat.messages.length > 1) {
+                let existingChatIndex = chatHistory.findIndex(chat => chat.id === currentChat.id);
+                if (existingChatIndex > -1) {
+                    chatHistory[existingChatIndex] = { ...currentChat };
+                } else {
+                    chatHistory.unshift({ ...currentChat });
+                }
+                localStorage.setItem('trainerCopilotHistory', JSON.stringify(chatHistory));
+            }
+        }
+
+        function loadChat(chatId) {
+            saveCurrentChat();
+            const chatToLoad = chatHistory.find(chat => chat.id === chatId);
+            if (chatToLoad) {
+                currentChat = { ...chatToLoad };
+                renderChatMessages(currentChat.messages);
+                displaySmartChips('initial');
+                toggleModal('historyModal');
+            }
+        }
+
+        function loadInitialChat() {
+            const savedHistory = localStorage.getItem('trainerCopilotHistory');
+            if (savedHistory) {
+                chatHistory = JSON.parse(savedHistory);
+                if (chatHistory.length > 0) {
+                    currentChat = { ...chatHistory[0] };
+                }
+            }
+            renderChatMessages(currentChat.messages);
+        }
+
+        function renderChatMessages(messages) {
+            chatMessages.innerHTML = '';
+            messages.forEach(msg => {
+                if (msg.type === 'report') {
+                    displayReport(msg.data);
+                } else if (msg.type === 'search_results') {
+                    displaySearchResults(msg.data);
+                } else {
+                    displayMessage(msg.text, msg.role, msg.includeCopy, msg.isCreative);
+                }
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function displayMessage(text, role, includeCopy = false, isCreative = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message-bubble', role === 'user' ? 'user-message' : 'ai-message', 'flex', 'items-center');
+            
+            const messageText = document.createElement('p');
+            messageText.innerHTML = text;
+            messageDiv.appendChild(messageText);
+
+            if (includeCopy && role === 'ai') {
+                const copyButton = document.createElement('button');
+                copyButton.textContent = 'Copy';
+                copyButton.classList.add('copy-button');
+                copyButton.onclick = () => copyToClipboard(text);
+                messageDiv.appendChild(copyButton);
+            }
+            if (isCreative && role === 'ai') {
+                const regenerateButton = document.createElement('button');
+                regenerateButton.textContent = 'Regenerate';
+                regenerateButton.classList.add('regenerate-button');
+                regenerateButton.onclick = () => {
+                    const lastUserMessage = currentChat.messages[currentChat.messages.length - 2];
+                    if (lastUserMessage && lastUserMessage.role === 'user' && (lastUserMessage.text.includes("icebreaker") || lastUserMessage.text.includes("email"))) {
+                        userInput.value = lastUserMessage.text;
+                        sendButton.click();
+                    } else {
+                        alert("Cannot regenerate: No clear creative prompt found in recent history.");
+                    }
+                };
+                messageDiv.appendChild(regenerateButton);
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function displayReport(reportData) {
+            const reportDiv = document.createElement('div');
+            reportDiv.classList.add('report-card', 'ai-message');
+
+            let content = `<h4 class="text-lg font-bold">${reportData.title}</h4>`;
+            content += `<p class="text-sm"><strong>Period:</strong> ${reportData.period}</p>`;
+            
+            let statusColor = '';
+            if (reportData.status.includes('RED')) statusColor = 'text-red-700 font-bold';
+            else if (reportData.status.includes('YELLOW')) statusColor = 'text-yellow-700 font-bold';
+            else if (reportData.status.includes('GREEN')) statusColor = 'text-green-700 font-bold';
+
+            content += `<p class="mt-2 text-base ${statusColor}"><strong>Current Status:</strong> ${reportData.status}</p>`;
+            content += `<p class="text-sm font-semibold mt-1">Club Financial Impact: ${reportData.financialImpact}</p>`;
+            
+            content += `<p class="mt-3 font-semibold">Key Metrics:</p><ul class="list-none pl-0">`;
+            reportData.metrics.forEach(metric => {
+                content += `<li class="mb-1">${metric.name}: <span class="font-medium">${metric.value}</span> ${metric.change || ''}</li>`;
+            });
+            content += `</ul>`;
+
+            if (reportData.insights && reportData.insights.length > 0) {
+                content += `<p class="mt-3 font-semibold">Key Insights:</p><ul class="list-disc ml-4">`;
+                reportData.insights.forEach(insight => {
+                    content += `<li>${insight}</li>`;
+                });
+                content += `</ul>`;
+            }
+
+            if (reportData.nextSteps && reportData.nextSteps.length > 0) {
+                content += `<p class="mt-3 font-semibold">Actionable Next Steps:</p><ul class="list-disc ml-4">`;
+                reportData.nextSteps.forEach(step => {
+                    content += `<li>${step}</li>`;
+                });
+                content += `</ul>`;
+            }
+
+            reportDiv.innerHTML = content;
+            chatMessages.appendChild(reportDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function displaySearchResults(resultsData) {
+            const searchResultsDiv = document.createElement('div');
+            searchResultsDiv.classList.add('ai-message', 'search-result-card');
+
+            let content = `<p class="mb-2"><strong>${resultsData.summary}</strong></p>`;
+            
+            resultsData.results.forEach(item => {
+                content += `<div class="mb-3 border-b border-gray-200 pb-2 last:border-b-0 last:pb-0">`;
+                content += `<h5 class="text-base">${item.name}</h5>`;
+                content += `<p class="text-xs text-gray-600">${item.description}</p>`;
+                if (item.tags && item.tags.length > 0) {
+                    content += `<div class="mt-1">`;
+                    item.tags.forEach(tag => {
+                        content += `<span class="tag">${tag}</span>`;
+                    });
+                    content += `</div>`;
+                }
+                content += `</div>`;
+            });
+
+            if (resultsData.facets && resultsData.facets.length > 0) {
+                content += `<p class="mt-3 text-sm font-semibold">Refine your search:</p>`;
+                content += `<div class="flex flex-wrap gap-2 mt-2">`;
+                resultsData.facets.forEach(facet => {
+                    content += `<button class="smart-chip text-xs">${facet}</button>`; // Using smart-chip style for facets
+                });
+                content += `</div>`;
+            }
+
+            searchResultsDiv.innerHTML = content;
+            chatMessages.appendChild(searchResultsDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Copied to clipboard!');
+        }
+
+        function toggleModal(modalId) {
+            document.getElementById(modalId).classList.toggle('hidden');
+            if (modalId === 'historyModal' && !document.getElementById(modalId).classList.contains('hidden')) {
+                renderHistoryList();
+            }
+        }
+
+        function renderHistoryList() {
+            historyList.innerHTML = '';
+            if (chatHistory.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = 'No chat history available.';
+                li.classList.add('p-2', 'text-gray-500');
+                historyList.appendChild(li);
+                clearHistoryButton.classList.add('hidden');
+                return;
+            }
+            clearHistoryButton.classList.remove('hidden');
+
+            chatHistory.forEach(chat => {
+                const li = document.createElement('li');
+                const firstUserMessage = chat.messages.find(msg => msg.role === 'user');
+                const chatSummary = firstUserMessage ? firstUserMessage.text.substring(0, 50) + (firstUserMessage.text.length > 50 ? '...' : '') : 'New Chat';
+                
+                li.innerHTML = `
+                    <button class="w-full text-left p-2 rounded-md hover:bg-blue-50 border-b border-gray-100 last:border-b-0" data-chat-id="${chat.id}">
+                        <span class="font-medium text-gray-800">${chatSummary}</span><br>
+                        <span class="text-sm text-gray-500">${chat.timestamp}</span>
+                    </button>
+                `;
+                li.querySelector('button').onclick = () => loadChat(chat.id);
+                historyList.appendChild(li);
+            });
+        }
+
+        function clearAllHistory() {
+            if (confirm("Are you sure you want to clear all chat history? This cannot be undone.")) {
+                localStorage.removeItem('trainerCopilotHistory');
+                chatHistory = [];
+                newChat();
+                toggleModal('historyModal');
+            }
+        }
+
+        function newChat() {
+            saveCurrentChat();
+            currentChat = {
+                id: generateUniqueId(),
+                timestamp: new Date().toLocaleString(),
+                messages: [{ role: 'ai', text: "Hello! I'm your Life Time Trainer Copilot. How can I assist you today?" }]
+            };
+            renderChatMessages(currentChat.messages);
+            displaySmartChips('initial');
+            lastCreativeOutput = null;
+        }
+
+        // --- Auto-complete Logic ---
+        const autocompleteCommands = [
+            "Analyze lead for match",
+            "Client retention check-up",
+            "Generate personalized icebreaker",
+            "Optimize my performance",
+            "Find trainers", // Simplified for broader search
+            "Generate a report",
+            "Drill down on revenue",
+            "Compare this report to last month",
+            "Suggest actions based on this report",
+            "Explain RED status criteria",
+            "Draft follow-up email",
+            "Find clients interested in",
+            "Search for policy on",
+            "Tell me about trainer"
+        ];
+
+        userInput.addEventListener('input', () => {
+            const query = userInput.value.toLowerCase();
+            autocompleteSuggestions.innerHTML = '';
+            if (query.length > 2) {
+                const filteredSuggestions = autocompleteCommands.filter(cmd => 
+                    cmd.toLowerCase().includes(query) && cmd.toLowerCase() !== query
+                );
+
+                if (filteredSuggestions.length > 0) {
+                    filteredSuggestions.forEach(suggestion => {
+                        const div = document.createElement('div');
+                        div.classList.add('autocomplete-suggestion-item');
+                        div.textContent = suggestion;
+                        div.onclick = () => {
+                            userInput.value = suggestion;
+                            autocompleteSuggestions.classList.add('hidden');
+                            userInput.focus();
+                        };
+                        autocompleteSuggestions.appendChild(div);
+                    });
+                    autocompleteSuggestions.classList.remove('hidden');
+                } else {
+                    autocompleteSuggestions.classList.add('hidden');
+                }
+            } else {
+                autocompleteSuggestions.classList.add('hidden');
+            }
+        });
+
+        userInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                autocompleteSuggestions.classList.add('hidden');
+            }, 100);
+        });
+
+        // --- AI Simulation & Smart Chips ---
+
+        const smartChipSets = {
+            initial: [
+                { text: "Analyze a new lead", prompt: "Analyze lead for match" },
+                { text: "Optimize my performance", prompt: "Optimize my performance" },
+                { text: "Generate a report", prompt: "Generate a report" },
+                { text: "Find trainers", prompt: "Find trainers" } // Changed prompt to be more general
+            ],
+            after_lead_analysis: [
+                { text: "Generate icebreaker for them", prompt: "Generate personalized icebreaker for [CLIENT_NAME]" },
+                { text: "Assess their churn risk", prompt: "Client retention check-up for [CLIENT_NAME]" },
+                { text: "Show alternative matches", prompt: "Show alternative matches for [CLIENT_NAME]" }
+            ],
+            after_icebreaker: [
+                { text: "Draft a follow-up email", prompt: "Draft follow-up email for [CLIENT_NAME]" },
+                { text: "Suggest next steps", prompt: "What are next steps for [CLIENT_NAME]?" }
+            ],
+            performance_analysis: [
+                { text: "Suggest specific actions", prompt: "Suggest actions to improve my [KPI_NAME]" },
+                { text: "Explain RED status criteria", prompt: "Explain RED status criteria" }
+            ],
+            after_report: [
+                { text: "Drill down on revenue", prompt: "Drill down on revenue in this report" },
+                { text: "Compare to last month", prompt: "Compare this report to last month" },
+                { text: "Suggest next actions", prompt: "Suggest actions based on this report" }
+            ],
+            after_trainer_search: [
+                { text: "Show trainers by specialization", prompt: "Show trainers specializing in [SPECIALIZATION]" },
+                { text: "Find trainers available this week", prompt: "Find trainers available this week" },
+                { text: "Compare Trainer Emily & Mark", prompt: "Compare Trainer Emily and Trainer Mark" }
+            ]
+        };
+
+        function displaySmartChips(context, clientName = '', kpiName = '', specialization = '') {
+            smartChipsContainer.innerHTML = '';
+            const chips = smartChipSets[context] || smartChipSets.initial;
+
+            chips.forEach(chipData => {
+                const chip = document.createElement('button');
+                chip.classList.add('smart-chip', 'rounded-full', 'px-4', 'py-2', 'text-sm', 'font-medium', 'hover:opacity-80', 'transition-opacity');
+                let chipText = chipData.text;
+                let chipPrompt = chipData.prompt;
+
+                if (clientName) {
+                    chipText = chipText.replace(/\[CLIENT_NAME\]/g, clientName);
+                    chipPrompt = chipPrompt.replace(/\[CLIENT_NAME\]/g, clientName);
+                }
+                if (kpiName) {
+                    chipText = chipText.replace(/\[KPI_NAME\]/g, kpiName);
+                    chipPrompt = chipPrompt.replace(/\[KPI_NAME\]/g, kpiName);
+                }
+                if (specialization) {
+                    chipText = chipText.replace(/\[SPECIALIZATION\]/g, specialization);
+                    chipPrompt = chipPrompt.replace(/\[SPECIALIZATION\]/g, specialization);
+                }
+
+                chip.textContent = chipText;
+                chip.onclick = () => {
+                    userInput.value = chipPrompt;
+                    sendButton.click();
+                };
+                smartChipsContainer.appendChild(chip);
+            });
+        }
+
+        // --- Guardrail Logic ---
+        function checkGuardrails(message) {
+            const lowerCaseMessage = message.toLowerCase();
+
+            // Inappropriate/Unethical requests
+            if (lowerCaseMessage.includes("trick client") || lowerCaseMessage.includes("deceive client") || lowerCaseMessage.includes("badmouth") || lowerCaseMessage.includes("unethical") || lowerCaseMessage.includes("gossip")) {
+                return "My purpose is to help you build ethical and effective client relationships based on trust and transparency. I cannot assist with requests that involve deceptive or unethical practices. Would you like suggestions on building client trust or transparent sales strategies?";
+            }
+            // Privacy/Security violations
+            if (lowerCaseMessage.includes("home address") || lowerCaseMessage.includes("financial issues") || lowerCaseMessage.includes("personal contact") || lowerCaseMessage.includes("private data") || lowerCaseMessage.includes("health records of")) {
+                return "I cannot provide personal or confidential information due to strict privacy and security policies. My capabilities are limited to professional and performance-related data. Is there something else I can help you with regarding professional insights?";
+            }
+            // Discriminatory requests
+            if (lowerCaseMessage.includes("find trainers who are") && (lowerCaseMessage.includes("young") || lowerCaseMessage.includes("female") || lowerCaseMessage.includes("male") || lowerCaseMessage.includes("old") || lowerCaseMessage.includes("race") || lowerCaseMessage.includes("ethnicity") || lowerCaseMessage.includes("religion") || lowerCaseMessage.includes("sexual orientation"))) {
+                return "I cannot provide or filter information based on protected characteristics such as age, gender, race, or religion. My matching algorithms focus solely on professional qualifications, expertise, and client needs to ensure fair and effective pairings. How else can I assist you with finding the right fit?";
+            }
+            // Out of scope general knowledge
+            if (lowerCaseMessage.includes("capital of") || lowerCaseMessage.includes("weather in") || lowerCaseMessage.includes("who is the president") || lowerCaseMessage.includes("tell me a joke") || lowerCaseMessage.includes("what is the meaning of life")) {
+                return "My expertise is focused on Life Time Fitness operations, client management, and trainer performance. I'm not equipped to answer general knowledge questions. How can I assist you with your training and client goals?";
+            }
+
+            return null; // No guardrail triggered
+        }
+
+
+        async function generateAiResponse(message) {
+            let response = { text: "", type: "text", includeCopy: true, isCreative: false };
+            let nextChipsContext = 'initial';
+            let clientName = '';
+            let kpiName = '';
+            let specialization = '';
+
+            const lowerCaseMessage = message.toLowerCase();
+
+            // --- Guardrail Check (First priority) ---
+            const guardrailResponse = checkGuardrails(message);
+            if (guardrailResponse) {
+                response.text = guardrailResponse;
+                response.includeCopy = false;
+                nextChipsContext = 'initial';
+                await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 500));
+                return { ...response, nextChipsContext: nextChipsContext };
+            }
+
+            // --- Restating / Talk-Back Logic ---
+            if ((lowerCaseMessage.includes("analyze lead for match") || lowerCaseMessage.includes("match lead")) && !lowerCaseMessage.includes("client")) {
+                response.text = "To analyze a lead for a match, I need a client identifier or specific details. Could you provide the client's ID or key characteristics (e.g., 'new client David, marathoner')?";
+                response.includeCopy = false;
+                nextChipsContext = 'initial';
+            } else if (lowerCaseMessage.includes("generate personalized icebreaker") && !lowerCaseMessage.includes("for")) {
+                 response.text = "To generate an icebreaker, I need to know who it's for. Could you specify the client's name or ID?";
+                 response.includeCopy = false;
+                 nextChipsContext = 'initial';
+            } else if (lowerCaseMessage.includes("generate a report") && !lowerCaseMessage.includes("for") && !lowerCaseMessage.includes("weekly") && !lowerCaseMessage.includes("monthly") && !lowerCaseMessage.includes("quarterly")) {
+                toggleModal('reportConfigModal');
+                response.text = "Please configure your report preferences in the modal that appeared. Once you've selected the options, click 'Generate Report'.";
+                response.includeCopy = false;
+                nextChipsContext = 'initial';
+            } else if ((lowerCaseMessage.includes("find trainers") || lowerCaseMessage.includes("trainers for") || lowerCaseMessage.includes("tell me about trainer")) && !lowerCaseMessage.includes("need") && !lowerCaseMessage.includes("older members") && !lowerCaseMessage.includes("senior fitness") && !lowerCaseMessage.includes("strength training")) {
+                response.text = "I can help you find trainers! What specific need or specialization are you looking for? (e.g., 'strength training', 'post-rehab', 'yoga', 'senior fitness')";
+                response.includeCopy = false;
+                nextChipsContext = 'initial';
+            }
+            // Add more Talk-Back conditions as needed for ambiguity or missing info
+
+            // --- Core Functionality (if no guardrail or talk-back) ---
+            else if (lowerCaseMessage.includes("analyze lead for match for ")) {
+                const clientMatch = lowerCaseMessage.match(/analyze lead for match for (.+)/);
+                clientName = clientMatch ? clientMatch[1].trim() : 'a new lead';
+                response.text = `Just to confirm, you'd like me to analyze **${clientName}** for the best personal training match. Is that correct?`;
+                response.includeCopy = false;
+                nextChipsContext = 'initial';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                displayMessage(response.text, 'ai', response.includeCopy);
+                currentChat.messages.push({ role: 'ai', text: response.text, includeCopy: response.includeCopy });
+
+                response.text = `Analyzing ${clientName}'s profile... I recommend **Trainer Sarah** (Specialization: Strength Training, 92% Match Score) as a top fit for their goals. Trainer Sarah has a proven track record with similar clients.`;
+                nextChipsContext = 'after_lead_analysis';
+            } else if (lowerCaseMessage.includes("generate personalized icebreaker for ")) {
+                const clientMatch = lowerCaseMessage.match(/generate personalized icebreaker for (.+)/);
+                clientName = clientMatch ? clientMatch[1].trim() : 'your prospect';
+                response.text = `For ${clientName}, try this: "Hi [Client Name]! I saw you're interested in improving your [specific fitness goal based on quiz data]. Let's connect for a quick chat to see how we can achieve your [goal] together, perhaps starting with a 5K PR if that's your thing!"`;
+                response.isCreative = true;
+                nextChipsContext = 'after_icebreaker';
+            } else if (lowerCaseMessage.includes("optimize my performance")) {
+                response.text = "Let's review your performance. Your Lead Conversion Rate is currently at 32%, and you've had 8 lead gen sessions this week. To reach GREEN status, let's focus on converting 2 more leads this week. Would you like suggestions for improving lead conversion or generating more leads?";
+                nextChipsContext = 'performance_analysis';
+            } else if (lowerCaseMessage.includes("client retention check-up")) {
+                const clientMatch = lowerCaseMessage.match(/client retention check-up for (.+)/);
+                clientName = clientMatch ? clientMatch[1].trim() : 'a client';
+                response.text = `Performing a retention check-up for ${clientName}... Engagement is slightly down this month. Consider reaching out with a personalized message offering a new workout routine, or inviting them to a specialized class.`;
+            } else if (lowerCaseMessage.includes("show alternative matches")) {
+                response.text = "Beyond Trainer Sarah, I also recommend **Trainer Mike** (Specialization: Endurance Coaching, 88% Match Score) and **Trainer Emily** (Specialization: Injury Rehab, 85% Match Score). They could offer valuable alternative approaches.";
+            } else if (lowerCaseMessage.includes("draft follow-up email")) {
+                const clientMatch = lowerCaseMessage.match(/draft follow-up email for (.+)/);
+                clientName = clientMatch ? clientMatch[1].trim() : 'your prospect';
+                response.text = `Subject: Following Up from Our Chat - Your Fitness Journey\n\nHi [Client Name],\n\nIt was great speaking with you about your fitness goals, especially [mention a specific detail you discussed]. I'm confident we can achieve [specific goal] together. Let me know if you have any questions, or we can schedule your first session here: [Link to scheduling].\n\nBest,\n[Your Name]`;
+                response.isCreative = true;
+            } else if (lowerCaseMessage.includes("suggest actions to improve my")) {
+                const kpiMatch = lowerCaseMessage.match(/suggest actions to improve my (.+)/);
+                kpiName = kpiMatch ? kpiMatch[1].trim() : 'KPI';
+                response.text = `To improve your ${kpiName}, focus on: 1. Personalized follow-ups post-consultation. 2. Utilizing AI-generated icebreakers for new leads. 3. Proactively scheduling initial assessments within 24 hours of lead assignment.`;
+            } else if (lowerCaseMessage.includes("explain red status criteria")) {
+                response.text = "RED status indicates a trainer's monthly revenue is below $5,500 and/or they are consistently below 10 lead generation sessions per week. The Copilot is designed to help you move to YELLOW and then GREEN by optimizing your lead conversions and session bookings.";
+            } else if (lowerCaseMessage.includes("find trainers") || lowerCaseMessage.includes("trainers for") || lowerCaseMessage.includes("tell me about trainer")) {
+                // LLM Search for Trainers (Ambiguous Query Example)
+                let query = lowerCaseMessage;
+                // More robust extraction of the actual query part
+                if (lowerCaseMessage.startsWith("find trainers for")) {
+                    query = lowerCaseMessage.substring("find trainers for".length).trim();
+                } else if (lowerCaseMessage.startsWith("find trainers")) {
+                    query = lowerCaseMessage.substring("find trainers".length).trim();
+                } else if (lowerCaseMessage.includes("trainers for")) {
+                    query = lowerCaseMessage.substring(lowerCaseMessage.indexOf("trainers for") + "trainers for".length).trim();
+                } else if (lowerCaseMessage.startsWith("tell me about trainer")) {
+                    query = lowerCaseMessage.substring("tell me about trainer".length).trim();
+                }
+                
+                if (!query) query = "general"; // Default if no specific query part is extracted
+
+                let summaryText = `Based on your query "${message}", here are some potential matches:`;
+                let searchResults = [];
+                let suggestedFacets = [];
+
+                if (query.includes("older members") || query.includes("senior fitness")) {
+                    summaryText = `I found trainers specializing in **senior fitness** based on your query:`;
+                    searchResults = [
+                        { name: "Trainer Emily", description: "Certified in Senior Fitness, extensive experience with joint mobility and low-impact training. Current status: GREEN.", tags: ["Senior Fitness", "Mobility", "Low-Impact"] },
+                        { name: "Trainer Mark", description: "Focuses on functional strength for older adults, great with beginners. Current status: YELLOW.", tags: ["Functional Strength", "Beginner Friendly"] }
+                    ];
+                    suggestedFacets = ["Availability", "Certifications", "Performance Status"];
+                    specialization = "senior fitness";
+                } else if (query.includes("strength training")) {
+                     summaryText = `Here are trainers specializing in **strength training**:`;
+                     searchResults = [
+                         { name: "Trainer Sarah", description: "Specializes in advanced strength and hypertrophy. Current status: GREEN.", tags: ["Strength", "Hypertrophy", "Advanced"] },
+                         { name: "Trainer Alex", description: "Focuses on foundational strength and injury prevention. Current status: GREEN.", tags: ["Strength", "Injury Prevention", "Foundational"] }
+                     ];
+                     suggestedFacets = ["Availability", "Certifications", "Performance Status"];
+                     specialization = "strength training";
+                }
+                else {
+                    summaryText = `I found these trainers based on your general query:`;
+                    searchResults = [
+                        { name: "Trainer Sarah", description: "Specializes in Strength Training, 92% Match Score. Current status: GREEN.", tags: ["Strength", "Endurance"] },
+                        { name: "Trainer Mike", description: "Specializes in Endurance Coaching, 88% Match Score. Current status: YELLOW.", tags: ["Endurance", "Cardio"] },
+                        { name: "Trainer Emily", description: "Specializes in Injury Rehab, 85% Match Score. Current status: GREEN.", tags: ["Rehab", "Mobility"] }
+                    ];
+                    suggestedFacets = ["Specialization", "Availability", "Performance Status"];
+                }
+
+                response = { type: 'search_results', data: { summary: summaryText, results: searchResults, facets: suggestedFacets }, includeCopy: false };
+                nextChipsContext = 'after_trainer_search';
+
+            } else if (lowerCaseMessage.includes("new chat")) {
+                response.text = "Starting a new conversation. How can I help you from scratch?";
+                nextChipsContext = 'initial';
+            } else if (lowerCaseMessage.includes("generate a report for") || (lowerCaseMessage.includes("generate a report") && (lowerCaseMessage.includes("weekly") || lowerCaseMessage.includes("monthly") || lowerCaseMessage.includes("quarterly")))) {
+                const reportType = reportTypeSelect.value.replace(/_/g, ' ');
+                let reportPeriod = reportPeriodSelect.value;
+                if (reportPeriod === 'custom') {
+                    reportPeriod = customPeriodInput.value.trim() || 'this period';
+                } else {
+                    reportPeriod = reportPeriod.replace(/_/g, ' ');
+                }
+                const focusAreas = Array.from(document.querySelectorAll('input[name="focusArea"]:checked'))
+                                    .map(cb => cb.closest('label').textContent.trim())
+                                    .join(', ') || 'all areas';
+
+                const reportTitleMap = {
+                    "weekly performance summary": "Weekly Performance & Impact Summary",
+                    "monthly client retention": "Monthly Client Retention Analysis",
+                    "lead funnel analysis": "Lead Funnel Optimization Report",
+                    "quarterly impact for leadership": "Quarterly Impact Summary for Leadership"
+                };
+                
+                const currentStatus = "YELLOW (Urgent action needed to reach GREEN)";
+                const clubFinancialImpact = "Directly impacting club's -$75,000/month loss. Your performance is critical.";
+
+                const sampleReport = {
+                    title: reportTitleMap[reportType] || "Trainer Performance Report",
+                    period: reportPeriod,
+                    status: currentStatus,
+                    financialImpact: clubFinancialImpact,
+                    metrics: [
+                        { name: "Lead Generation Sessions (LGS)", value: "8/10", change: "⬆️ 2 sessions (Need 2 more to secure weekly target)" },
+                        { name: "Revenue per Trainer", value: "$4,800/$5,500", change: "⬆️ $1,139 (Still $700 shy of monthly GREEN target)" },
+                        { name: "PT Conversion Rate", value: "38%", change: "⬆️ 12% points (Positive momentum, maintain this trend!)" },
+                        { name: "Active Clients", value: "15", change: "Need 5 more by month-end for stability." }
+                    ],
+                    insights: [
+                        "Successfully converted 3 high-propensity leads this week, directly offsetting potential club losses.",
+                        "Churn risk detected for 2 clients (Client A, Client B) – **immediate follow-up critical to prevent further LTV loss and impacts on status.**",
+                        "AI-matched clients this week show 20% higher initial engagement, confirming AI's value in driving revenue."
+                    ],
+                    nextSteps: [
+                        "**URGENT:** Prioritize follow-ups for Client A and Client B within 24 hours to mitigate churn risk.",
+                        "Targeting 2 more high-propensity leads from the pipeline for conversion to meet weekly LGS target.",
+                        "Review 'Optimizing Lead Conversion' Promptbook – **Critical resource for immediate improvement.**"
+                    ]
+                };
+
+                response = { type: 'report', data: sampleReport, includeCopy: false };
+                nextChipsContext = 'after_report';
+
+            } else if (lowerCaseMessage.includes("drill down on revenue")) {
+                 response.text = "Drilling down on revenue: Last week's revenue breakdown shows that 70% came from long-term clients, while 30% came from new client conversions. Your biggest new client conversion was a 3x/week package from David (marathoner), accounting for $360. This highlights the impact of successful high-propensity matches. Do you want to see specific client revenue details?";
+                 nextChipsContext = 'after_report';
+            } else if (lowerCaseMessage.includes("compare this report to last month")) {
+                response.text = "Comparing to last month: Your Lead Generation Sessions increased by 20% (from 6.6 to 8), and your PT Conversion Rate improved from 28% to 38%. Revenue is up $1,139 this week compared to the weekly average last month. This indicates a strong positive trend directly contributing to reversing the club's losses. Would you like a detailed month-over-month comparison?";
+                nextChipsContext = 'after_report';
+            } else if (lowerCaseMessage.includes("suggest actions based on this report")) {
+                response.text = "Based on this report, I suggest: 1. Prioritizing follow-ups with your 3 recent high-propensity leads who haven't converted yet to meet urgent targets. 2. Utilizing the 'Client Retention Check-up' promptbook for Client A and Client B to proactively address churn risks and secure your standing. 3. Continuing to use the 'Analyze Lead for Match' promptbook for all new inquiries to maintain high conversion rates and ensure job security.";
+                nextChipsContext = 'after_report';
+            } else if (lowerCaseMessage.includes("help") || lowerCaseMessage.includes("promptbooks")) {
+                toggleModal('promptbooksModal');
+                response.text = "I can guide you through various workflows using Promptbooks. You can select one from the Promptbooks menu.";
+                response.includeCopy = false;
+            } else {
+                response.text = "I'm still learning! Could you please rephrase, or choose one of the suggestions below?";
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+            return { ...response, nextChipsContext: nextChipsContext, clientName: clientName, kpiName: kpiName, specialization: specialization };
+        }
+
+        // --- Event Listeners ---
+
+        sendButton.addEventListener('click', async () => {
+            const message = userInput.value.trim();
+            if (message) {
+                displayMessage(message, 'user');
+                currentChat.messages.push({ role: 'user', text: message });
+                userInput.value = '';
+                lastCreativeOutput = null;
+
+                const thinkingMessage = document.createElement('div');
+                thinkingMessage.classList.add('ai-message', 'self-start', 'rounded-xl', 'mb-2');
+                thinkingMessage.innerHTML = '<p>...</p>';
+                chatMessages.appendChild(thinkingMessage);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                const aiResponseData = await generateAiResponse(message);
+                
+                chatMessages.removeChild(thinkingMessage);
+
+                if (aiResponseData.type === 'report') {
+                    displayReport(aiResponseData.data);
+                    currentChat.messages.push({ role: 'ai', type: 'report', data: aiResponseData.data });
+                } else if (aiResponseData.type === 'search_results') {
+                    displaySearchResults(aiResponseData.data);
+                    currentChat.messages.push({ role: 'ai', type: 'search_results', data: aiResponseData.data });
+                } else {
+                    displayMessage(aiResponseData.text, 'ai', aiResponseData.includeCopy, aiResponseData.isCreative);
+                    currentChat.messages.push({ role: 'ai', text: aiResponseData.text, includeCopy: aiResponseData.includeCopy, isCreative: aiResponseData.isCreative });
+                    if (aiResponseData.isCreative) {
+                        lastCreativeOutput = aiResponseData.text;
+                    }
+                }
+                
+                displaySmartChips(aiResponseData.nextChipsContext, aiResponseData.clientName, aiResponseData.kpiName, aiResponseData.specialization);
+                saveCurrentChat();
+            }
+        });
+
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+
+        promptbookButton.addEventListener('click', () => toggleModal('promptbooksModal'));
+        historyButton.addEventListener('click', () => toggleModal('historyModal'));
+        newChatButton.addEventListener('click', newChat);
+        clearHistoryButton.addEventListener('click', clearAllHistory);
+        reportsButton.addEventListener('click', () => toggleModal('reportConfigModal'));
+
+        promptbookList.addEventListener('click', (event) => {
+            if (event.target.classList.contains('promptbook-item')) {
+                const promptValue = event.target.dataset.prompt;
+                if (promptValue === "Generate a report") {
+                    toggleModal('promptbooksModal');
+                    toggleModal('reportConfigModal');
+                } else {
+                    userInput.value = promptValue;
+                    sendButton.click();
+                    toggleModal('promptbooksModal');
+                }
+            }
+        });
+
+        // Report Configuration Modal Logic
+        reportPeriodSelect.addEventListener('change', (event) => {
+            if (event.target.value === 'custom') {
+                customPeriodInput.classList.remove('hidden');
+            } else {
+                customPeriodInput.classList.add('hidden');
+                customPeriodInput.value = '';
+            }
+        });
+
+        generateReportBtn.addEventListener('click', async () => {
+            const reportType = reportTypeSelect.value;
+            let reportPeriod = reportPeriodSelect.value;
+            if (reportPeriod === 'custom') {
+                reportPeriod = customPeriodInput.value.trim();
+                if (!reportPeriod) {
+                    alert("Please enter a custom time period (e.g., July 1-7).");
+                    return;
+                }
+            }
+            const focusAreas = Array.from(document.querySelectorAll('input[name="focusArea"]:checked')).map(cb => cb.value);
+
+            toggleModal('reportConfigModal');
+            
+            const reportPrompt = `Generate a ${reportType.replace(/_/g, ' ')} report for ${reportPeriod} focusing on ${focusAreas.join(', ') || 'all areas'}.`;
+            userInput.value = reportPrompt;
+            sendButton.click();
+        });
+
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInitialChat();
+            displaySmartChips('initial');
+        });
+
+    </script>
+</body>
+</html>
