@@ -1091,6 +1091,11 @@
                 if (promptValue === "Generate a report") {
                     toggleModal('promptbooksModal');
                     toggleModal('reportConfigModal');
+                } else if (promptValue === "Generate personalized icebreaker") {
+                    // For icebreaker, just fill input and close modal - don't auto-send
+                    userInput.value = promptValue;
+                    toggleModal('promptbooksModal');
+                    userInput.focus(); // Focus the input so user can continue typing
                 } else {
                     userInput.value = promptValue;
                     sendButton.click();
