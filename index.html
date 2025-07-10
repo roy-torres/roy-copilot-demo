@@ -1,397 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trainer Search - Crisis Mode</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
-            color: #333;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #1a365d 0%, #2c5aa0 100%);
-            color: white;
-            padding: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .crisis-banner {
-            background: #dc2626;
-            color: white;
-            padding: 0.5rem 1rem;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        .search-container {
-            padding: 1rem;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .search-bar {
-            position: relative;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 1rem 3rem 1rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        
-        .search-input:focus {
-            border-color: #2563eb;
-        }
-        
-        .search-btn {
-            position: absolute;
-            right: 0.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 0.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        
-        .llm-indicator {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #10b981;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .facets {
-            padding: 1rem;
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            overflow-x: auto;
-        }
-        
-        .facet-chips {
-            display: flex;
-            gap: 0.5rem;
-            min-width: max-content;
-        }
-        
-        .facet-chip {
-            padding: 0.5rem 1rem;
-            background: #f3f4f6;
-            border: 1px solid #d1d5db;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s;
-        }
-        
-        .facet-chip.active {
-            background: #2563eb;
-            color: white;
-            border-color: #2563eb;
-        }
-        
-        .facet-chip.crisis {
-            background: #dc2626;
-            color: white;
-            border-color: #dc2626;
-        }
-        
-        .results-section {
-            padding: 1rem;
-        }
-        
-        .llm-interpretation {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-        }
-        
-        .llm-interpretation h3 {
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
-        }
-        
-        .results-grid {
-            display: grid;
-            gap: 1rem;
-        }
-        
-        .result-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid #e5e7eb;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .result-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        
-        .result-card.high-priority {
-            border-left: 4px solid #dc2626;
-        }
-        
-        .result-card.medium-priority {
-            border-left: 4px solid #f59e0b;
-        }
-        
-        .result-card.low-priority {
-            border-left: 4px solid #10b981;
-        }
-        
-        .result-header {
-            display: flex;
-            justify-content: between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
-        }
-        
-        .member-name {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: #1f2937;
-        }
-        
-        .priority-badge {
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-left: auto;
-        }
-        
-        .badge-high { background: #fee2e2; color: #dc2626; }
-        .badge-medium { background: #fef3c7; color: #d97706; }
-        .badge-low { background: #d1fae5; color: #059669; }
-        
-        .member-details {
-            color: #6b7280;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-        
-        .llm-reasoning {
-            background: #f8fafc;
-            padding: 0.75rem;
-            border-radius: 8px;
-            border-left: 3px solid #2563eb;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        .actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .action-btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .action-primary {
-            background: #2563eb;
-            color: white;
-        }
-        
-        .action-secondary {
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
-        }
-        
-        .revenue-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        
-        .revenue-high { color: #dc2626; }
-        .revenue-medium { color: #f59e0b; }
-        .revenue-low { color: #10b981; }
-        
-        .crisis-countdown {
-            background: #dc2626;
-            color: white;
-            padding: 0.5rem;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        
-        @media (max-width: 768px) {
-            .results-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dynamic Dashboard & DOI Sort UI</title>
+  <style>
+    body { margin:0; font-family:sans-serif; background:#f4f4f4; }
+    header { background:#00446b; color:#fff; padding:12px; display:flex; align-items:center; }
+    header h1 { flex:1; font-size:18px; margin:0; }
+    header button { margin-left:8px; padding:6px 12px; border:none; border-radius:4px; cursor:pointer; }
+    #dashboard, #listView { padding:12px; display:none; }
+    #dashboard.active, #listView.active { display:block; }
+
+    /* Dashboard sections */
+    .section { background:#fff; margin-bottom:12px; border-radius:6px; padding:12px; }
+    .section h2 { margin:0 0 8px; font-size:16px; }
+    .tiles { display:flex; overflow-x:auto; gap:8px; }
+    .tile { min-width:100px; background:#e6f7ff; padding:8px; border-radius:4px; text-align:center; }
+    .hero { background:#ffe7ba; padding:16px; border-radius:6px; text-align:center; font-weight:bold; }
+
+    /* List view */
+    .list-item { background:#fff; margin-bottom:8px; padding:12px; border-radius:6px; display:flex; justify-content:space-between; }
+    .list-item span:first-child { font-weight:500; }
+
+  </style>
 </head>
 <body>
-    <div class="crisis-banner">
-        🚨 CRISIS MODE: 12 days until review • $1,847 gap to target • 5 trainers at risk
+
+  <header>
+    <h1>Life Time Evanston AI UI</h1>
+    <button id="showDash">Dashboard View</button>
+    <button id="showList">List View</button>
+  </header>
+
+  <div style="padding:12px; text-align:right;">
+    <button id="reorder">🤖 AI Reorder Rubrics</button>
+  </div>
+
+  <!-- Dashboard View -->
+  <div id="dashboard" class="active">
+    <div id="topTrainers" class="section">
+      <h2>🏆 Top Trainers</h2>
+      <div class="tiles" id="trainersTiles"></div>
     </div>
-    
-    <div class="header">
-        <h1>Member & Prospect Search</h1>
-        <p>Find your next conversion opportunity</p>
+    <div id="recentConversions" class="section">
+      <h2>💰 Recent Conversions</h2>
+      <div class="tiles" id="conversionsTiles"></div>
     </div>
-    
-    <div class="search-container">
-        <div class="search-bar">
-            <input type="text" class="search-input" placeholder="Try: 'marathon runners who haven't started training' or 'high-value prospects from last month'" value="people interested in weight loss for events">
-            <button class="search-btn">🔍</button>
-            <div class="llm-indicator">✨</div>
-        </div>
+    <div id="atRiskMembers" class="section">
+      <h2>⚠️ At-Risk Members</h2>
+      <div class="tiles" id="atRiskTiles"></div>
     </div>
-    
-    <div class="facets">
-        <div class="facet-chips">
-            <div class="facet-chip crisis">High Revenue ($1000+)</div>
-            <div class="facet-chip active">Conversion Ready</div>
-            <div class="facet-chip">Last 30 Days</div>
-            <div class="facet-chip">Responded to Outreach</div>
-            <div class="facet-chip">Pain Point Match</div>
-            <div class="facet-chip">Budget Confirmed</div>
-            <div class="facet-chip">Timeline Urgent</div>
-        </div>
+    <div id="revenueTrends" class="section">
+      <h2>📈 Revenue Trend</h2>
+      <div class="hero" id="revenueHero"></div>
     </div>
-    
-    <div class="results-section">
-        <div class="crisis-countdown">
-            ⏰ TARGET UPDATE: Convert 1 high-value client in next 72 hours to stay on track
-        </div>
-        
-        <div class="llm-interpretation">
-            <h3>🎯 I found people with event-driven weight loss goals</h3>
-            <p>Prioritizing based on event timeline, budget indicators, and your conversion deadline. Event-motivated clients convert 3.2x higher and typically choose premium packages.</p>
-        </div>
-        
-        <div class="results-grid">
-            <div class="result-card high-priority">
-                <div class="result-header">
-                    <div class="member-name">Sarah Chen</div>
-                    <div class="priority-badge badge-high">URGENT</div>
-                </div>
-                <div class="member-details">
-                    Daughter's wedding • October 15 • Wants to lose 20 lbs • Mentioned budget "not an issue"
-                </div>
-                <div class="llm-reasoning">
-                    <strong>Why this matters:</strong> 16-week timeline is perfect for transformation. Wedding motivation = high commitment. Budget flexibility suggests premium package potential ($1,760 annually).
-                </div>
-                <div class="revenue-indicator revenue-high">
-                    💰 Potential: $1,760/year • Conversion probability: 78%
-                </div>
-                <div class="actions">
-                    <button class="action-btn action-primary">Call Now</button>
-                    <button class="action-btn action-secondary">Send Wedding Package Info</button>
-                    <button class="action-btn action-secondary">Schedule Trial</button>
-                </div>
-            </div>
-            
-            <div class="result-card medium-priority">
-                <div class="result-header">
-                    <div class="member-name">Marcus Rodriguez</div>
-                    <div class="priority-badge badge-medium">FOLLOW UP</div>
-                </div>
-                <div class="member-details">
-                    High school reunion • December • Wants to "get back in shape" • Price-conscious
-                </div>
-                <div class="llm-reasoning">
-                    <strong>Why this matters:</strong> Mentioned wanting to "impress old friends" - strong emotional driver. Longer timeline allows for flexible payment plan to address budget concerns.
-                </div>
-                <div class="revenue-indicator revenue-medium">
-                    💰 Potential: $520-$1,040/year • Conversion probability: 52%
-                </div>
-                <div class="actions">
-                    <button class="action-btn action-primary">Propose Payment Plan</button>
-                    <button class="action-btn action-secondary">Text Check-in</button>
-                </div>
-            </div>
-            
-            <div class="result-card low-priority">
-                <div class="result-header">
-                    <div class="member-name">Jennifer Walsh</div>
-                    <div class="priority-badge badge-low">WARM LEAD</div>
-                </div>
-                <div class="member-details">
-                    Beach vacation • "Next summer" • General fitness goals • No urgency
-                </div>
-                <div class="llm-reasoning">
-                    <strong>Why this matters:</strong> Vague timeline but established interest. Could be nurtured for future conversion. Low immediate priority given your deadline.
-                </div>
-                <div class="revenue-indicator revenue-low">
-                    💰 Potential: $520/year • Conversion probability: 23%
-                </div>
-                <div class="actions">
-                    <button class="action-btn action-secondary">Add to Nurture Campaign</button>
-                    <button class="action-btn action-secondary">Send Beach Body Tips</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // Simple interactivity for demonstration
-        document.querySelectorAll('.facet-chip').forEach(chip => {
-            chip.addEventListener('click', function() {
-                document.querySelectorAll('.facet-chip').forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-        
-        document.querySelectorAll('.action-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (this.textContent === 'Call Now') {
-                    alert('📞 Calling Sarah Chen... (Demo)');
-                } else {
-                    alert(`✅ ${this.textContent} action triggered for this prospect`);
-                }
-            });
-        });
-    </script>
+  </div>
+
+  <!-- List View -->
+  <div id="listView">
+    <h2>📋 Flat List Sorted by DOI Score</h2>
+    <div id="listItems"></div>
+  </div>
+
+  <script>
+    // Sample data
+    const trainers = [
+      { name:'Tom Wilson', doi: 75 },
+      { name:'Mark Torres', doi: 60 },
+      { name:'Alice Kim', doi: 82 },
+      { name:'Jamal Brown', doi: 50 }
+    ];
+    const conversions = [
+      { who:'Alice Kim', revenue:760, doi:88 },
+      { who:'Tom Wilson', revenue:1200, doi:72 },
+      { who:'Jamal Brown', revenue:600, doi:65 }
+    ];
+    const atRisk = [
+      { who:'Bob Smith', risk:0.34, doi:70 },
+      { who:'Sara Lee', risk:0.42, doi:80 }
+    ];
+    const revenueTrend = { today:2300, target:2500 };
+
+    // Render dashboard
+    function renderDashboard() {
+      const tcont = document.getElementById('trainersTiles');
+      tcont.innerHTML = '';
+      trainers.forEach(t => {
+        const div = document.createElement('div');
+        div.className = 'tile';
+        div.innerHTML = `${t.name}<br>DOI ${t.doi}`;
+        tcont.append(div);
+      });
+
+      const ccont = document.getElementById('conversionsTiles');
+      ccont.innerHTML = '';
+      conversions.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'tile';
+        div.innerHTML = `${c.who}<br>$${c.revenue}`;
+        ccont.append(div);
+      });
+
+      const rcont = document.getElementById('atRiskTiles');
+      rcont.innerHTML = '';
+      atRisk.forEach(a => {
+        const div = document.createElement('div');
+        div.className = 'tile';
+        div.innerHTML = `${a.who}<br>${Math.round(a.risk*100)}% risk`;
+        rcont.append(div);
+      });
+
+      const hero = document.getElementById('revenueHero');
+      const today = revenueTrend.today;
+      const target = revenueTrend.target;
+      hero.textContent = `$${today} / $${target} daily target`;
+    }
+
+    // Render list view
+    function renderList() {
+      const list = [...trainers.map(t=>({label:t.name, doi:t.doi})),
+                    ...conversions.map(c=>({label:c.who+' ($'+c.revenue+')', doi:c.doi})),
+                    ...atRisk.map(a=>({label:a.who+' (risk '+Math.round(a.risk*100)+'%)', doi:a.doi}))];
+      // sort descending by doi
+      list.sort((a,b)=>b.doi - a.doi);
+
+      const cont = document.getElementById('listItems');
+      cont.innerHTML = '';
+      list.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `<span>${item.label}</span><span>DOI ${item.doi}</span>`;
+        cont.append(div);
+      });
+    }
+
+    // Toggle views
+    document.getElementById('showDash').onclick = () => {
+      document.getElementById('dashboard').classList.add('active');
+      document.getElementById('listView').classList.remove('active');
+    };
+    document.getElementById('showList').onclick = () => {
+      document.getElementById('dashboard').classList.remove('active');
+      document.getElementById('listView').classList.add('active');
+      renderList();
+    };
+
+    // Stub AI reorder rubrics
+    document.getElementById('reorder').onclick = () => {
+      // stub: reorder sections by a fake "AI" ranking
+      const order = ['atRiskMembers','topTrainers','recentConversions','revenueTrends'];
+      const dash = document.getElementById('dashboard');
+      order.forEach(id => dash.appendChild(document.getElementById(id)));
+    };
+
+    // initial render
+    renderDashboard();
+  </script>
 </body>
 </html>
