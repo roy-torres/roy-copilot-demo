@@ -1,172 +1,841 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Life Time Evanston - Copilot Dashboard</title>
-  <style>
-    :root {
-      --crisis-red: #e53935;
-      --accent-blue: #3949ab;
-      --green: #43a047;
-      --card-bg: #ffffff;
-      --bg: #f5f5f5;
-      --text: #333;
-    }
-
-    body {
-      background: var(--bg);
-      font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
-      color: var(--text);
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    header h1 {
-      font-size: 20px;
-    }
-
-    .rubric {
-      background: var(--card-bg);
-      border-radius: 10px;
-      margin-bottom: 15px;
-      padding: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .rubric h2 {
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-
-    .lead {
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .lead .info {
-      flex-grow: 1;
-    }
-
-    .lead .info strong {
-      display: block;
-    }
-
-    .badge {
-      background: var(--accent-blue);
-      color: #fff;
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 10px;
-    }
-
-    .sort-controls {
-      margin: 20px 0;
-      text-align: center;
-    }
-
-    .sort-controls button {
-      background: var(--accent-blue);
-      color: #fff;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 5px;
-      margin: 0 5px;
-      cursor: pointer;
-    }
-
-    .sort-controls button.active {
-      background: var(--green);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Time Copilot - Ethical Prioritization Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --secondary: #d32f2f;
+            --warning: #ff9800;
+            --dark: #1e3a28;
+            --light: #f5f9f6;
+            --neutral: #f0f4f8;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .dashboard-container {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            height: 95vh;
+        }
+        
+        /* Header with Crisis Indicators */
+        .dashboard-header {
+            background: linear-gradient(90deg, var(--dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .crisis-indicator {
+            background: rgba(211, 47, 47, 0.9);
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-weight: 500;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        /* Visual Smorgasbord Section */
+        .visual-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 25px;
+            background: var(--neutral);
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .metric-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+        
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .trend-up {
+            color: #2e7d32;
+        }
+        
+        .trend-down {
+            color: #d32f2f;
+        }
+        
+        .progress-container {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+        }
+        
+        .progress-revenue {
+            background: var(--primary);
+            width: 42%;
+        }
+        
+        .progress-activation {
+            background: #ff9800;
+            width: 65%;
+        }
+        
+        .progress-retention {
+            background: #1976d2;
+            width: 38%;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .kpi-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .kpi-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .kpi-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        /* Sort Controls */
+        .sort-controls {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .sort-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .sort-option {
+            background: #f5f9f6;
+            border: 1px solid #c8e6c9;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sort-option:hover {
+            background: #e8f5e9;
+        }
+        
+        .sort-option.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--dark);
+        }
+        
+        .algorithm-toggle {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f5f9f6;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+        
+        /* Ethical Flat List */
+        .members-list {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .member-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .member-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+        
+        .priority-indicator {
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 8px;
+            height: 100%;
+            border-radius: 15px 0 0 15px;
+        }
+        
+        .priority-high {
+            background: var(--secondary);
+        }
+        
+        .priority-medium {
+            background: #ff9800;
+        }
+        
+        .priority-low {
+            background: #9e9e9e;
+        }
+        
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--neutral);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--dark);
+            flex-shrink: 0;
+        }
+        
+        .member-details {
+            flex: 1;
+        }
+        
+        .member-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .member-name {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--dark);
+        }
+        
+        .member-value {
+            background: #e8f5e9;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: 700;
+        }
+        
+        .member-metrics {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .metric {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 10px;
+            min-width: 80px;
+        }
+        
+        .metric-title {
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 3px;
+        }
+        
+        .metric-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .metric-churn {
+            background: #ffebee;
+            color: var(--secondary);
+        }
+        
+        .metric-match {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .metric-days {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+        
+        .doi-factors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .factor-tag {
+            background: var(--neutral);
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .actions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 150px;
+        }
+        
+        .action-btn {
+            padding: 10px 15px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .action-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .action-primary:hover {
+            background: var(--dark);
+        }
+        
+        .action-secondary {
+            background: white;
+            color: var(--primary);
+            border: 1px solid #c8e6c9;
+        }
+        
+        .action-secondary:hover {
+            background: #f5f9f6;
+        }
+        
+        /* Ethical Considerations Panel */
+        .ethics-panel {
+            padding: 25px;
+            background: #f5f9f6;
+            border-top: 1px solid #c8e6c9;
+        }
+        
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .ethics-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .ethics-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .ethics-card h4 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ethics-card p {
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .visual-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .member-card {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .actions-container {
+                flex-direction: row;
+                min-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-
-  <header>
-    <h1>📊 Life Time Copilot: Smart Dashboard</h1>
-  </header>
-
-  <div class="sort-controls">
-    <button id="sortRevenue" class="active">Sort by Revenue</button>
-    <button id="sortRetention">Sort by Retention</button>
-  </div>
-
-  <section class="rubric" id="codeRed">
-    <h2>🔴 CODE RED Leads</h2>
-    <div id="codeRedLeads"></div>
-  </section>
-
-  <section class="rubric" id="quickWins">
-    <h2>🟢 Quick Wins</h2>
-    <div id="quickWinsLeads"></div>
-  </section>
-
-  <section class="rubric" id="dormant">
-    <h2>⚪️ Dormant Members</h2>
-    <div id="dormantLeads"></div>
-  </section>
-
-  <script>
-    const leads = [
-      { name: "Alex P.", package: "4x/wk", revenue: 1760, risk: 95, rubric: "codeRed" },
-      { name: "Jess R.", package: "1x/wk", revenue: 600, risk: 30, rubric: "quickWins" },
-      { name: "Mark T.", package: "3x/wk", revenue: 1440, risk: 80, rubric: "codeRed" },
-      { name: "Taylor S.", package: "2x/wk", revenue: 1040, risk: 40, rubric: "quickWins" },
-      { name: "Dana K.", package: "Dormant", revenue: 0, risk: 20, rubric: "dormant" }
-    ];
-
-    const render = (sortBy) => {
-      const grouped = { codeRed: [], quickWins: [], dormant: [] };
-
-      leads.forEach(lead => grouped[lead.rubric].push(lead));
-
-      // Sort within each rubric
-      Object.keys(grouped).forEach(rubric => {
-        grouped[rubric].sort((a,b) => {
-          if (sortBy === 'revenue') return b.revenue - a.revenue;
-          else return b.risk - a.risk;
-        });
-      });
-
-      // Render
-      ['codeRed', 'quickWins', 'dormant'].forEach(rubric => {
-        const container = document.getElementById(`${rubric}Leads`);
-        container.innerHTML = grouped[rubric].map(lead => `
-          <div class="lead">
-            <div class="info">
-              <strong>${lead.name}</strong>
-              ${lead.package} — $${lead.revenue}
+    <div class="dashboard-container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <i class="fas fa-brain"></i>
+                <h1>Life Time Copilot Prioritization Dashboard</h1>
             </div>
-            <div class="badge">DOI: ${lead.risk}%</div>
-          </div>
-        `).join('');
-      });
-    };
+            <div class="crisis-indicator">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>23 days until terminations | -$75K monthly loss</div>
+            </div>
+        </div>
+        
+        <!-- Visual Smorgasbord Section -->
+        <div class="visual-overview">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Revenue Recovery</div>
+                    <div class="metric-trend trend-down">
+                        <i class="fas fa-arrow-down"></i> 12%
+                    </div>
+                </div>
+                <div class="metric-value">$42,500</div>
+                <div class="progress-container">
+                    <div class="progress-bar progress-revenue"></div>
+                </div>
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="kpi-value">$2,500/day</div>
+                        <div class="kpi-label">Target</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">$1,980/day</div>
+                        <div class="kpi-label">Current</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Member Activation</div>
+                    <div class="metric-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> 5%
+                    </div>
+                </div>
+                <div class="metric-value">52%</div>
+                <div class="progress-container">
+                    <div class="progress-bar progress-activation"></div>
+                </div>
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="kpi-value">350/700</div>
+                        <div class="kpi-label">Active</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">142</div>
+                        <div class="kpi-label">Platinum Tier</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Trainer Retention</div>
+                    <div class="metric-trend trend-down">
+                        <i class="fas fa-arrow-down"></i> 71%
+                    </div>
+                </div>
+                <div class="metric-value">2/7</div>
+                <div class="progress-container">
+                    <div class="progress-bar progress-retention"></div>
+                </div>
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="kpi-value">23 days</div>
+                        <div class="kpi-label">Until terminations</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">$300K</div>
+                        <div class="kpi-label">Recovery needed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sort Controls -->
+        <div class="sort-controls">
+            <div class="sort-label">Sort by:</div>
+            
+            <div class="sort-option active" data-sort="doi">
+                <i class="fas fa-star"></i> Degree of Interest
+            </div>
+            
+            <div class="sort-option" data-sort="revenue">
+                <i class="fas fa-dollar-sign"></i> Revenue Impact
+            </div>
+            
+            <div class="sort-option" data-sort="risk">
+                <i class="fas fa-exclamation-triangle"></i> Churn Risk
+            </div>
+            
+            <div class="sort-option" data-sort="recency">
+                <i class="fas fa-clock"></i> Recency
+            </div>
+            
+            <div class="algorithm-toggle">
+                <span>Ethical Prioritization</span>
+                <label class="switch">
+                    <input type="checkbox" id="ethics-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Ethical Flat List -->
+        <div class="members-list" id="members-list">
+            <!-- Member cards will be populated here -->
+        </div>
+        
+        <!-- Ethical Considerations Panel -->
+        <div class="ethics-panel">
+            <div class="panel-title">
+                <i class="fas fa-balance-scale"></i>
+                <h3>Ethical Prioritization Framework</h3>
+            </div>
+            
+            <div class="ethics-content">
+                <div class="ethics-card">
+                    <h4><i class="fas fa-exclamation-circle"></i> Potential Risks</h4>
+                    <p>Prioritizing solely by revenue could neglect members with rehabilitation needs or long-term potential. This may lead to discrimination and damage brand reputation.</p>
+                </div>
+                
+                <div class="ethics-card">
+                    <h4><i class="fas fa-shield-alt"></i> Safeguards Implemented</h4>
+                    <p>Our DOI algorithm includes ethical distribution factors that ensure fair access across demographics and member types, while maintaining business viability.</p>
+                </div>
+                
+                <div class="ethics-card">
+                    <h4><i class="fas fa-chart-line"></i> Performance Metrics</h4>
+                    <p>We monitor member diversity in interventions, long-term retention rates, and rehabilitation outcomes to ensure ethical compliance without sacrificing business recovery.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    document.getElementById('sortRevenue').addEventListener('click', () => {
-      document.getElementById('sortRevenue').classList.add('active');
-      document.getElementById('sortRetention').classList.remove('active');
-      render('revenue');
-    });
-
-    document.getElementById('sortRetention').addEventListener('click', () => {
-      document.getElementById('sortRetention').classList.add('active');
-      document.getElementById('sortRevenue').classList.remove('active');
-      render('retention');
-    });
-
-    // Initial render
-    render('revenue');
-  </script>
-
+    <script>
+        // Sample member data with DOI scores
+        const members = [
+            {
+                id: 1023,
+                name: "Sarah Miller",
+                status: "Platinum",
+                activity: "Yoga & Running",
+                value: 1760,
+                statusLevel: "red",
+                lastActive: "21 days ago",
+                trainer: "Tom Harrison",
+                notes: "Prefers morning sessions, training for 5K",
+                doiScore: 92,
+                revenueImpact: 95,
+                churnRisk: 84,
+                engagement: 45,
+                ethicalFactor: 70
+            },
+            {
+                id: 1045,
+                name: "James Wilson",
+                status: "Gold",
+                activity: "Strength Training",
+                value: 1200,
+                statusLevel: "yellow",
+                lastActive: "14 days ago",
+                trainer: "Lisa Chen",
+                notes: "Focus on back rehabilitation, avoids heavy lifting",
+                doiScore: 85,
+                revenueImpact: 75,
+                churnRisk: 65,
+                engagement: 60,
+                ethicalFactor: 90
+            },
+            {
+                id: 1078,
+                name: "Michael Rodriguez",
+                status: "Platinum",
+                activity: "Swimming & Cycling",
+                value: 2100,
+                statusLevel: "green",
+                lastActive: "2 days ago",
+                trainer: "Tom Harrison",
+                notes: "Triathlon training, needs nutrition guidance",
+                doiScore: 88,
+                revenueImpact: 92,
+                churnRisk: 22,
+                engagement: 85,
+                ethicalFactor: 60
+            },
+            {
+                id: 1122,
+                name: "Emily Johnson",
+                status: "Silver",
+                activity: "Pilates & Yoga",
+                value: 850,
+                statusLevel: "red",
+                lastActive: "35 days ago",
+                trainer: "Sarah Kim",
+                notes: "Post-pregnancy fitness, prefers gentle routines",
+                doiScore: 65,
+                revenueImpact: 55,
+                churnRisk: 91,
+                engagement: 30,
+                ethicalFactor: 85
+            },
+            {
+                id: 1156,
+                name: "Robert Chen",
+                status: "Gold",
+                activity: "Weight Training",
+                value: 1400,
+                statusLevel: "yellow",
+                lastActive: "10 days ago",
+                trainer: "Mike Johnson",
+                notes: "Training for bodybuilding competition",
+                doiScore: 78,
+                revenueImpact: 80,
+                churnRisk: 58,
+                engagement: 70,
+                ethicalFactor: 65
+            },
+            {
+                id: 1189,
+                name: "Jennifer Davis",
+                status: "Platinum",
+                activity: "HIIT & Cardio",
+                value: 1950,
+                statusLevel: "green",
+                lastActive: "1 day ago",
+                trainer: "Tom Harrison",
+                notes: "Weight loss journey, 25lbs down",
+                doiScore: 90,
+                revenueImpact: 88,
+                churnRisk: 18,
+                engagement: 92,
+                ethicalFactor: 75
+            }
+        ];
+        
+        // DOM elements
+        const membersList = document.getElementById('members-list');
+        const sortOptions = document.querySelectorAll('.sort-option');
+        const ethicsToggle = document.getElementById('ethics-toggle');
+        
+        // Render member cards
+        function renderMembers(sortMethod = 'doi') {
+            membersList.innerHTML = '';
+            
+            // Sort members based on selected method
+            const sortedMembers = [...members];
+            switch(sortMethod) {
+                case 'revenue':
+                    sortedMembers.sort((a, b) => b.revenueImpact - a.revenueImpact);
+                    break;
+                case 'risk':
+                    sortedMembers.sort((a, b) => b.churnRisk - a.churnRisk);
+                    break;
+                case 'recency':
+                    sortedMembers.sort((a, b) => {
+                        const daysA = parseInt(a.lastActive);
+                        const daysB = parseInt(b.lastActive);
+                        return daysB - daysA;
+                    });
+                    break;
+                case 'doi':
+                default:
+                    sortedMembers.sort((a, b) => b.doiScore - a.doiScore);
+                    break;
+            }
+            
+            // Apply ethical prioritization if enabled
+            if (ethicsToggle.checked) {
+                sortedMembers.sort((a, b) => {
+                    // Balance DOI with ethical factors
+                    const scoreA = (a.doiScore * 0.7) + (a.ethicalFactor * 0.3);
+                    const scoreB = (b.doiScore * 0.7) + (b.ethicalFactor * 0.3);
+                    return scoreB - scoreA;
+                });
+            }
+            
+            // Generate member cards
+            sortedMembers.forEach(member => {
+                const priorityClass = 
+                    member.doiScore >= 85 ? 'priority-high' :
+                    member.doiScore >= 70 ? 'priority-medium' : 'priority-low';
+                
+                const card = document.createElement('div');
+                card.classList.add('member-card');
+                card.innerHTML = `
+                    <div class="priority-indicator ${priorityClass}"></div>
+                    <div class="member-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="member-details">
+                        <div class="member-header">
+                            <div class="member-name">${member.name}</div>
+                            <div class="member-value">$${member.value}/mo</div>
+                        </div>
+                        
+                        <div class="member-metrics">
+                            <div class="metric metric-churn">
+                                <div class="metric-title">Churn Risk</div>
+                                <div class="metric-value">${member.churnRisk}%</div>
+                            </div>
+                            <div class="metric metric-match">
+                                <div class="metric-title">Match Score</div>
+                                <div class="metric-value">${member.doiScore}%</div>
+                            </div>
+                            <div class="metric metric-days">
+                                <div class="metric-title">Inactive</div>
+                                <div class="metric-value">${member.lastActive}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="doi-factors">
+                            <div class="factor-tag">
+                                <i class="fas fa-crown"></i> ${member.status} Member
+                            </div>
+                            <div class="factor-tag">
+                                <i class="fas fa-running"></i> ${member.activity}
+                            </div>
+                            <div class="factor-tag">
+                                <i class="fas fa-user"></i> ${member.trainer}
+                            </div>
+                            ${ethicsToggle.checked ? `<div class="factor-tag">
+                                <i class="fas fa-balance-scale"></i> Ethics: ${member.ethicalFactor}%
+                            </div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="actions-container">
+                        <button class="action-btn action-primary">
+                            <i class="fas fa-comment-dots"></i> Message
+                        </button>
+                        <button class="action-btn action-secondary">
+                            <i class="fas fa-chart-line"></i> Profile
+                        </button>
+                    </div>
+                `;
+                
+                membersList.appendChild(card);
+            });
+        }
+        
+        // Event listeners
+        sortOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                sortOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                renderMembers(this.dataset.sort);
+            });
+        });
+        
+        ethicsToggle.addEventListener('change', function() {
+            const activeSort = document.querySelector('.sort-option.active').dataset.sort;
+            renderMembers(activeSort);
+        });
+        
+        // Initial render
+        renderMembers();
+    </script>
 </body>
 </html>
