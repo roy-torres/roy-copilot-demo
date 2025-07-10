@@ -1,160 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Dynamic Dashboard & DOI Sort UI</title>
+  <meta charset="UTF-8">
+  <title>Dynamic AI Dashboard – Life Time Evanston</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { margin:0; font-family:sans-serif; background:#f4f4f4; }
-    header { background:#00446b; color:#fff; padding:12px; display:flex; align-items:center; }
-    header h1 { flex:1; font-size:18px; margin:0; }
-    header button { margin-left:8px; padding:6px 12px; border:none; border-radius:4px; cursor:pointer; }
-    #dashboard, #listView { padding:12px; display:none; }
-    #dashboard.active, #listView.active { display:block; }
-
-    /* Dashboard sections */
-    .section { background:#fff; margin-bottom:12px; border-radius:6px; padding:12px; }
-    .section h2 { margin:0 0 8px; font-size:16px; }
-    .tiles { display:flex; overflow-x:auto; gap:8px; }
-    .tile { min-width:100px; background:#e6f7ff; padding:8px; border-radius:4px; text-align:center; }
-    .hero { background:#ffe7ba; padding:16px; border-radius:6px; text-align:center; font-weight:bold; }
-
-    /* List view */
-    .list-item { background:#fff; margin-bottom:8px; padding:12px; border-radius:6px; display:flex; justify-content:space-between; }
-    .list-item span:first-child { font-weight:500; }
-
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7f7fa; margin: 0; padding: 0; }
+    .container { max-width: 900px; margin: 36px auto; background: #fff; border-radius: 14px; box-shadow: 0 2px 12px #0002; padding: 28px; }
+    h1 { color: #004080; font-size: 1.7rem; margin-bottom: 16px; }
+    .dashboard { display: flex; flex-wrap: wrap; gap: 22px; }
+    .rubric { background: #f2f6fa; border-radius: 12px; flex: 1 1 270px; min-width: 270px; max-width: 370px; box-shadow: 0 1px 4px #0001; padding: 18px 16px 12px 16px; margin-bottom: 10px; }
+    .rubric h2 { font-size: 1.1rem; color: #4a90e2; margin: 0 0 8px 0; }
+    .hero { background: #eaf4ff; border-radius: 10px; padding: 14px; margin-bottom: 12px; font-weight: 500; }
+    .carousel { display: flex; overflow-x: auto; gap: 12px; }
+    .carousel-item, .tile { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px #0001; padding: 12px; min-width: 120px; flex: 0 0 120px; }
+    .tile { margin-bottom: 10px; }
+    .list { list-style: none; padding: 0; margin: 0; }
+    .list li { background: #f8fafc; margin-bottom: 8px; border-radius: 7px; padding: 8px 10px; }
+    .badge { display: inline-block; background: #22bb66; color: #fff; border-radius: 10px; font-size: 0.8em; padding: 2px 10px; margin-left: 7px; }
+    .offer { background: #fffbe6; border-left: 5px solid #ffd700; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; }
+    .btn { background: #004080; color: #fff; border: none; border-radius: 6px; padding: 5px 12px; font-size: 0.95em; cursor: pointer; margin-top: 7px; }
+    .sort-controls { margin: 16px 0 20px 0; }
+    .sort-controls label { font-weight: 500; margin-right: 10px; }
+    .sort-controls select { padding: 5px 10px; border-radius: 6px; border: 1px solid #bbb; }
+    @media (max-width: 950px) {
+      .dashboard { flex-direction: column; }
+      .rubric { max-width: 100%; }
+    }
+    @media (max-width: 700px) {
+      .container { padding: 10px; }
+      h1 { font-size: 1.15rem; }
+      .dashboard { gap: 10px; }
+    }
   </style>
 </head>
 <body>
-
-  <header>
-    <h1>Life Time Evanston AI UI</h1>
-    <button id="showDash">Dashboard View</button>
-    <button id="showList">List View</button>
-  </header>
-
-  <div style="padding:12px; text-align:right;">
-    <button id="reorder">🤖 AI Reorder Rubrics</button>
+  <div class="container">
+    <h1>Life Time Evanston – Dynamic AI Dashboard</h1>
+    <div class="sort-controls">
+      <label for="sortAlg">Sort main list by:</label>
+      <select id="sortAlg" onchange="renderDashboard()">
+        <option value="personalized">Personalized</option>
+        <option value="popularity">Popularity</option>
+        <option value="recency">Recency</option>
+        <option value="trending">Trending</option>
+        <option value="business">Business Priority</option>
+      </select>
+    </div>
+    <div class="dashboard" id="dashboard"></div>
   </div>
-
-  <!-- Dashboard View -->
-  <div id="dashboard" class="active">
-    <div id="topTrainers" class="section">
-      <h2>🏆 Top Trainers</h2>
-      <div class="tiles" id="trainersTiles"></div>
-    </div>
-    <div id="recentConversions" class="section">
-      <h2>💰 Recent Conversions</h2>
-      <div class="tiles" id="conversionsTiles"></div>
-    </div>
-    <div id="atRiskMembers" class="section">
-      <h2>⚠️ At-Risk Members</h2>
-      <div class="tiles" id="atRiskTiles"></div>
-    </div>
-    <div id="revenueTrends" class="section">
-      <h2>📈 Revenue Trend</h2>
-      <div class="hero" id="revenueHero"></div>
-    </div>
-  </div>
-
-  <!-- List View -->
-  <div id="listView">
-    <h2>📋 Flat List Sorted by DOI Score</h2>
-    <div id="listItems"></div>
-  </div>
-
   <script>
-    // Sample data
-    const trainers = [
-      { name:'Tom Wilson', doi: 75 },
-      { name:'Mark Torres', doi: 60 },
-      { name:'Alice Kim', doi: 82 },
-      { name:'Jamal Brown', doi: 50 }
+    // Example content for each rubric
+    const dashboardData = [
+      {
+        key: 'featured',
+        title: 'Featured Class',
+        type: 'hero',
+        content: '🔥 HIIT Power Circuit – New! Starts this Saturday at 9am. <button class="btn" onclick="alert(\'Book HIIT Power Circuit\')">Book Now</button>'
+      },
+      {
+        key: 'topTrainers',
+        title: 'Top Personal Trainers',
+        type: 'carousel',
+        items: [
+          { name: 'Alex', desc: 'Yoga, Injury Recovery', badge: '🌟', action: "alert('Book Alex')" },
+          { name: 'Morgan', desc: 'HIIT, Strength', badge: '🔥', action: "alert('Book Morgan')" },
+          { name: 'Jamie', desc: 'Pilates, Endurance', badge: '💪', action: "alert('Book Jamie')" }
+        ]
+      },
+      {
+        key: 'successStories',
+        title: 'Member Success Stories',
+        type: 'tiles',
+        items: [
+          { story: '“Lost 20 lbs & ran my first 5K!” – Taylor', badge: '🏅' },
+          { story: '“Rehabbed my knee and found my tribe.” – Chris', badge: '🦵' }
+        ]
+      },
+      {
+        key: 'personalized',
+        title: 'For You',
+        type: 'tiles',
+        items: [
+          { story: 'Recommended: Strength Foundations Class', badge: '⭐' },
+          { story: 'Try a Nutrition Consult this month', badge: '🥗' }
+        ]
+      },
+      {
+        key: 'bookedSessions',
+        title: 'Your Upcoming Sessions',
+        type: 'list',
+        items: [
+          'Yoga Flow with Alex – Tue 7am',
+          'HIIT Power Circuit – Sat 9am'
+        ]
+      },
+      {
+        key: 'offers',
+        title: 'Exclusive Offers & Announcements',
+        type: 'offers',
+        items: [
+          { offer: '💸 20% off your next PT package – this week only!' },
+          { offer: '🏆 Refer a friend, get a free month!' }
+        ]
+      },
+      {
+        key: 'trending',
+        title: 'Trending Now',
+        type: 'carousel',
+        items: [
+          { name: 'Pilates Core Blast', desc: 'Most booked this week', badge: '🔥', action: "alert('Book Pilates Core Blast')" },
+          { name: 'Nutrition Webinar', desc: 'Top-rated event', badge: '⭐', action: "alert('Join Webinar')" }
+        ]
+      }
     ];
-    const conversions = [
-      { who:'Alice Kim', revenue:760, doi:88 },
-      { who:'Tom Wilson', revenue:1200, doi:72 },
-      { who:'Jamal Brown', revenue:600, doi:65 }
-    ];
-    const atRisk = [
-      { who:'Bob Smith', risk:0.34, doi:70 },
-      { who:'Sara Lee', risk:0.42, doi:80 }
-    ];
-    const revenueTrend = { today:2300, target:2500 };
 
-    // Render dashboard
+    // Example main list for DOI sorting
+    const mainList = [
+      { title: "HIIT Power Circuit", popularity: 95, recency: 8, trending: 90, personalized: 80, business: 100 },
+      { title: "Yoga Flow with Alex", popularity: 85, recency: 7, trending: 75, personalized: 95, business: 80 },
+      { title: "Pilates Core Blast", popularity: 99, recency: 6, trending: 98, personalized: 70, business: 90 },
+      { title: "Strength Foundations", popularity: 80, recency: 9, trending: 70, personalized: 98, business: 85 },
+      { title: "Nutrition Webinar", popularity: 88, recency: 5, trending: 95, personalized: 60, business: 70 }
+    ];
+
+    function sortMainList(alg) {
+      return [...mainList].sort((a, b) => b[alg] - a[alg]);
+    }
+
     function renderDashboard() {
-      const tcont = document.getElementById('trainersTiles');
-      tcont.innerHTML = '';
-      trainers.forEach(t => {
-        const div = document.createElement('div');
-        div.className = 'tile';
-        div.innerHTML = `${t.name}<br>DOI ${t.doi}`;
-        tcont.append(div);
-      });
-
-      const ccont = document.getElementById('conversionsTiles');
-      ccont.innerHTML = '';
-      conversions.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'tile';
-        div.innerHTML = `${c.who}<br>$${c.revenue}`;
-        ccont.append(div);
-      });
-
-      const rcont = document.getElementById('atRiskTiles');
-      rcont.innerHTML = '';
-      atRisk.forEach(a => {
-        const div = document.createElement('div');
-        div.className = 'tile';
-        div.innerHTML = `${a.who}<br>${Math.round(a.risk*100)}% risk`;
-        rcont.append(div);
-      });
-
-      const hero = document.getElementById('revenueHero');
-      const today = revenueTrend.today;
-      const target = revenueTrend.target;
-      hero.textContent = `$${today} / $${target} daily target`;
-    }
-
-    // Render list view
-    function renderList() {
-      const list = [...trainers.map(t=>({label:t.name, doi:t.doi})),
-                    ...conversions.map(c=>({label:c.who+' ($'+c.revenue+')', doi:c.doi})),
-                    ...atRisk.map(a=>({label:a.who+' (risk '+Math.round(a.risk*100)+'%)', doi:a.doi}))];
-      // sort descending by doi
-      list.sort((a,b)=>b.doi - a.doi);
-
-      const cont = document.getElementById('listItems');
-      cont.innerHTML = '';
-      list.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'list-item';
-        div.innerHTML = `<span>${item.label}</span><span>DOI ${item.doi}</span>`;
-        cont.append(div);
-      });
-    }
-
-    // Toggle views
-    document.getElementById('showDash').onclick = () => {
-      document.getElementById('dashboard').classList.add('active');
-      document.getElementById('listView').classList.remove('active');
-    };
-    document.getElementById('showList').onclick = () => {
-      document.getElementById('dashboard').classList.remove('active');
-      document.getElementById('listView').classList.add('active');
-      renderList();
-    };
-
-    // Stub AI reorder rubrics
-    document.getElementById('reorder').onclick = () => {
-      // stub: reorder sections by a fake "AI" ranking
-      const order = ['atRiskMembers','topTrainers','recentConversions','revenueTrends'];
       const dash = document.getElementById('dashboard');
-      order.forEach(id => dash.appendChild(document.getElementById(id)));
-    };
+      dash.innerHTML = '';
+      // Render rubrics
+      dashboardData.forEach(rubric => {
+        const div = document.createElement('div');
+        div.className = 'rubric';
+        div.innerHTML = `<h2>${rubric.title}</h2>`;
+        if (rubric.type === 'hero') {
+          div.innerHTML += `<div class="hero">${rubric.content}</div>`;
+        } else if (rubric.type === 'carousel') {
+          div.innerHTML += `<div class="carousel">` +
+            rubric.items.map(item =>
+              `<div class="carousel-item">
+                <div style="font-weight:600;">${item.name} <span>${item.badge}</span></div>
+                <div style="font-size:0.95em; color:#666;">${item.desc}</div>
+                <button class="btn" onclick="${item.action}">Book</button>
+              </div>`
+            ).join('') +
+            `</div>`;
+        } else if (rubric.type === 'tiles') {
+          rubric.items.forEach(item => {
+            div.innerHTML += `<div class="tile">${item.story} <span class="badge">${item.badge}</span></div>`;
+          });
+        } else if (rubric.type === 'list') {
+          div.innerHTML += `<ul class="list">` +
+            rubric.items.map(i => `<li>${i}</li>`).join('') +
+            `</ul>`;
+        } else if (rubric.type === 'offers') {
+          rubric.items.forEach(item => {
+            div.innerHTML += `<div class="offer">${item.offer}</div>`;
+          });
+        }
+        dash.appendChild(div);
+      });
 
-    // initial render
+      // Main sorted list (simulate a "flat list" with DOI sort)
+      const alg = document.getElementById('sortAlg').value;
+      const sorted = sortMainList(alg);
+      const mainListDiv = document.createElement('div');
+      mainListDiv.className = 'rubric';
+      mainListDiv.innerHTML = `<h2>All Classes & Events (Sorted by ${alg.charAt(0).toUpperCase() + alg.slice(1)})</h2>`;
+      mainListDiv.innerHTML += `<ul class="list">` +
+        sorted.map(item =>
+          `<li><b>${item.title}</b> 
+            <span class="badge">${alg === 'popularity' ? 'Popular' : alg === 'recency' ? 'New' : alg === 'trending' ? 'Trending' : alg === 'personalized' ? 'For You' : 'Priority'}</span>
+          </li>`
+        ).join('') +
+        `</ul>`;
+      dash.appendChild(mainListDiv);
+    }
+
     renderDashboard();
   </script>
 </body>
