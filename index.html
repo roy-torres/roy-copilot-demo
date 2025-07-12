@@ -13,6 +13,7 @@
             --dark: #1e3a28;
             --light: #f5f9f6;
             --neutral: #f0f4f8;
+            --low-priority: #9e9e9e;
         }
         
         * {
@@ -74,83 +75,41 @@
             align-items: center;
         }
         
-        .dashboard-controls {
-            display: flex;
-            padding: 15px 30px;
-            background: var(--neutral);
-            border-bottom: 1px solid #e0e0e0;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .control-group {
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .control-label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .slider-container {
+        .sort-controls {
+            padding: 15px 20px;
             background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-        
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        
-        .slider-value {
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .slider {
-            width: 100%;
-            height: 8px;
-            -webkit-appearance: none;
-            background: #e0e0e0;
-            border-radius: 4px;
-            outline: none;
-        }
-        
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .algorithm-tags {
+            border-bottom: 1px solid #e0e0e0;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 15px;
+            gap: 10px;
+            align-items: center;
         }
         
-        .algorithm-tag {
-            background: #e8f5e9;
-            color: var(--primary);
+        .sort-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .sort-option {
+            background: #f5f9f6;
             border: 1px solid #c8e6c9;
-            border-radius: 15px;
-            padding: 5px 12px;
-            font-size: 0.8rem;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+        }
+        
+        .sort-option:hover {
+            background: #e8f5e9;
+        }
+        
+        .sort-option.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--dark);
         }
         
         .dashboard-content {
@@ -213,11 +172,11 @@
         }
         
         .priority-medium {
-            background: #ff9800;
+            background: var(--warning);
         }
         
         .priority-low {
-            background: #9e9e9e;
+            background: var(--low-priority);
         }
         
         .member-avatar {
@@ -466,6 +425,40 @@
             font-weight: 500;
         }
         
+        .priority-key {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f9f6;
+            border-radius: 12px;
+        }
+        
+        .key-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .key-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .key-high {
+            background: var(--secondary);
+        }
+        
+        .key-medium {
+            background: var(--warning);
+        }
+        
+        .key-low {
+            background: var(--low-priority);
+        }
+        
         @media (max-width: 900px) {
             .dashboard-content {
                 flex-direction: column;
@@ -476,44 +469,6 @@
                 border-left: none;
                 border-top: 1px solid #e0e0e0;
             }
-        }
-        
-        /* Sorting Controls */
-        .sort-controls {
-            padding: 15px 20px;
-            background: white;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .sort-label {
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .sort-option {
-            background: #f5f9f6;
-            border: 1px solid #c8e6c9;
-            border-radius: 20px;
-            padding: 8px 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .sort-option:hover {
-            background: #e8f5e9;
-        }
-        
-        .sort-option.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--dark);
         }
     </style>
 </head>
@@ -530,7 +485,6 @@
             </div>
         </div>
         
-        <!-- Sorting Controls -->
         <div class="sort-controls">
             <div class="sort-label">Sort by:</div>
             <div class="sort-option active" data-sort="doi">
@@ -598,38 +552,66 @@
                 <div class="panel-section ethics-section">
                     <div class="panel-title">
                         <i class="fas fa-hand-holding-heart"></i>
-                        <h3>Ethical Prioritization</h3>
+                        <h3>Priority Indicator System</h3>
                     </div>
                     
                     <p style="margin-bottom: 15px; line-height: 1.6;">
-                        Our DOI algorithms balance business needs with equitable access. 
-                        We monitor for unintended bias and prioritize long-term health outcomes.
+                        Our priority indicators are based on churn risk to highlight intervention urgency:
                     </p>
                     
-                    <div style="margin: 20px 0;">
-                        <div class="bias-indicator">
-                            <div class="bias-label">Demographic Bias:</div>
-                            <div class="bias-bar">
-                                <div class="bias-fill" style="width: 30%;"></div>
-                            </div>
-                            <div>Low</div>
+                    <div class="priority-key">
+                        <div class="key-item">
+                            <div class="key-color key-high"></div>
+                            <div>High Priority (80-100% risk)</div>
                         </div>
-                        
-                        <div class="bias-indicator">
-                            <div class="bias-label">Accessibility Score:</div>
-                            <div class="bias-bar">
-                                <div class="bias-fill" style="width: 75%;"></div>
-                            </div>
-                            <div>High</div>
+                        <div class="key-item">
+                            <div class="key-color key-medium"></div>
+                            <div>Medium Priority (60-79% risk)</div>
+                        </div>
+                        <div class="key-item">
+                            <div class="key-color key-low"></div>
+                            <div>Low Priority (0-59% risk)</div>
                         </div>
                     </div>
+                    
+                    <div class="bias-indicator">
+                        <div class="bias-label">Demographic Bias:</div>
+                        <div class="bias-bar">
+                            <div class="bias-fill" style="width: 30%;"></div>
+                        </div>
+                        <div>Low</div>
+                    </div>
+                    
+                    <div class="bias-indicator">
+                        <div class="bias-label">Accessibility Score:</div>
+                        <div class="bias-bar">
+                            <div class="bias-fill" style="width: 75%;"></div>
+                        </div>
+                        <div>High</div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <div class="panel-title">
+                        <i class="fas fa-lightbulb"></i>
+                        <h3>Why This Matters</h3>
+                    </div>
+                    
+                    <p style="line-height: 1.6; margin-bottom: 15px;">
+                        In our current crisis, high-risk members (🔴) represent immediate revenue loss. 
+                        Medium-risk (🟠) need attention but rehabilitation cases are protected by ethical algorithms.
+                    </p>
+                    
+                    <p style="line-height: 1.6;">
+                        Low-risk (⚪) members still contribute value but don't require urgent intervention.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Sample member data
+        // Sample member data with proper churn risk values
         const members = [
             {
                 id: 1023,
@@ -637,11 +619,10 @@
                 status: "Platinum",
                 activity: "Yoga & Running",
                 value: 1760,
-                statusLevel: "red",
                 lastActive: "21 days ago",
                 trainer: "Tom Harrison",
                 notes: "Prefers morning sessions, training for 5K",
-                churnRisk: 84,
+                churnRisk: 84, // High priority (red)
                 doiScore: 92
             },
             {
@@ -650,11 +631,10 @@
                 status: "Gold",
                 activity: "Strength Training",
                 value: 1200,
-                statusLevel: "yellow",
                 lastActive: "14 days ago",
                 trainer: "Lisa Chen",
                 notes: "Focus on back rehabilitation, avoids heavy lifting",
-                churnRisk: 65,
+                churnRisk: 65, // Medium priority (orange)
                 doiScore: 85
             },
             {
@@ -663,11 +643,10 @@
                 status: "Platinum",
                 activity: "Swimming & Cycling",
                 value: 2100,
-                statusLevel: "green",
                 lastActive: "2 days ago",
                 trainer: "Tom Harrison",
                 notes: "Triathlon training, needs nutrition guidance",
-                churnRisk: 22,
+                churnRisk: 22, // Low priority (grey)
                 doiScore: 88
             },
             {
@@ -676,11 +655,10 @@
                 status: "Silver",
                 activity: "Pilates & Yoga",
                 value: 850,
-                statusLevel: "red",
                 lastActive: "35 days ago",
                 trainer: "Sarah Kim",
                 notes: "Post-pregnancy fitness, prefers gentle routines",
-                churnRisk: 91,
+                churnRisk: 91, // High priority (red)
                 doiScore: 65
             }
         ];
@@ -694,6 +672,15 @@
             // Clear existing content
             membersContainer.innerHTML = '';
             
+            // Add header
+            const header = document.createElement('div');
+            header.classList.add('priority-header');
+            header.innerHTML = `
+                <i class="fas fa-sort-amount-down"></i>
+                <h2>Members Prioritized by ${getSortTitle(sortMethod)}</h2>
+            `;
+            membersContainer.appendChild(header);
+            
             // Sort members based on selected method
             let sortedMembers = [...members];
             
@@ -702,11 +689,11 @@
             } else if (sortMethod === 'risk') {
                 sortedMembers.sort((a, b) => b.churnRisk - a.churnRisk);
             } else if (sortMethod === 'recency') {
-                // Convert lastActive to days for sorting
-                sortedMembers.forEach(member => {
-                    member.activeDays = parseInt(member.lastActive);
+                sortedMembers.sort((a, b) => {
+                    const daysA = parseInt(a.lastActive);
+                    const daysB = parseInt(b.lastActive);
+                    return daysB - daysA;
                 });
-                sortedMembers.sort((a, b) => b.activeDays - a.activeDays);
             } else {
                 // Default DOI sorting
                 sortedMembers.sort((a, b) => b.doiScore - a.doiScore);
@@ -714,9 +701,15 @@
             
             // Create member cards
             sortedMembers.forEach(member => {
-                const priorityClass = 
-                    member.doiScore >= 85 ? 'priority-high' :
-                    member.doiScore >= 70 ? 'priority-medium' : 'priority-low';
+                // Determine priority class based on churn risk
+                let priorityClass = '';
+                if (member.churnRisk >= 80) {
+                    priorityClass = 'priority-high'; // Red
+                } else if (member.churnRisk >= 60) {
+                    priorityClass = 'priority-medium'; // Orange
+                } else {
+                    priorityClass = 'priority-low'; // Grey
+                }
                 
                 const card = document.createElement('div');
                 card.classList.add('member-card');
@@ -771,15 +764,6 @@
                 
                 membersContainer.appendChild(card);
             });
-            
-            // Add header
-            const header = document.createElement('div');
-            header.classList.add('priority-header');
-            header.innerHTML = `
-                <i class="fas fa-sort-amount-down"></i>
-                <h2>Members Prioritized by ${getSortTitle(sortMethod)}</h2>
-            `;
-            membersContainer.prepend(header);
         }
         
         // Helper function for sort titles
