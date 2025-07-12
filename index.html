@@ -3,1254 +3,556 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Time Trainer Copilot - Priority Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Crisis Dashboard - Dynamic Content</title>
     <style>
-        :root {
-            --primary: #2e7d32;
-            --secondary: #d32f2f;
-            --warning: #ff9800;
-            --dark: #1e3a28;
-            --light: #f5f9f6;
-            --neutral: #f0f4f8;
-            --low-priority: #9e9e9e;
-        }
-        
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            box-sizing: border-box;
         }
         
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
             color: #333;
-            min-height: 100vh;
-            padding: 20px;
+        }
+        
+        .crisis-header {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .crisis-stats {
             display: flex;
-            justify-content: center;
-            align-items: center;
+            justify-content: space-around;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
         }
         
         .dashboard-container {
-            width: 100%;
+            padding: 1rem;
             max-width: 1200px;
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.25);
-            display: flex;
-            flex-direction: column;
-            height: 95vh;
+            margin: 0 auto;
         }
         
-        .dashboard-header {
-            background: linear-gradient(90deg, var(--dark) 0%, var(--primary) 100%);
-            color: white;
-            padding: 20px 30px;
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
         }
         
-        .header-title {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .header-title i {
-            font-size: 1.8rem;
-            color: #ffd54f;
-        }
-        
-        .crisis-indicator {
-            background: rgba(211, 47, 47, 0.9);
-            padding: 8px 15px;
-            border-radius: 15px;
-            font-weight: 500;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .sort-controls {
-            padding: 15px 20px;
-            background: white;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .sort-label {
+        .section-title {
             font-weight: 600;
-            color: var(--dark);
+            color: #1f2937;
         }
         
-        .sort-option {
-            background: #f5f9f6;
-            border: 1px solid #c8e6c9;
-            border-radius: 20px;
-            padding: 8px 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .sort-option:hover {
-            background: #e8f5e9;
-        }
-        
-        .sort-option.active {
-            background: var(--primary);
+        .ai-badge {
+            background: #10b981;
             color: white;
-            border-color: var(--dark);
-        }
-        
-        .dashboard-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-        
-        .members-container {
-            flex: 3;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .priority-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--neutral);
-        }
-        
-        .priority-header i {
-            color: var(--primary);
-        }
-        
-        .member-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 15px;
-            padding: 20px;
-            display: flex;
-            gap: 20px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .member-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-color: var(--primary);
-        }
-        
-        .priority-indicator {
-            position: absolute;
-            top: -1px;
-            left: -1px;
-            width: 8px;
-            height: 100%;
-            border-radius: 15px 0 0 15px;
-        }
-        
-        .priority-high {
-            background: var(--secondary);
-        }
-        
-        .priority-medium {
-            background: var(--warning);
-        }
-        
-        .priority-low {
-            background: var(--low-priority);
-        }
-        
-        .member-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--neutral);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: var(--dark);
-            flex-shrink: 0;
-        }
-        
-        .member-details {
-            flex: 1;
-        }
-        
-        .member-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        
-        .member-name {
-            font-weight: 700;
-            font-size: 1.3rem;
-            color: var(--dark);
-        }
-        
-        .member-value {
-            background: #e8f5e9;
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-weight: 700;
-        }
-        
-        .member-metrics {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .metric {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 10px;
-            min-width: 80px;
-        }
-        
-        .metric-title {
-            font-size: 0.8rem;
-            color: #777;
-            margin-bottom: 3px;
-        }
-        
-        .metric-value {
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-        
-        .metric-churn {
-            background: #ffebee;
-            color: var(--secondary);
-        }
-        
-        .metric-match {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        
-        .metric-days {
-            background: #fff8e1;
-            color: #f57f17;
-        }
-        
-        .doi-factors {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 15px;
-        }
-        
-        .factor-tag {
-            background: var(--neutral);
-            padding: 5px 10px;
+            padding: 0.25rem 0.5rem;
             border-radius: 12px;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .actions-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            min-width: 150px;
-        }
-        
-        .action-btn {
-            padding: 10px 15px;
-            border-radius: 12px;
-            border: none;
+            font-size: 0.75rem;
             font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s;
-            text-align: center;
         }
         
-        .action-primary {
-            background: var(--primary);
+        /* Hero Section for Urgent Actions */
+        .hero-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             color: white;
-        }
-        
-        .action-primary:hover {
-            background: var(--dark);
-        }
-        
-        .action-secondary {
-            background: white;
-            color: var(--primary);
-            border: 1px solid #c8e6c9;
-        }
-        
-        .action-secondary:hover {
-            background: #f5f9f6;
-        }
-        
-        .algorithm-panel {
-            flex: 1;
-            max-width: 350px;
-            background: var(--neutral);
-            padding: 25px;
-            overflow-y: auto;
-            border-left: 1px solid #e0e0e0;
-        }
-        
-        .panel-section {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-        
-        .panel-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            color: var(--dark);
-        }
-        
-        .algorithm-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .algorithm-item {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
+            padding: 2rem;
             border-radius: 12px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            margin-bottom: 1rem;
         }
         
-        .algorithm-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #e8f5e9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            flex-shrink: 0;
-        }
-        
-        .algorithm-info {
-            flex: 1;
-        }
-        
-        .algorithm-name {
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-        
-        .algorithm-description {
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
-        .algorithm-weight {
-            font-weight: 700;
-            color: var(--primary);
-            min-width: 40px;
-            text-align: right;
-        }
-        
-        .ethics-section {
-            background: #e8f5e9;
-            border: 1px solid #c8e6c9;
-        }
-        
-        .bias-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px;
-            background: white;
-            border-radius: 12px;
-            margin-top: 15px;
-        }
-        
-        .bias-bar {
-            flex: 1;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .bias-fill {
-            height: 100%;
-            background: var(--primary);
-            width: 30%;
-        }
-        
-        .bias-label {
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        .priority-key {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f5f9f6;
-            border-radius: 12px;
-        }
-        
-        .key-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .key-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-        }
-        
-        .key-high {
-            background: var(--secondary);
-        }
-        
-        .key-medium {
-            background: var(--warning);
-        }
-        
-        .key-low {
-            background: var(--low-priority);
-        }
-
-        /* Message Composer Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .composer-modal {
-            background: white;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow: hidden;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-            transform: scale(0.8);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .modal-overlay.active .composer-modal {
-            transform: scale(1);
-            opacity: 1;
-        }
-
-        .composer-header {
-            background: linear-gradient(90deg, var(--dark) 0%, var(--primary) 100%);
-            color: white;
-            padding: 20px 25px;
-            display: flex;
-            justify-content: space-between;
+        .hero-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
             align-items: center;
         }
-
-        .composer-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .composer-title i {
-            font-size: 1.5rem;
-            color: #ffd54f;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            transition: background 0.2s;
-        }
-
-        .close-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .composer-body {
-            padding: 25px;
-        }
-
-        .member-context {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .context-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--neutral);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--dark);
-        }
-
-        .context-info h4 {
-            margin: 0;
-            color: var(--dark);
-            font-size: 1.1rem;
-        }
-
-        .context-details {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 3px;
-        }
-
-        .message-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .message-textarea {
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 15px;
-            font-family: inherit;
-            font-size: 1rem;
-            resize: vertical;
-            min-height: 120px;
-            transition: border-color 0.2s;
-        }
-
-        .message-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .template-suggestions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        .template-btn {
-            background: #f5f9f6;
-            border: 1px solid #c8e6c9;
+        
+        .hero-prospect {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
             border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .template-btn:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .btn-cancel {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            color: #666;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .btn-cancel:hover {
-            background: #e2e8f0;
-        }
-
-        .btn-send {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-
-        .btn-send:hover {
-            background: var(--dark);
-        }
-
-        .recovery-indicator {
-            background: #e8f5e9;
-            border: 1px solid #c8e6c9;
-            border-radius: 10px;
-            padding: 12px;
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-        }
-
-        .recovery-indicator i {
-            color: var(--primary);
-        }
-
-        /* Success notification */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transform: translateX(400px);
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 1001;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-            opacity: 1;
+            backdrop-filter: blur(10px);
         }
         
-        @media (max-width: 900px) {
-            .dashboard-content {
-                flex-direction: column;
+        .hero-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .hero-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .hero-btn-primary {
+            background: white;
+            color: #dc2626;
+        }
+        
+        .hero-btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        /* Scrollable Carousel for Opportunities */
+        .carousel-container {
+            position: relative;
+        }
+        
+        .carousel {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding-bottom: 0.5rem;
+            scrollbar-width: thin;
+        }
+        
+        .carousel-item {
+            min-width: 250px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            position: relative;
+        }
+        
+        .carousel-item.high-value {
+            border-left: 4px solid #dc2626;
+        }
+        
+        .carousel-item.medium-value {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .carousel-item.low-value {
+            border-left: 4px solid #10b981;
+        }
+        
+        /* Heat Map for Member Engagement */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-top: 1rem;
+        }
+        
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+        }
+        
+        .heat-level-0 { background: #e5e7eb; color: #6b7280; }
+        .heat-level-1 { background: #fef3c7; color: #92400e; }
+        .heat-level-2 { background: #fde68a; color: #92400e; }
+        .heat-level-3 { background: #f59e0b; color: white; }
+        .heat-level-4 { background: #dc2626; color: white; }
+        
+        /* Progress Bars for Targets */
+        .progress-container {
+            margin: 1rem 0;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-danger { background: #dc2626; }
+        .progress-warning { background: #f59e0b; }
+        .progress-success { background: #10b981; }
+        
+        /* Compact List for Action Items */
+        .action-list {
+            list-style: none;
+        }
+        
+        .action-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .action-item:last-child {
+            border-bottom: none;
+        }
+        
+        .action-priority {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .priority-high { background: #dc2626; }
+        .priority-medium { background: #f59e0b; }
+        .priority-low { background: #10b981; }
+        
+        .action-content {
+            flex: 1;
+        }
+        
+        .action-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+        
+        .action-subtitle {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        
+        .action-time {
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        /* Sort Controls */
+        .sort-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .sort-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sort-btn.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        
+        .sort-btn.danger {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
             }
             
-            .algorithm-panel {
-                max-width: 100%;
-                border-left: none;
-                border-top: 1px solid #e0e0e0;
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
             }
-
-            .composer-modal {
-                width: 95%;
-                margin: 10px;
+            
+            .crisis-stats {
+                flex-direction: column;
+                gap: 0.5rem;
             }
         }
     </style>
 </head>
 <body>
+    <div class="crisis-header">
+        <h1>🚨 CRISIS DASHBOARD</h1>
+        <div class="crisis-stats">
+            <div>⏰ 12 Days Remaining</div>
+            <div>💰 $1,847 Revenue Gap</div>
+            <div>📊 67% to Target</div>
+            <div>🎯 Need 1 High-Value Client</div>
+        </div>
+    </div>
+    
     <div class="dashboard-container">
-        <div class="dashboard-header">
-            <div class="header-title">
-                <i class="fas fa-brain"></i>
-                <h1>Life Time Trainer Copilot - Priority Dashboard</h1>
-            </div>
-            <div class="crisis-indicator">
-                <i class="fas fa-exclamation-triangle"></i>
-                <div>🚨 23 days until terminations | -$75K monthly loss</div>
+        <!-- Hero Section: Most Urgent Action -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <div>
+                    <h2>🎯 URGENT: Call Sarah Chen NOW</h2>
+                    <div class="hero-prospect">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Wedding • Oct 15 • $1,760 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 78% conversion probability. Budget confirmed. Emotional timeline perfect for premium package commitment.
+                        </div>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">📱 Text First</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Email Info</button>
+                    </div>
+                </div>
+                <div style="text-align: center; font-size: 3rem; opacity: 0.8;">
+                    ⏰<br>
+                    <div style="font-size: 1rem; margin-top: 0.5rem;">
+                        This call could save your job
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="sort-controls">
-            <div class="sort-label">Sort by:</div>
-            <div class="sort-option active" data-sort="doi">
-                <i class="fas fa-star"></i> Relevance
+        <div class="dashboard-grid">
+            <!-- High-Value Opportunities Carousel -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title">💰 High-Value Pipeline</div>
+                    <div class="ai-badge">AI Sorted</div>
+                </div>
+                <div class="carousel-container">
+                    <div class="carousel">
+                        <div class="carousel-item high-value">
+                            <div style="font-weight: 600; color: #dc2626;">Marcus Rodriguez</div>
+                            <div style="font-size: 0.9rem; color: #6b7280; margin: 0.5rem 0;">
+                                High school reunion • Dec 2024
+                            </div>
+                            <div style="font-size: 0.8rem; background: #fee2e2; padding: 0.25rem 0.5rem; border-radius: 4px; color: #dc2626;">
+                                $1,040 potential • 52% conversion
+                            </div>
+                        </div>
+                        <div class="carousel-item medium-value">
+                            <div style="font-weight: 600; color: #f59e0b;">Jennifer Walsh</div>
+                            <div style="font-size: 0.9rem; color: #6b7280; margin: 0.5rem 0;">
+                                Beach vacation • Summer 2025
+                            </div>
+                            <div style="font-size: 0.8rem; background: #fef3c7; padding: 0.25rem 0.5rem; border-radius: 4px; color: #d97706;">
+                                $520 potential • 23% conversion
+                            </div>
+                        </div>
+                        <div class="carousel-item low-value">
+                            <div style="font-weight: 600; color: #10b981;">David Park</div>
+                            <div style="font-size: 0.9rem; color: #6b7280; margin: 0.5rem 0;">
+                                General fitness • No deadline
+                            </div>
+                            <div style="font-size: 0.8rem; background: #d1fae5; padding: 0.25rem 0.5rem; border-radius: 4px; color: #059669;">
+                                $520 potential • 15% conversion
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="sort-option" data-sort="revenue">
-                <i class="fas fa-dollar-sign"></i> Revenue Impact
+            
+            <!-- Member Engagement Heatmap -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title">🔥 Member Activity Heat</div>
+                    <div class="ai-badge">Live Data</div>
+                </div>
+                <div>Last 7 Days • Click for details</div>
+                <div class="heatmap-grid">
+                    <div class="heatmap-cell heat-level-2">M</div>
+                    <div class="heatmap-cell heat-level-1">T</div>
+                    <div class="heatmap-cell heat-level-3">W</div>
+                    <div class="heatmap-cell heat-level-4">T</div>
+                    <div class="heatmap-cell heat-level-2">F</div>
+                    <div class="heatmap-cell heat-level-1">S</div>
+                    <div class="heatmap-cell heat-level-0">S</div>
+                </div>
+                <div style="margin-top: 1rem; font-size: 0.9rem; color: #6b7280;">
+                    🔴 High Activity = Higher Conversion Window
+                </div>
             </div>
-            <div class="sort-option" data-sort="risk">
-                <i class="fas fa-exclamation-triangle"></i> Churn Risk
+            
+            <!-- Crisis Progress Meters -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title">📊 Survival Metrics</div>
+                    <div class="ai-badge">Real-time</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Revenue Target</span>
+                        <span>$3,153 / $5,000</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-danger" style="width: 63%"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Conversion Rate</span>
+                        <span>12% / 20% target</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-warning" style="width: 60%"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Time Remaining</span>
+                        <span>12 / 30 days</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-danger" style="width: 40%"></div>
+                    </div>
+                </div>
             </div>
-            <div class="sort-option" data-sort="recency">
-                <i class="fas fa-clock"></i> Recency
+            
+            <!-- Immediate Action List -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title">⚡ Today's Actions</div>
+                    <div class="ai-badge">Priority Sorted</div>
+                </div>
+                <ul class="action-list">
+                    <li class="action-item">
+                        <div class="action-priority priority-high"></div>
+                        <div class="action-content">
+                            <div class="action-title">Call Sarah Chen</div>
+                            <div class="action-subtitle">Wedding prep urgency peak</div>
+                        </div>
+                        <div class="action-time">2:00 PM</div>
+                    </li>
+                    <li class="action-item">
+                        <div class="action-priority priority-medium"></div>
+                        <div class="action-content">
+                            <div class="action-title">Follow up Marcus</div>
+                            <div class="action-subtitle">Price objection handling</div>
+                        </div>
+                        <div class="action-time">4:00 PM</div>
+                    </li>
+                    <li class="action-item">
+                        <div class="action-priority priority-low"></div>
+                        <div class="action-content">
+                            <div class="action-title">Email Jennifer</div>
+                            <div class="action-subtitle">Beach body content</div>
+                        </div>
+                        <div class="action-time">6:00 PM</div>
+                    </li>
+                </ul>
             </div>
         </div>
         
-        <div class="dashboard-content">
-            <div class="members-container" id="members-container">
-                <!-- Members will be populated here -->
+        <!-- Dynamic Sort Controls -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <div class="section-title">🎛️ AI Sort Controls</div>
+                <div style="font-size: 0.8rem; color: #6b7280;">Currently optimizing for job survival</div>
             </div>
-            
-            <div class="algorithm-panel">
-                <div class="panel-section">
-                    <div class="panel-title">
-                        <i class="fas fa-cogs"></i>
-                        <h3>Prioritization Algorithms</h3>
-                    </div>
-                    
-                    <div class="algorithm-list">
-                        <div class="algorithm-item">
-                            <div class="algorithm-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <div class="algorithm-info">
-                                <div class="algorithm-name">Revenue Impact Model</div>
-                                <div class="algorithm-description">Prioritizes high-value members with retention risk</div>
-                            </div>
-                            <div class="algorithm-weight">68%</div>
-                        </div>
-                        
-                        <div class="algorithm-item">
-                            <div class="algorithm-icon">
-                                <i class="fas fa-heart"></i>
-                            </div>
-                            <div class="algorithm-info">
-                                <div class="algorithm-name">Engagement Retention</div>
-                                <div class="algorithm-description">Focuses on members with high engagement potential</div>
-                            </div>
-                            <div class="algorithm-weight">52%</div>
-                        </div>
-                        
-                        <div class="algorithm-item">
-                            <div class="algorithm-icon">
-                                <i class="fas fa-balance-scale"></i>
-                            </div>
-                            <div class="algorithm-info">
-                                <div class="algorithm-name">Ethical Distribution</div>
-                                <div class="algorithm-description">Ensures fair access across demographics</div>
-                            </div>
-                            <div class="algorithm-weight">45%</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="panel-section ethics-section">
-                    <div class="panel-title">
-                        <i class="fas fa-hand-holding-heart"></i>
-                        <h3>Priority Indicator System</h3>
-                    </div>
-                    
-                    <p style="margin-bottom: 15px; line-height: 1.6;">
-                        Our priority indicators are based on churn risk to highlight intervention urgency:
-                    </p>
-                    
-                    <div class="priority-key">
-                        <div class="key-item">
-                            <div class="key-color key-high"></div>
-                            <div>High Priority (80-100% risk)</div>
-                        </div>
-                        <div class="key-item">
-                            <div class="key-color key-medium"></div>
-                            <div>Medium Priority (60-79% risk)</div>
-                        </div>
-                        <div class="key-item">
-                            <div class="key-color key-low"></div>
-                            <div>Low Priority (0-59% risk)</div>
-                        </div>
-                    </div>
-                    
-                    <div class="bias-indicator">
-                        <div class="bias-label">Demographic Bias:</div>
-                        <div class="bias-bar">
-                            <div class="bias-fill" style="width: 30%;"></div>
-                        </div>
-                        <div>Low</div>
-                    </div>
-                    
-                    <div class="bias-indicator">
-                        <div class="bias-label">Accessibility Score:</div>
-                        <div class="bias-bar">
-                            <div class="bias-fill" style="width: 75%;"></div>
-                        </div>
-                        <div>High</div>
-                    </div>
-                </div>
-                
-                <div class="panel-section">
-                    <div class="panel-title">
-                        <i class="fas fa-lightbulb"></i>
-                        <h3>Why This Matters</h3>
-                    </div>
-                    
-                    <p style="line-height: 1.6; margin-bottom: 15px;">
-                        In our current crisis, high-risk members (🔴) represent immediate revenue loss. 
-                        Medium-risk (🟠) need attention but rehabilitation cases are protected by ethical algorithms.
-                    </p>
-                    
-                    <p style="line-height: 1.6;">
-                        Low-risk (⚪) members still contribute value but don't require urgent intervention.
-                    </p>
-                </div>
+            <div class="sort-controls">
+                <button class="sort-btn danger active">🚨 Crisis Mode</button>
+                <button class="sort-btn">💰 Revenue First</button>
+                <button class="sort-btn">📊 Conversion Probability</button>
+                <button class="sort-btn">⏰ Timeline Urgency</button>
+                <button class="sort-btn">🔥 Member Activity</button>
+                <button class="sort-btn">🎯 Relationship Warmth</button>
+            </div>
+            <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                <strong>Current AI Logic:</strong> Prioritizing prospects with highest revenue potential and conversion probability within your 12-day deadline. Sarah Chen ranked #1 due to wedding timeline (emotional urgency) + budget confirmation + 78% conversion score.
             </div>
         </div>
     </div>
-
-    <!-- Message Composer Modal -->
-    <div class="modal-overlay" id="composer-modal">
-        <div class="composer-modal">
-            <div class="composer-header">
-                <div class="composer-title">
-                    <i class="fas fa-comment-dots"></i>
-                    <h3>Member Reactivation Message</h3>
-                </div>
-                <button class="close-btn" onclick="closeComposer()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="composer-body">
-                <div class="member-context" id="member-context">
-                    <!-- Member context will be populated here -->
-                </div>
-                
-                <form class="message-form" onsubmit="sendMessage(event)">
-                    <div class="form-group">
-                        <label class="form-label">Message</label>
-                        <textarea 
-                            class="message-textarea" 
-                            id="message-text" 
-                            placeholder="Your personalized message will appear here..."
-                            required>
-                        </textarea>
-                        
-                        <div class="template-suggestions">
-                            <button type="button" class="template-btn" onclick="useTemplate('motivation')">
-                                Motivational
-                            </button>
-                            <button type="button" class="template-btn" onclick="useTemplate('schedule')">
-                                Schedule Focus
-                            </button>
-                            <button type="button" class="template-btn" onclick="useTemplate('achievement')">
-                                Achievement
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="recovery-indicator">
-                        <i class="fas fa-chart-line"></i>
-                        <span id="recovery-amount">Potential recovery: $1,760/month</span>
-                    </div>
-                    
-                    <div class="action-buttons">
-                        <button type="button" class="btn-cancel" onclick="closeComposer()">
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn-send">
-                            <i class="fas fa-paper-plane"></i>
-                            Send Message
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Success Notification -->
-    <div class="notification" id="notification">
-        <i class="fas fa-check-circle" style="margin-right: 10px;"></i>
-        <span id="notification-text">Message sent successfully!</span>
-    </div>
-
+    
     <script>
-        // Sample member data with proper churn risk values
-        const members = [
-            {
-                id: 1023,
-                name: "Sarah Miller",
-                status: "Platinum",
-                activity: "Yoga & Running",
-                value: 1760,
-                lastActive: "21 days ago",
-                trainer: "Tom Harrison",
-                notes: "Prefers morning sessions, training for 5K",
-                churnRisk: 84, // High priority (red)
-                doiScore: 92
-            },
-            {
-                id: 1045,
-                name: "James Wilson",
-                status: "Gold",
-                activity: "Strength Training",
-                value: 1200,
-                lastActive: "14 days ago",
-                trainer: "Lisa Chen",
-                notes: "Focus on back rehabilitation, avoids heavy lifting",
-                churnRisk: 65, // Medium priority (orange)
-                doiScore: 85
-            },
-            {
-                id: 1078,
-                name: "Michael Rodriguez",
-                status: "Platinum",
-                activity: "Swimming & Cycling",
-                value: 2100,
-                lastActive: "2 days ago",
-                trainer: "Tom Harrison",
-                notes: "Triathlon training, needs nutrition guidance",
-                churnRisk: 22, // Low priority (grey)
-                doiScore: 88
-            },
-            {
-                id: 1122,
-                name: "Emily Johnson",
-                status: "Silver",
-                activity: "Pilates & Yoga",
-                value: 850,
-                lastActive: "35 days ago",
-                trainer: "Sarah Kim",
-                notes: "Post-pregnancy fitness, prefers gentle routines",
-                churnRisk: 91, // High priority (red)
-                doiScore: 65
-            }
-        ];
-        
-        // DOM elements
-        const membersContainer = document.getElementById('members-container');
-        const sortOptions = document.querySelectorAll('.sort-option');
-        const composerModal = document.getElementById('composer-modal');
-        const memberContext = document.getElementById('member-context');
-        const messageText = document.getElementById('message-text');
-        const recoveryAmount = document.getElementById('recovery-amount');
-        const notification = document.getElementById('notification');
-        
-        let currentMember = null;
-
-        // Context-aware message templates
-        const messageTemplates = {
-            'Sarah Miller': {
-                default: "Hi Sarah, your 5K training plan has new availability! Book your next session?",
-                motivation: "Hi Sarah! I noticed you've been away from your 5K training. Ready to get back on track? I have some great new running sessions that could help you reach your goals!",
-                schedule: "Hi Sarah, I have some perfect morning time slots available for your 5K training sessions. Would you like to book your next session?",
-                achievement: "Sarah, you were making such great progress with your 5K training! Let's get you back to crushing those running goals. Ready to schedule?"
-            },
-            'James Wilson': {
-                default: "Hi James, I have gentle strength training sessions available that focus on your back rehabilitation goals.",
-                motivation: "Hi James! Your back rehabilitation progress was impressive. Ready to continue building that strength safely?",
-                schedule: "James, I have some perfect time slots for your back-focused strength training. Shall we book your next session?",
-                achievement: "James, you've been doing so well with your rehabilitation routine. Let's keep that momentum going with your next session!"
-            },
-            'Michael Rodriguez': {
-                default: "Hi Michael, new triathlon training slots are available! Ready to take your performance to the next level?",
-                motivation: "Michael! Your triathlon dedication is inspiring. I have some advanced training techniques to share with you!",
-                schedule: "Hi Michael, I have prime training slots perfect for your triathlon schedule. Ready to book?",
-                achievement: "Michael, your swimming and cycling progress has been incredible. Let's push those limits even further!"
-            },
-            'Emily Johnson': {
-                default: "Hi Emily, I have gentle post-pregnancy fitness sessions available that would be perfect for your wellness journey.",
-                motivation: "Emily, your wellness journey is so important. I have some wonderful gentle routines to help you feel your best!",
-                schedule: "Hi Emily, I have some peaceful time slots available for your pilates and yoga sessions. Perfect for your schedule!",
-                achievement: "Emily, the progress you made with your post-pregnancy fitness was amazing. Ready to continue feeling strong?"
-            }
-        };
-        
-        // Function to render member cards
-        function renderMembers(sortMethod = 'doi') {
-            // Clear existing content
-            membersContainer.innerHTML = '';
-            
-            // Add header
-            const header = document.createElement('div');
-            header.classList.add('priority-header');
-            header.innerHTML = `
-                <i class="fas fa-sort-amount-down"></i>
-                <h2>Members Prioritized by ${getSortTitle(sortMethod)}</h2>
-            `;
-            membersContainer.appendChild(header);
-            
-            // Sort members based on selected method
-            let sortedMembers = [...members];
-            
-            if (sortMethod === 'revenue') {
-                sortedMembers.sort((a, b) => b.value - a.value);
-            } else if (sortMethod === 'risk') {
-                sortedMembers.sort((a, b) => b.churnRisk - a.churnRisk);
-            } else if (sortMethod === 'recency') {
-                sortedMembers.sort((a, b) => {
-                    const daysA = parseInt(a.lastActive);
-                    const daysB = parseInt(b.lastActive);
-                    return daysB - daysA;
-                });
-            } else {
-                // Default DOI sorting
-                sortedMembers.sort((a, b) => b.doiScore - a.doiScore);
-            }
-            
-            // Create member cards
-            sortedMembers.forEach(member => {
-                // Determine priority class based on churn risk
-                let priorityClass = '';
-                if (member.churnRisk >= 80) {
-                    priorityClass = 'priority-high'; // Red
-                } else if (member.churnRisk >= 60) {
-                    priorityClass = 'priority-medium'; // Orange
-                } else {
-                    priorityClass = 'priority-low'; // Grey
-                }
-                
-                const card = document.createElement('div');
-                card.classList.add('member-card');
-                card.innerHTML = `
-                    <div class="priority-indicator ${priorityClass}"></div>
-                    <div class="member-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="member-details">
-                        <div class="member-header">
-                            <div class="member-name">${member.name}</div>
-                            <div class="member-value">$${member.value}/mo</div>
-                        </div>
-                        
-                        <div class="member-metrics">
-                            <div class="metric metric-churn">
-                                <div class="metric-title">Churn Risk</div>
-                                <div class="metric-value">${member.churnRisk}%</div>
-                            </div>
-                            <div class="metric metric-match">
-                                <div class="metric-title">Match Score</div>
-                                <div class="metric-value">${member.doiScore}%</div>
-                            </div>
-                            <div class="metric metric-days">
-                                <div class="metric-title">Inactive</div>
-                                <div class="metric-value">${member.lastActive}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="doi-factors">
-                            <div class="factor-tag">
-                                <i class="fas fa-crown"></i> ${member.status} Member
-                            </div>
-                            <div class="factor-tag">
-                                <i class="fas fa-running"></i> ${member.activity}
-                            </div>
-                            <div class="factor-tag">
-                                <i class="fas fa-user"></i> ${member.trainer}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="actions-container">
-                        <button class="action-btn action-primary" onclick="openComposer(${member.id})">
-                            <i class="fas fa-comment-dots"></i> Message
-                        </button>
-                        <button class="action-btn action-secondary">
-                            <i class="fas fa-chart-line"></i> Profile
-                        </button>
-                    </div>
-                `;
-                
-                membersContainer.appendChild(card);
-            });
-        }
-        
-        // Helper function for sort titles
-        function getSortTitle(sortMethod) {
-            switch(sortMethod) {
-                case 'revenue': return 'Revenue Impact';
-                case 'risk': return 'Churn Risk';
-                case 'recency': return 'Inactivity Duration';
-                default: return 'Degree of Interest';
-            }
-        }
-
-        // Open message composer
-        function openComposer(memberId) {
-            currentMember = members.find(m => m.id === memberId);
-            if (!currentMember) return;
-
-            // Populate member context
-            memberContext.innerHTML = `
-                <div class="context-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="context-info">
-                    <h4>${currentMember.name}</h4>
-                    <div class="context-details">
-                        ${currentMember.status} Member • ${currentMember.activity} • ${currentMember.lastActive}
-                    </div>
-                </div>
-            `;
-
-            // Set default message
-            const template = messageTemplates[currentMember.name];
-            messageText.value = template ? template.default : `Hi ${currentMember.name}, I wanted to reach out about your fitness journey...`;
-
-            // Update recovery amount
-            recoveryAmount.textContent = `Potential recovery: $${currentMember.value}/month`;
-
-            // Show modal
-            composerModal.classList.add('active');
-        }
-
-        // Close composer
-        function closeComposer() {
-            composerModal.classList.remove('active');
-            currentMember = null;
-        }
-
-        // Use message template
-        function useTemplate(templateType) {
-            if (!currentMember) return;
-            
-            const template = messageTemplates[currentMember.name];
-            if (template && template[templateType]) {
-                messageText.value = template[templateType];
-            }
-        }
-
-        // Send message
-        function sendMessage(event) {
-            event.preventDefault();
-            
-            if (!currentMember) return;
-
-            // Simulate backend action recording
-            recordBackendAction(currentMember, messageText.value);
-
-            // Show success notification
-            showNotification(`Message sent to ${currentMember.name}! Action recorded as potential $${currentMember.value} recovery.`);
-
-            // Close composer
-            closeComposer();
-        }
-
-        // Simulate backend action recording
-        function recordBackendAction(member, message) {
-            const actionData = {
-                timestamp: new Date().toISOString(),
-                memberId: member.id,
-                memberName: member.name,
-                action: 'reactivation_message_sent',
-                message: message,
-                potentialRecovery: member.value,
-                churnRisk: member.churnRisk,
-                trainer: member.trainer
-            };
-
-            // Log to console (in real app, this would be sent to backend)
-            console.log('Backend Action Recorded:', actionData);
-            
-            // Store in localStorage for demonstration
-            const actions = JSON.parse(localStorage.getItem('reactivationActions') || '[]');
-            actions.push(actionData);
-            localStorage.setItem('reactivationActions', JSON.stringify(actions));
-        }
-
-        // Show notification
-        function showNotification(message) {
-            document.getElementById('notification-text').textContent = message;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 4000);
-        }
-
-        // Event listeners for sort options
-        sortOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                // Remove active class from all options
-                sortOptions.forEach(opt => opt.classList.remove('active'));
-                
-                // Add active class to clicked option
+        // Interactive sort controls
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
-                // Get sort method from data attribute
-                const sortMethod = this.dataset.sort;
+                // Simulate reordering content
+                const heroSection = document.querySelector('.hero-section h2');
+                const currentSort = this.textContent.trim();
                 
-                // Re-render members with new sort
-                renderMembers(sortMethod);
+                if (currentSort.includes('Revenue First')) {
+                    heroSection.innerHTML = '💰 TOP REVENUE: Focus on Marcus Rodriguez';
+                } else if (currentSort.includes('Timeline Urgency')) {
+                    heroSection.innerHTML = '⏰ MOST URGENT: Wedding deadline approaching';
+                } else if (currentSort.includes('Crisis Mode')) {
+                    heroSection.innerHTML = '🚨 URGENT: Call Sarah Chen NOW';
+                }
             });
         });
-
-        // Close modal when clicking outside
-        composerModal.addEventListener('click', function(e) {
-            if (e.target === composerModal) {
-                closeComposer();
-            }
-        });
-
-        // ESC key to close modal
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && composerModal.classList.contains('active')) {
-                closeComposer();
-            }
+        
+        // Heatmap interaction
+        document.querySelectorAll('.heatmap-cell').forEach(cell => {
+            cell.addEventListener('click', function() {
+                const day = this.textContent;
+                const level = this.classList.contains('heat-level-4') ? 'Very High' : 
+                           this.classList.contains('heat-level-3') ? 'High' : 
+                           this.classList.contains('heat-level-2') ? 'Medium' : 'Low';
+                alert(`${day}: ${level} member activity\n\nMembers most active on this day are 2.3x more likely to respond to outreach.`);
+            });
         });
         
-        // Initial render
-        renderMembers();
+        // Hero action buttons
+        document.querySelectorAll('.hero-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                if (action.includes('Call')) {
+                    alert(`📞 Calling Sarah Chen...\n\nScript tip: "Sarah, I have been thinking about your wedding timeline and have some specific ideas for your 20lb goal..."`);
+                } else if (action.includes('Text')) {
+                    alert(`📱 Text message ready:\n\n"Hi Sarah! Quick question about your wedding prep - do you have 2 minutes to discuss your timeline?"`);
+                } else if (action.includes('Email')) {
+                    alert(`📧 Email draft:\n\n"Wedding Transformation Timeline - Let's Make This Perfect"`);
+                }
+            });
+        });
     </script>
 </body>
 </html>
