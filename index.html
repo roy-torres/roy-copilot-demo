@@ -509,25 +509,174 @@
     </div>
     
     <script>
-        // Interactive sort controls
+        // Interactive sort controls with full prospect swapping
         document.querySelectorAll('.sort-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
-                // Simulate reordering content
-                const heroSection = document.querySelector('.hero-section h2');
                 const currentSort = this.textContent.trim();
+                const heroTitle = document.querySelector('.hero-section h2');
+                const heroProspect = document.querySelector('.hero-prospect');
+                const heroActions = document.querySelector('.hero-actions');
                 
                 if (currentSort.includes('Revenue First')) {
-                    heroSection.innerHTML = '💰 TOP REVENUE: Focus on Marcus Rodriguez';
-                } else if (currentSort.includes('Timeline Urgency')) {
-                    heroSection.innerHTML = '⏰ MOST URGENT: Wedding deadline approaching';
+                    heroTitle.innerHTML = '💰 TOP REVENUE: Call Marcus Rodriguez';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            High School Reunion • Dec 2024 • $1,040 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 52% conversion probability. Price-conscious but motivated by social pressure. Payment plan removes barrier to premium package.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">💳 Propose Payment Plan</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Send Reunion Tips</button>
+                    `;
+                }
+                
+                // Re-attach event listeners to new buttons
+                attachHeroButtonEvents(); else if (currentSort.includes('Timeline Urgency')) {
+                    heroTitle.innerHTML = '⏰ MOST URGENT: Call Sarah Chen';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Wedding • Oct 15 • $1,760 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 78% conversion probability. 16-week timeline creates perfect urgency window. Budget flexibility confirmed.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">📱 Text First</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Email Info</button>
+                    `;
+                } else if (currentSort.includes('Conversion Probability')) {
+                    heroTitle.innerHTML = '📊 HIGHEST CONVERSION: Call Sarah Chen';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Wedding • Oct 15 • $1,760 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 78% conversion probability beats all other prospects. Wedding motivation + budget flexibility = ideal conversion scenario.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">📱 Text First</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Email Info</button>
+                    `;
                 } else if (currentSort.includes('Crisis Mode')) {
-                    heroSection.innerHTML = '🚨 URGENT: Call Sarah Chen NOW';
+                    heroTitle.innerHTML = '🚨 URGENT: Call Sarah Chen NOW';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Wedding • Oct 15 • $1,760 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 78% conversion probability. Budget confirmed. Emotional timeline perfect for premium package commitment.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">📱 Text First</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Email Info</button>
+                    `;
+                } else if (currentSort.includes('Member Activity')) {
+                    heroTitle.innerHTML = '🔥 MOST ACTIVE: Call Jennifer Walsh';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Beach Vacation • Summer 2025 • $520 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 23% conversion probability but highest app activity this week. Recent engagement suggests readiness to discuss options.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">📱 Check App Activity</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Beach Body Content</button>
+                    `;
+                } else if (currentSort.includes('Relationship Warmth')) {
+                    heroTitle.innerHTML = '🎯 WARMEST LEAD: Call Marcus Rodriguez';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            High School Reunion • Dec 2024 • $1,040 Potential
+                        </div>
+                        <div>
+                            AI Analysis: Member referral + positive responses + recent contact = warmest relationship. Trust already established.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">💬 Casual Check-in</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Reunion Progress</button>
+                    `;
+                }
+                
+                // Update AI logic explanation
+                const aiLogicDiv = document.querySelector('.sort-controls + div');
+                if (currentSort.includes('Revenue First')) {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with highest annual revenue potential. Marcus Rodriguez ranked #1 due to $1,040 potential and established interest, despite lower conversion probability than Sarah.
+                        </div>
+                    `;
+                } else if (currentSort.includes('Timeline Urgency')) {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with most urgent timelines. Sarah Chen ranked #1 due to 16-week wedding timeline creating optimal conversion window before your deadline.
+                        </div>
+                    `;
+                } else if (currentSort.includes('Conversion Probability')) {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with highest conversion likelihood. Sarah Chen ranked #1 with 78% probability due to wedding motivation + budget flexibility combination.
+                        </div>
+                    `;
+                } else if (currentSort.includes('Member Activity')) {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with recent engagement activity. Jennifer Walsh ranked #1 due to highest app usage this week, indicating readiness for outreach.
+                        </div>
+                    `;
+                } else if (currentSort.includes('Relationship Warmth')) {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with strongest existing relationships. Marcus Rodriguez ranked #1 due to member referral + positive response history.
+                        </div>
+                    `;
+                } else {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with highest revenue potential and conversion probability within your 12-day deadline. Sarah Chen ranked #1 due to wedding timeline (emotional urgency) + budget confirmation + 78% conversion score.
+                        </div>
+                    `;
                 }
             });
         });
+        
+        // Function to attach hero button events
+        function attachHeroButtonEvents() {
+            document.querySelectorAll('.hero-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const action = this.textContent.trim();
+                    if (action.includes('Call')) {
+                        const prospect = document.querySelector('.hero-section h2').textContent;
+                        alert(`📞 Calling prospect...\n\nCurrent algorithm: ${document.querySelector('.sort-btn.active').textContent}\nProspect: ${prospect}`);
+                    } else if (action.includes('Text')) {
+                        alert(`📱 Text message ready for current top prospect.`);
+                    } else if (action.includes('Email')) {
+                        alert(`📧 Email draft ready for current algorithm's top choice.`);
+                    } else if (action.includes('Payment Plan')) {
+                        alert(`💳 Payment plan proposal: $520 bi-weekly for Marcus Rodriguez`);
+                    } else if (action.includes('App Activity')) {
+                        alert(`📱 Jennifer's app activity: 4 sessions viewed this week, 2 trainer profiles checked`);
+                    }
+                });
+            });
+        }
         
         // Heatmap interaction
         document.querySelectorAll('.heatmap-cell').forEach(cell => {
@@ -540,19 +689,8 @@
             });
         });
         
-        // Hero action buttons
-        document.querySelectorAll('.hero-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const action = this.textContent.trim();
-                if (action.includes('Call')) {
-                    alert(`📞 Calling Sarah Chen...\n\nScript tip: "Sarah, I have been thinking about your wedding timeline and have some specific ideas for your 20lb goal..."`);
-                } else if (action.includes('Text')) {
-                    alert(`📱 Text message ready:\n\n"Hi Sarah! Quick question about your wedding prep - do you have 2 minutes to discuss your timeline?"`);
-                } else if (action.includes('Email')) {
-                    alert(`📧 Email draft:\n\n"Wedding Transformation Timeline - Let's Make This Perfect"`);
-                }
-            });
-        });
+        // Initialize hero button events on page load
+        attachHeroButtonEvents();
     </script>
 </body>
 </html>
