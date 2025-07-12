@@ -1,234 +1,696 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Crisis Dashboard - Dynamic Content</title>
-  <style>
-    /* ------- GLOBAL STYLES ------- */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f8f9fa; color: #333;
-    }
-
-    .crisis-header {
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-      color: white; padding: 1rem; text-align: center;
-      position: sticky; top: 0; z-index: 100;
-    }
-
-    .crisis-stats {
-      display: flex; justify-content: space-around;
-      margin-top: 0.5rem; font-size: 0.9rem;
-    }
-
-    .dashboard-container {
-      padding: 1rem; max-width: 1200px; margin: 0 auto;
-    }
-
-    .dashboard-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 1rem; margin-bottom: 2rem;
-    }
-
-    .dashboard-section {
-      background: white; border-radius: 12px; padding: 1rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .section-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;
-    }
-
-    .section-title { font-weight: 600; color: #1f2937; }
-    .ai-badge {
-      background: #10b981; color: white; padding: 0.25rem 0.5rem;
-      border-radius: 12px; font-size: 0.75rem; font-weight: 600;
-    }
-
-    .hero-section {
-      grid-column: 1 / -1;
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-      color: white; padding: 2rem; border-radius: 12px; margin-bottom: 1rem;
-    }
-
-    .hero-content {
-      display: grid; grid-template-columns: 2fr 1fr;
-      gap: 2rem; align-items: center;
-    }
-
-    .hero-prospect {
-      background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;
-      backdrop-filter: blur(10px);
-    }
-
-    .hero-actions {
-      display: flex; gap: 0.5rem; margin-top: 1rem;
-    }
-
-    .hero-btn {
-      padding: 0.75rem 1.5rem; border: none; border-radius: 8px;
-      font-weight: 600; cursor: pointer; transition: all 0.3s;
-    }
-
-    .hero-btn-primary { background: white; color: #dc2626; }
-    .hero-btn-secondary {
-      background: transparent; color: white; border: 2px solid rgba(255,255,255,0.3);
-    }
-
-    .carousel-container { position: relative; }
-    .carousel {
-      display: flex; overflow-x: auto; gap: 1rem;
-      padding-bottom: 0.5rem; scrollbar-width: thin;
-    }
-
-    .carousel-item {
-      min-width: 250px; background: #f8fafc;
-      border: 1px solid #e2e8f0; border-radius: 8px;
-      padding: 1rem; position: relative;
-    }
-
-    .carousel-item.high-value { border-left: 4px solid #dc2626; }
-    .carousel-item.medium-value { border-left: 4px solid #f59e0b; }
-    .carousel-item.low-value { border-left: 4px solid #10b981; }
-
-    .heatmap-grid {
-      display: grid; grid-template-columns: repeat(7, 1fr);
-      gap: 2px; margin-top: 1rem;
-    }
-
-    .heatmap-cell {
-      aspect-ratio: 1; border-radius: 4px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; font-weight: 600; color: white;
-      cursor: pointer; transition: transform 0.2s;
-    }
-
-    .heatmap-cell:hover { transform: scale(1.1); }
-
-    .heat-level-0 { background: #e5e7eb; color: #6b7280; }
-    .heat-level-1 { background: #fef3c7; color: #92400e; }
-    .heat-level-2 { background: #fde68a; color: #92400e; }
-    .heat-level-3 { background: #f59e0b; color: white; }
-    .heat-level-4 { background: #dc2626; color: white; }
-
-    .progress-container { margin: 1rem 0; }
-    .progress-label {
-      display: flex; justify-content: space-between;
-      margin-bottom: 0.5rem; font-size: 0.9rem;
-    }
-
-    .progress-bar {
-      height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;
-    }
-
-    .progress-fill { height: 100%; transition: width 0.3s ease; }
-    .progress-danger { background: #dc2626; }
-    .progress-warning { background: #f59e0b; }
-    .progress-success { background: #10b981; }
-
-    .action-list { list-style: none; }
-    .action-item {
-      display: flex; align-items: center;
-      padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;
-    }
-
-    .action-item:last-child { border-bottom: none; }
-
-    .action-priority {
-      width: 12px; height: 12px; border-radius: 50%;
-      margin-right: 0.75rem; flex-shrink: 0;
-    }
-
-    .priority-high { background: #dc2626; }
-    .priority-medium { background: #f59e0b; }
-    .priority-low { background: #10b981; }
-
-    .action-content { flex: 1; }
-    .action-title {
-      font-weight: 600; font-size: 0.9rem; color: #1f2937;
-    }
-    .action-subtitle {
-      font-size: 0.8rem; color: #6b7280; margin-top: 0.25rem;
-    }
-    .action-time {
-      font-size: 0.8rem; color: #6b7280; font-weight: 500;
-    }
-
-    .sort-controls {
-      display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;
-    }
-
-    .sort-btn {
-      padding: 0.5rem 1rem; border: 1px solid #d1d5db;
-      background: white; border-radius: 6px; font-size: 0.9rem;
-      cursor: pointer; transition: all 0.3s;
-    }
-
-    .sort-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
-    .sort-btn.danger { background: #dc2626; color: white; border-color: #dc2626; }
-
-    @media (max-width: 768px) {
-      .dashboard-grid { grid-template-columns: 1fr; }
-      .hero-content { grid-template-columns: 1fr; text-align: center; }
-      .crisis-stats { flex-direction: column; gap: 0.5rem; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crisis Dashboard - Dynamic Content</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .crisis-header {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .crisis-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .dashboard-container {
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .ai-badge {
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* Hero Section for Urgent Actions */
+        .hero-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .hero-prospect {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .hero-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .hero-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .hero-btn-primary {
+            background: white;
+            color: #dc2626;
+        }
+        
+        .hero-btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        /* Scrollable Carousel for Opportunities */
+        .carousel-container {
+            position: relative;
+        }
+        
+        .carousel {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding-bottom: 0.5rem;
+            scrollbar-width: thin;
+        }
+        
+        .carousel-item {
+            min-width: 250px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            position: relative;
+        }
+        
+        .carousel-item.high-value {
+            border-left: 4px solid #dc2626;
+        }
+        
+        .carousel-item.medium-value {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .carousel-item.low-value {
+            border-left: 4px solid #10b981;
+        }
+        
+        /* Heat Map for Member Engagement */
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-top: 1rem;
+        }
+        
+        .heatmap-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+        }
+        
+        .heat-level-0 { background: #e5e7eb; color: #6b7280; }
+        .heat-level-1 { background: #fef3c7; color: #92400e; }
+        .heat-level-2 { background: #fde68a; color: #92400e; }
+        .heat-level-3 { background: #f59e0b; color: white; }
+        .heat-level-4 { background: #dc2626; color: white; }
+        
+        /* Progress Bars for Targets */
+        .progress-container {
+            margin: 1rem 0;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-danger { background: #dc2626; }
+        .progress-warning { background: #f59e0b; }
+        .progress-success { background: #10b981; }
+        
+        /* Compact List for Action Items */
+        .action-list {
+            list-style: none;
+        }
+        
+        .action-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .action-item:last-child {
+            border-bottom: none;
+        }
+        
+        .action-priority {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .priority-high { background: #dc2626; }
+        .priority-medium { background: #f59e0b; }
+        .priority-low { background: #10b981; }
+        
+        .action-content {
+            flex: 1;
+        }
+        
+        .action-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+        
+        .action-subtitle {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        
+        .action-time {
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        /* Sort Controls */
+        .sort-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .sort-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sort-btn.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        
+        .sort-btn.danger {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .crisis-stats {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-
-  <!-- ✅ HEADER -->
-  <div class="crisis-header">
-    <h1>🚨 CRISIS DASHBOARD</h1>
-    <div class="crisis-stats">
-      <div>⏰ 12 Days Remaining</div>
-      <div>💰 $1,847 Revenue Gap</div>
-      <div>📊 67% to Target</div>
-      <div>🎯 Need 1 High-Value Client</div>
-    </div>
-  </div>
-
-  <div class="dashboard-container">
-
-    <!-- ✅ HERO SECTION -->
-    <div class="hero-section">
-      <div class="hero-content">
-        <div>
-          <h2>🎯 URGENT: Call Sarah Chen NOW</h2>
-          <div class="hero-prospect">
-            <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
-              Wedding • Oct 15 • $1,760 Potential
-            </div>
-            <div>
-              AI Analysis: 78% conversion probability. Budget confirmed. Emotional timeline perfect for premium package commitment.
-            </div>
-          </div>
-          <div class="hero-actions">
-            <button class="hero-btn hero-btn-primary">📞 Call Now</button>
-            <button class="hero-btn hero-btn-secondary">📱 Text First</button>
-            <button class="hero-btn hero-btn-secondary">📧 Email Info</button>
-          </div>
+    <div class="crisis-header">
+        <h1>🚨 CRISIS DASHBOARD</h1>
+        <div class="crisis-stats">
+            <div>⏰ 12 Days Remaining</div>
+            <div>💰 $1,847 Revenue Gap</div>
+            <div>📊 67% to Target</div>
+            <div>🎯 Need 1 High-Value Client</div>
         </div>
-        <div style="text-align: center; font-size: 3rem; opacity: 0.8;">
-          ⏰<br>
-          <div style="font-size: 1rem; margin-top: 0.5rem;">This call could save your job</div>
-        </div>
-      </div>
     </div>
-
-    <!-- ✅ GRID SECTIONS: Add your sections here (Carousel, Heatmap, Progress, Actions, Sort Controls) -->
-    <!-- Keeping your sections as they were, unchanged for brevity -->
-
-  </div>
-
-  <!-- ✅ JS -->
-  <script>
-    // Corrected event logic — see the previous answer for the entire JS block.
-    // Include the cleaned JS here — for brevity, not repeating the same block here.
-  </script>
-
+    
+    <div class="dashboard-container">
+        <!-- Hero Section: Most Urgent Action -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <div>
+                    <h2>🎯 URGENT: Call Sarah Chen NOW</h2>
+                    <div class="hero-prospect">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Wedding • Oct 15 • $1,760 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 78% conversion probability. Budget confirmed. Emotional timeline perfect for premium package commitment.
+                        </div>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="hero-btn hero-btn-primary" onclick="showAlert('Call Sarah urgent')">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary" onclick="showAlert('Text Sarah')">📱 Text First</button>
+                        <button class="hero-btn hero-btn-secondary" onclick="showAlert('Email Sarah')">📧 Email Info</button>
+                    </div>
+                </div>
+                <div style="text-align: center; font-size: 3rem; opacity: 0.8;">
+                    ⏰<br>
+                    <div style="font-size: 1rem; margin-top: 0.5rem;">
+                        This call could save your job
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <!-- High-Value Opportunities Carousel -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title">💰 High-Value Pipeline</div>
+                    <div class="ai-badge">AI Sorted</div>
+                </div>
+                <div class="carousel-container">
+                    <div class="carousel">
+                        <div class="carousel-item high-value">
+                            <div style="font-weight: 600; color: #dc2626;">Marcus Rodriguez</div>
+                            <div style="font-size: 0.9rem; color: #6b7280; margin: 0.5rem 0;">
+                                High school reunion • Dec 2024
+                            </div>
+                            <div style="font-size: 0.8rem; background: #fee2e2; padding: 0.25rem 0.5rem; border-radius: 4px; color: #dc2626;">
+                                $1,040 potential • 52% conversion
+                            </div>
+                        </div>
+                        <div class="carousel-item medium-value">
+                            <div style="font-weight: 600; color: #f59e0b;">Jennifer Walsh</div>
+                            <div style="font-size: 0.9rem; color: #6b7280; margin: 0.5rem 0;">
+                                Beach vacation • Summer 2025
+                            </div>
+                            <div style="font-size: 0.8rem; background: #fef3c7; padding: 0.25rem 0.5rem; border-radius: 4px; color: #d97706;">
+                                $520 potential • 23% conversion
+                            </div>
+                        </div>
+                        <div class="carousel-item low-value">
+                            <div style="font-weight: 600; color: #10b981;">David Park</div>
+                            <div style="font-size: 0.9rem; color: #6b7280; margin: 0.5rem 0;">
+                                General fitness • No deadline
+                            </div>
+                            <div style="font-size: 0.8rem; background: #d1fae5; padding: 0.25rem 0.5rem; border-radius: 4px; color: #059669;">
+                                $520 potential • 15% conversion
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Member Engagement Heatmap -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title">🔥 Member Activity Heat</div>
+                    <div class="ai-badge">Live Data</div>
+                </div>
+                <div>Last 7 Days • Click for details</div>
+                <div class="heatmap-grid">
+                    <div class="heatmap-cell heat-level-2" onclick="heatmapClick('Monday', 'Medium')">M</div>
+                    <div class="heatmap-cell heat-level-1" onclick="heatmapClick('Tuesday', 'Low')">T</div>
+                    <div class="heatmap-cell heat-level-3" onclick="heatmapClick('Wednesday', 'High')">W</div>
+                    <div class="heatmap-cell heat-level-4" onclick="heatmapClick('Thursday', 'Very High')">T</div>
+                    <div class="heatmap-cell heat-level-2" onclick="heatmapClick('Friday', 'Medium')">F</div>
+                    <div class="heatmap-cell heat-level-1" onclick="heatmapClick('Saturday', 'Low')">S</div>
+                    <div class="heatmap-cell heat-level-0" onclick="heatmapClick('Sunday', 'Very Low')">S</div>
+                </div>
+                <div style="margin-top: 1rem; font-size: 0.9rem; color: #6b7280;">
+                    🔴 High Activity = Higher Conversion Window
+                </div>
+            </div>
+            
+            <!-- Crisis Progress Meters -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title">📊 Survival Metrics</div>
+                    <div class="ai-badge">Real-time</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Revenue Target</span>
+                        <span>$3,153 / $5,000</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-danger" style="width: 63%"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Conversion Rate</span>
+                        <span>12% / 20% target</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-warning" style="width: 60%"></div>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Time Remaining</span>
+                        <span>12 / 30 days</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-danger" style="width: 40%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Immediate Action List -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title">⚡ Today's Actions</div>
+                    <div class="ai-badge">Priority Sorted</div>
+                </div>
+                <ul class="action-list">
+                    <li class="action-item">
+                        <div class="action-priority priority-high"></div>
+                        <div class="action-content">
+                            <div class="action-title">Call Sarah Chen</div>
+                            <div class="action-subtitle">Wedding prep urgency peak</div>
+                        </div>
+                        <div class="action-time">2:00 PM</div>
+                    </li>
+                    <li class="action-item">
+                        <div class="action-priority priority-medium"></div>
+                        <div class="action-content">
+                            <div class="action-title">Follow up Marcus</div>
+                            <div class="action-subtitle">Price objection handling</div>
+                        </div>
+                        <div class="action-time">4:00 PM</div>
+                    </li>
+                    <li class="action-item">
+                        <div class="action-priority priority-low"></div>
+                        <div class="action-content">
+                            <div class="action-title">Email Jennifer</div>
+                            <div class="action-subtitle">Beach body content</div>
+                        </div>
+                        <div class="action-time">6:00 PM</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Dynamic Sort Controls -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <div class="section-title">🎛️ AI Sort Controls</div>
+                <div style="font-size: 0.8rem; color: #6b7280;">Currently optimizing for job survival</div>
+            </div>
+            <div class="sort-controls">
+                <button class="sort-btn danger active" onclick="changeToCrisis()">🚨 Crisis Mode</button>
+                <button class="sort-btn" onclick="changeToRevenue()">💰 Revenue First</button>
+                <button class="sort-btn" onclick="changeToUrgency()">📊 Conversion Probability</button>
+                <button class="sort-btn" onclick="changeToUrgency()">⏰ Timeline Urgency</button>
+                <button class="sort-btn" onclick="changeToActivity()">🔥 Member Activity</button>
+                <button class="sort-btn" onclick="showAlert('Relationship')">🎯 Relationship Warmth</button>
+            </div>
+            <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                <strong>Current AI Logic:</strong> Prioritizing prospects with highest revenue potential and conversion probability within your 12-day deadline. Sarah Chen ranked #1 due to wedding timeline (emotional urgency) + budget confirmation + 78% conversion score.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Interactive sort controls with full prospect swapping
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const currentSort = this.textContent.trim();
+                const heroTitle = document.querySelector('.hero-section h2');
+                const heroProspect = document.querySelector('.hero-prospect');
+                const heroActions = document.querySelector('.hero-actions');
+                
+                if (currentSort.includes('Revenue First')) {
+                    heroTitle.innerHTML = '💰 TOP REVENUE: Call Marcus Rodriguez';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            High School Reunion • Dec 2024 • $1,040 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 52% conversion probability. Price-conscious but motivated by social pressure. Payment plan removes barrier to premium package.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">💳 Propose Payment Plan</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Send Reunion Tips</button>
+                    `;
+                } else if (currentSort.includes('Timeline Urgency')) {
+                    heroTitle.innerHTML = '⏰ MOST URGENT: Call Sarah Chen';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Wedding • Oct 15 • $1,760 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 78% conversion probability. 16-week timeline creates perfect urgency window. Budget flexibility confirmed.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">📱 Text First</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Email Info</button>
+                    `;
+                } else if (currentSort.includes('Conversion Probability')) {
+                    heroTitle.innerHTML = '📊 HIGHEST CONVERSION: Call Sarah Chen';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Wedding • Oct 15 • $1,760 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 78% conversion probability beats all other prospects. Wedding motivation + budget flexibility = ideal conversion scenario.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">📱 Text First</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Email Info</button>
+                    `;
+                } else if (currentSort.includes('Crisis Mode')) {
+                    heroTitle.innerHTML = '🚨 URGENT: Call Sarah Chen NOW';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Wedding • Oct 15 • $1,760 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 78% conversion probability. Budget confirmed. Emotional timeline perfect for premium package commitment.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">📱 Text First</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Email Info</button>
+                    `;
+                } else if (currentSort.includes('Member Activity')) {
+                    heroTitle.innerHTML = '🔥 MOST ACTIVE: Call Jennifer Walsh';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Beach Vacation • Summer 2025 • $520 Potential
+                        </div>
+                        <div>
+                            AI Analysis: 23% conversion probability but highest app activity this week. Recent engagement suggests readiness to discuss options.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">📱 Check App Activity</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Beach Body Content</button>
+                    `;
+                } else if (currentSort.includes('Relationship Warmth')) {
+                    heroTitle.innerHTML = '🎯 WARMEST LEAD: Call Marcus Rodriguez';
+                    heroProspect.innerHTML = `
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            High School Reunion • Dec 2024 • $1,040 Potential
+                        </div>
+                        <div>
+                            AI Analysis: Member referral + positive responses + recent contact = warmest relationship. Trust already established.
+                        </div>
+                    `;
+                    heroActions.innerHTML = `
+                        <button class="hero-btn hero-btn-primary">📞 Call Now</button>
+                        <button class="hero-btn hero-btn-secondary">💬 Casual Check-in</button>
+                        <button class="hero-btn hero-btn-secondary">📧 Reunion Progress</button>
+                    `;
+                }
+                
+                // Update AI logic explanation
+                const aiLogicDiv = document.querySelector('.sort-controls + div');
+                if (currentSort.includes('Revenue First')) {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with highest annual revenue potential. Marcus Rodriguez ranked #1 due to $1,040 potential and established interest, despite lower conversion probability than Sarah.
+                        </div>
+                    `;
+                } else if (currentSort.includes('Timeline Urgency')) {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with most urgent timelines. Sarah Chen ranked #1 due to 16-week wedding timeline creating optimal conversion window before your deadline.
+                        </div>
+                    `;
+                } else if (currentSort.includes('Conversion Probability')) {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with highest conversion likelihood. Sarah Chen ranked #1 with 78% probability due to wedding motivation + budget flexibility combination.
+                        </div>
+                    `;
+                } else if (currentSort.includes('Member Activity')) {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with recent engagement activity. Jennifer Walsh ranked #1 due to highest app usage this week, indicating readiness for outreach.
+                        </div>
+                    `;
+                } else if (currentSort.includes('Relationship Warmth')) {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with strongest existing relationships. Marcus Rodriguez ranked #1 due to member referral + positive response history.
+                        </div>
+                    `;
+                } else {
+                    aiLogicDiv.innerHTML = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Current AI Logic:</strong> Prioritizing prospects with highest revenue potential and conversion probability within your 12-day deadline. Sarah Chen ranked #1 due to wedding timeline (emotional urgency) + budget confirmation + 78% conversion score.
+                        </div>
+                    `;
+                }
+                
+                // Attach events after all updates
+                attachHeroButtonEvents();
+            });
+        });
+        
+        // Function to attach hero button events
+        function attachHeroButtonEvents() {
+            document.querySelectorAll('.hero-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const action = this.textContent.trim();
+                    if (action.includes('Call')) {
+                        const prospect = document.querySelector('.hero-section h2').textContent;
+                        alert(`📞 Calling prospect...\n\nCurrent algorithm: ${document.querySelector('.sort-btn.active').textContent}\nProspect: ${prospect}`);
+                    } else if (action.includes('Text')) {
+                        alert(`📱 Text message ready for current top prospect.`);
+                    } else if (action.includes('Email')) {
+                        alert(`📧 Email draft ready for current algorithm's top choice.`);
+                    } else if (action.includes('Payment Plan')) {
+                        alert(`💳 Payment plan proposal: $520 bi-weekly for Marcus Rodriguez`);
+                    } else if (action.includes('App Activity')) {
+                        alert(`📱 Jennifer's app activity: 4 sessions viewed this week, 2 trainer profiles checked`);
+                    }
+                });
+            });
+        }
+        
+        // Heatmap interaction
+        document.querySelectorAll('.heatmap-cell').forEach(cell => {
+            cell.addEventListener('click', function() {
+                const day = this.textContent;
+                const level = this.classList.contains('heat-level-4') ? 'Very High' : 
+                           this.classList.contains('heat-level-3') ? 'High' : 
+                           this.classList.contains('heat-level-2') ? 'Medium' : 'Low';
+                alert(`${day}: ${level} member activity\n\nMembers most active on this day are 2.3x more likely to respond to outreach.`);
+            });
+        });
+        
+        // Initialize hero button events on page load
+        attachHeroButtonEvents();
+    </script>
 </body>
 </html>
