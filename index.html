@@ -1,213 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>L•AI•C — Forecast Copilot</title>
+  <meta charset="UTF-8">
+  <title>Life Time Evanston Forecasting Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f5f7fb;
+      background: #f6f7fb;
       margin: 0;
       padding: 0;
+      color: #222;
     }
     header {
-      background: #1a237e;
-      color: white;
-      padding: 20px;
+      background: #0093a4;
+      color: #fff;
+      padding: 1.5em 2em;
       text-align: center;
     }
-    .container {
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 0 15px;
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin: 2em 0 1em 0;
     }
-    .search-bar {
-      margin-bottom: 20px;
-      position: relative;
-    }
-    .search-bar input {
-      width: 100%;
-      padding: 12px 15px;
-      border-radius: 30px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    .suggestions {
-      position: absolute;
-      top: 50px;
-      left: 0;
-      right: 0;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      display: none;
-      flex-direction: column;
-    }
-    .suggestion {
-      padding: 10px 15px;
-      cursor: pointer;
-    }
-    .suggestion:hover {
-      background: #f0f0f0;
-    }
-    .chat {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    .message {
-      max-width: 80%;
-      padding: 12px 16px;
-      border-radius: 15px;
-      line-height: 1.4em;
-    }
-    .user { background: #1a237e; color: white; }
-    .copilot { background: #e8eaf6; color: #333; }
-    .button {
-      background: #4caf50;
-      color: white;
-      padding: 10px 16px;
+    .tab {
+      background: #e0e6ed;
       border: none;
-      border-radius: 8px;
+      outline: none;
+      padding: 1em 2em;
+      margin: 0 0.5em;
+      font-size: 1em;
+      border-radius: 8px 8px 0 0;
       cursor: pointer;
-      margin-top: 10px;
+      transition: background 0.2s;
     }
-    .dashboard {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      padding: 20px;
-      margin-bottom: 20px;
+    .tab.active {
+      background: #fff;
+      color: #0093a4;
+      box-shadow: 0 -3px 8px #e0e6ed;
+      font-weight: bold;
     }
-    .dashboard h3 { margin: 0 0 10px 0; }
-    .stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
-    .forecast-graph {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      padding: 20px;
-    }
-    .canvas-overlay {
-      position: fixed;
-      top: 0; right: -100%;
-      width: 100%; max-width: 400px;
-      height: 100%;
-      background: white;
-      box-shadow: -2px 0 10px rgba(0,0,0,0.2);
-      transition: right 0.4s ease;
-      padding: 20px;
-      z-index: 999;
-    }
-    .canvas-overlay.open { right: 0; }
-    .canvas-header { display: flex; justify-content: space-between; align-items: center; }
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
+    .tab-content {
+      background: #fff;
+      margin: 0 auto 3em auto;
+      padding: 2em;
+      border-radius: 0 0 14px 14px;
+      box-shadow: 0 6px 24px rgba(60,92,125,0.06);
+      max-width: 680px;
     }
     canvas {
-      width: 100%;
-      max-width: 100%;
-      height: auto;
+      margin: 2em auto 1em auto;
+      display: block;
+      background: #f9fafc;
+      border: 1px solid #eee;
+      border-radius: 8px;
+    }
+    @media (max-width: 700px) {
+      header { padding: 1em; }
+      .tab-content { padding: 1em; max-width: 99vw; }
+      .tabs { flex-direction: column; align-items: center; }
+      .tab { margin-bottom: 0.5em; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>L•AI•C — Forecast Copilot</h1>
-  </header>
-  <div class="container">
-    <div class="search-bar">
-      <input type="text" placeholder="Ask L•AI•C something..." id="searchInput"/>
-      <div class="suggestions" id="suggestions">
-        <div class="suggestion">Predict sessions booked next 30 days</div>
-        <div class="suggestion">Show trainer capacity</div>
-      </div>
-    </div>
+<header>
+  <h1>Forecasting Dashboard — Life Time Evanston</h1>
+  <p>AI-powered predictions for active members, utilization, and revenue</p>
+</header>
 
-    <div class="chat">
-      <div class="message user">How are we looking for next month’s bookings?</div>
-      <div class="message copilot">
-        Based on current trends, you’re on track to hit <strong>+52 sessions</strong> this month.
-        <button class="button" id="seeForecast">📈 See Forecast</button>
-      </div>
-    </div>
+<nav class="tabs">
+  <button class="tab active" data-tab="churn">Churn Forecast</button>
+  <button class="tab" data-tab="util">Utilization</button>
+  <button class="tab" data-tab="revenue">Revenue</button>
+</nav>
 
-    <div class="dashboard">
-      <h3>📊 Quick Stats</h3>
-      <div class="stat"><span>Active Trainers</span><span>12</span></div>
-      <div class="stat"><span>Active Sessions</span><span>50</span></div>
-      <div class="stat"><span>Projected ROI</span><span>$17,500</span></div>
-    </div>
-  </div>
+<!-- Tab Content: Churn -->
+<section class="tab-content" id="churn">
+  <h2>Churn Rate Forecast</h2>
+  <canvas id="churnChart" width="600" height="240"></canvas>
+  <ul>
+    <li><b>Reduces member loss, targets at-risk customers early</b></li>
+    <li>Forecast shown as % of members predicted to drop out each month</li>
+    <li>Proactive retention strategies driven by these signals</li>
+  </ul>
+</section>
 
-  <!-- Canvas Overlay -->
-  <div class="canvas-overlay" id="canvasOverlay">
-    <div class="canvas-header">
-      <h3>📈 Sessions Forecast</h3>
-      <button class="close-btn" id="closeOverlay">&times;</button>
-    </div>
-    <canvas id="forecastChart" width="400" height="200"></canvas>
-  </div>
+<!-- Tab Content: Utilization -->
+<section class="tab-content" id="util" style="display:none">
+  <h2>Facility Utilization Forecast</h2>
+  <canvas id="utilChart" width="600" height="240"></canvas>
+  <ul>
+    <li><b>Predicts peak vs. off-peak hours</b> for group classes, pickleball, and more</li>
+    <li>Optimizes scheduling for trainers and resources</li>
+    <li>Improves member experience by reducing overcrowding</li>
+  </ul>
+</section>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const searchInput = document.getElementById('searchInput');
-    const suggestions = document.getElementById('suggestions');
+<!-- Tab Content: Revenue -->
+<section class="tab-content" id="revenue" style="display:none">
+  <h2>Revenue Prediction</h2>
+  <canvas id="revenueChart" width="600" height="240"></canvas>
+  <ul>
+    <li><b>Forecasts expected revenue</b> from training, MIORA, and custom packages</li>
+    <li>Informs resource and marketing decisions</li>
+    <li>Helps plan new service launches or staff expansion</li>
+  </ul>
+</section>
 
-    searchInput.addEventListener('input', () => {
-      suggestions.style.display = searchInput.value ? 'flex' : 'none';
+<script>
+  // Tab switching logic
+  const tabs = document.querySelectorAll('.tab');
+  const contents = {
+    churn: document.getElementById('churn'),
+    util: document.getElementById('util'),
+    revenue: document.getElementById('revenue')
+  };
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      Object.values(contents).forEach(c => c.style.display='none');
+      contents[tab.dataset.tab].style.display='block';
+      // Redraw chart on tab show for responsiveness
+      drawChart(tab.dataset.tab);
     });
+  });
 
-    document.querySelectorAll('.suggestion').forEach(item => {
-      item.addEventListener('click', () => {
-        searchInput.value = item.textContent;
-        suggestions.style.display = 'none';
-        alert(`L•AI•C is searching for: "${item.textContent}"`);
-      });
+  // Simple chart renderer using Canvas (replace with Chart.js or similar for real app)
+  function drawLineGraph(ctx, labels, data, color) {
+    ctx.clearRect(0,0,600,240);
+    // Draw axes
+    ctx.strokeStyle = "#bbb";
+    ctx.beginPath(); ctx.moveTo(40,10); ctx.lineTo(40,220); ctx.lineTo(590,220); ctx.stroke();
+    // Draw label text
+    ctx.font = '12px Arial'; ctx.fillStyle='#666';
+    ctx.fillText(labels[0], 50, 235);
+    ctx.fillText(labels[labels.length-1], 550, 235);
+    // Plot data points
+    let max = Math.max(...data);
+    let min = Math.min(...data);
+    let range = max-min||1;
+    // Draw line
+    ctx.beginPath();
+    data.forEach((y, i) => {
+      let x = 50 + i*(500/(data.length-1));
+      let yy = 220-((y-min)/range)*180;
+      if(i===0) ctx.moveTo(x,yy);
+      else ctx.lineTo(x,yy);
+      ctx.arc(x, yy, 2.5, 0, 2*Math.PI); // point
+      ctx.moveTo(x,yy);
     });
+    ctx.strokeStyle=color; ctx.lineWidth=3; ctx.stroke();
+  }
 
-    const overlay = document.getElementById('canvasOverlay');
-    const closeOverlay = document.getElementById('closeOverlay');
-    const seeForecast = document.getElementById('seeForecast');
-
-    seeForecast.addEventListener('click', () => {
-      overlay.classList.add('open');
-      drawForecast();
-    });
-
-    closeOverlay.addEventListener('click', () => {
-      overlay.classList.remove('open');
-    });
-
-    function drawForecast() {
-      const ctx = document.getElementById('forecastChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ['Week 1','Week 2','Week 3','Week 4'],
-          datasets: [{
-            label: 'Sessions Booked',
-            data: [12, 15, 18, 20],
-            borderColor: '#1a237e',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true,
-          animation: { duration: 2000 },
-          scales: {
-            y: { beginAtZero: true }
-          }
-        }
-      });
+  function drawChart(tab) {
+    if(tab==='churn') {
+      let ctx = document.getElementById('churnChart').getContext('2d');
+      // Example: Churn rate % over 6 months
+      drawLineGraph(ctx, ['Jan','Feb','Mar','Apr','May','Jun'], [3.8,3.9,4.2,5.1,4.5,4.1], "#e74c3c");
     }
-  </script>
+    if(tab==='util') {
+      let ctx = document.getElementById('utilChart').getContext('2d');
+      // Example: Avg. weekly sessions per facility
+      drawLineGraph(ctx, ['Jan','Feb','Mar','Apr','May','Jun'], [1200,1250,1400,1320,1420,1290], "#16a085");
+    }
+    if(tab==='revenue') {
+      let ctx = document.getElementById('revenueChart').getContext('2d');
+      // Example: Monthly revenue (in $K)
+      drawLineGraph(ctx, ['Jan','Feb','Mar','Apr','May','Jun'], [72,74,71,80,83,82], "#2980b9");
+    }
+  }
+
+  // Initial draw
+  drawChart('churn');
+</script>
 </body>
 </html>
