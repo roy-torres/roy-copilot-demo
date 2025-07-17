@@ -1,260 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Life Time AI-First Wireframe</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L•AI•C — Forecast Copilot</title>
   <style>
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      max-width: 400px;
-      margin: auto;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 0;
     }
     header {
-      background: #00446b;
-      color: #fff;
-      padding: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      background: #1a237e;
+      color: white;
+      padding: 20px;
+      text-align: center;
     }
-    header .club-selector {
-      background: #00568f;
-      border: none;
-      color: #fff;
-      padding: 6px 8px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    header .profile-btn {
-      font-size: 18px;
-      cursor: pointer;
-    }
-    .profile-panel {
-      position: absolute;
-      top: 52px; right: 12px;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      width: 200px;
-      padding: 8px;
-      display: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      z-index: 10;
-    }
-    .profile-panel h4 {
-      margin: 0 0 8px;
-      font-size: 14px;
-      color: #00446b;
-    }
-    .profile-panel a {
-      display: block;
-      margin: 4px 0;
-      font-size: 14px;
-      color: #333;
-      text-decoration: none;
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 15px;
     }
     .search-bar {
+      margin-bottom: 20px;
       position: relative;
-      padding: 8px 12px;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
     }
     .search-bar input {
       width: 100%;
-      padding: 10px;
-      font-size: 15px;
+      padding: 12px 15px;
+      border-radius: 30px;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      font-size: 14px;
     }
     .suggestions {
       position: absolute;
-      top: 44px; left: 12px; right: 12px;
-      background: #fff;
+      top: 50px;
+      left: 0;
+      right: 0;
+      background: white;
       border: 1px solid #ccc;
-      border-radius: 4px;
-      max-height: 140px;
-      overflow-y: auto;
+      border-radius: 5px;
       display: none;
-      z-index: 10;
+      flex-direction: column;
     }
     .suggestion {
-      padding: 8px;
-      font-size: 14px;
+      padding: 10px 15px;
       cursor: pointer;
     }
     .suggestion:hover {
       background: #f0f0f0;
     }
-    .content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
+    .chat {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      padding: 20px;
+      margin-bottom: 20px;
     }
-    .programs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 15px;
+      line-height: 1.4em;
     }
-    .card {
-      background: #fff;
-      border-radius: 6px;
-      padding: 12px;
-      font-size: 14px;
-      text-align: center;
+    .user { background: #1a237e; color: white; }
+    .copilot { background: #e8eaf6; color: #333; }
+    .button {
+      background: #4caf50;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      margin-top: 10px;
     }
-    .chat-panel {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 60px;
-      background: #fff;
-      display: none;
-      flex-direction: column;
-      z-index: 5;
+    .dashboard {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      padding: 20px;
+      margin-bottom: 20px;
     }
-    .chat-header {
-      background: #00446b; color: #fff;
-      padding: 12px; font-size: 16px;
+    .dashboard h3 { margin: 0 0 10px 0; }
+    .stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+    .forecast-graph {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      padding: 20px;
     }
-    .chat-messages {
-      flex: 1; padding: 12px; overflow-y: auto;
+    .canvas-overlay {
+      position: fixed;
+      top: 0; right: -100%;
+      width: 100%; max-width: 400px;
+      height: 100%;
+      background: white;
+      box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+      transition: right 0.4s ease;
+      padding: 20px;
+      z-index: 999;
     }
-    .chat-input-wrap {
-      border-top: 1px solid #ddd;
-      padding: 8px 12px; background: #fafafa;
+    .canvas-overlay.open { right: 0; }
+    .canvas-header { display: flex; justify-content: space-between; align-items: center; }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
     }
-    .chat-input-wrap input {
+    canvas {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .bottom-nav {
-      height: 60px;
-      background: #fff;
-      border-top: 1px solid #ddd;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-    }
-    .nav-btn {
-      flex: 1;
-      text-align: center;
-      font-size: 14px;
-      color: #555;
-      cursor: pointer;
-    }
-    .nav-btn.active {
-      color: #00446b;
+      max-width: 100%;
+      height: auto;
     }
   </style>
 </head>
 <body>
-
   <header>
-    <button class="club-selector">🏢 Evanston ▾</button>
-    <div class="profile-btn">👤</div>
-    <div class="profile-panel" id="profilePanel">
-      <h4>Membership Resources</h4>
-      <a href="#">Guest Passes</a>
-      <a href="#">Club Check-In</a>
-      <a href="#">Account Details</a>
-    </div>
+    <h1>L•AI•C — Forecast Copilot</h1>
   </header>
+  <div class="container">
+    <div class="search-bar">
+      <input type="text" placeholder="Ask L•AI•C something..." id="searchInput"/>
+      <div class="suggestions" id="suggestions">
+        <div class="suggestion">Predict sessions booked next 30 days</div>
+        <div class="suggestion">Show trainer capacity</div>
+      </div>
+    </div>
 
-  <div class="search-bar">
-    <input id="searchInput" placeholder="Search pages, products, articles…" />
-    <div id="suggestions" class="suggestions"></div>
-  </div>
+    <div class="chat">
+      <div class="message user">How are we looking for next month’s bookings?</div>
+      <div class="message copilot">
+        Based on current trends, you’re on track to hit <strong>+52 sessions</strong> this month.
+        <button class="button" id="seeForecast">📈 See Forecast</button>
+      </div>
+    </div>
 
-  <div class="content" id="contentArea">
-    <div class="programs">
-      <div class="card">🧘 Yoga Classes</div>
-      <div class="card">🏋️ Strength Training</div>
-      <div class="card">🥗 Nutrition Plans</div>
-      <div class="card">🚴 Cycling Programs</div>
+    <div class="dashboard">
+      <h3>📊 Quick Stats</h3>
+      <div class="stat"><span>Active Trainers</span><span>12</span></div>
+      <div class="stat"><span>Active Sessions</span><span>50</span></div>
+      <div class="stat"><span>Projected ROI</span><span>$17,500</span></div>
     </div>
   </div>
 
-  <div class="chat-panel" id="chatPanel">
-    <div class="chat-header" id="chatTitle">L•AI•C Wellness</div>
-    <div class="chat-messages" id="chatMessages"></div>
-    <div class="chat-input-wrap">
-      <input id="chatInput" placeholder="Ask L•AI•C…" />
+  <!-- Canvas Overlay -->
+  <div class="canvas-overlay" id="canvasOverlay">
+    <div class="canvas-header">
+      <h3>📈 Sessions Forecast</h3>
+      <button class="close-btn" id="closeOverlay">&times;</button>
     </div>
+    <canvas id="forecastChart" width="400" height="200"></canvas>
   </div>
 
-  <nav class="bottom-nav">
-    <div class="nav-btn active" data-tab="home">Home</div>
-    <div class="nav-btn" data-tab="search">Search</div>
-    <div class="nav-btn" data-tab="laic">L•AI•C</div>
-    <div class="nav-btn" data-tab="copilot">Copilot</div>
-  </nav>
-
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // Profile panel toggle
-    document.querySelector('.profile-btn').onclick = () => {
-      const panel = document.getElementById('profilePanel');
-      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-    };
+    const searchInput = document.getElementById('searchInput');
+    const suggestions = document.getElementById('suggestions');
 
-    // Simple search suggestions stub
-    const suggestionsEl = document.getElementById('suggestions');
-    const sample = ['Member Activation', 'Program Pages', 'Personal Training', 'Nutrition Tips'];
-    document.getElementById('searchInput').addEventListener('input', e => {
-      const q = e.target.value.toLowerCase();
-      suggestionsEl.innerHTML = '';
-      if (!q) return suggestionsEl.style.display = 'none';
-      sample.filter(s => s.toLowerCase().includes(q)).forEach(s => {
-        const div = document.createElement('div');
-        div.className = 'suggestion';
-        div.textContent = s;
-        div.onclick = () => alert('Navigate to: ' + s);
-        suggestionsEl.appendChild(div);
+    searchInput.addEventListener('input', () => {
+      suggestions.style.display = searchInput.value ? 'flex' : 'none';
+    });
+
+    document.querySelectorAll('.suggestion').forEach(item => {
+      item.addEventListener('click', () => {
+        searchInput.value = item.textContent;
+        suggestions.style.display = 'none';
+        alert(`L•AI•C is searching for: "${item.textContent}"`);
       });
-      suggestionsEl.style.display = suggestionsEl.children.length ? 'block' : 'none';
     });
 
-    // Bottom nav logic
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelector('.nav-btn.active').classList.remove('active');
-        btn.classList.add('active');
-        const tab = btn.dataset.tab;
-        document.getElementById('contentArea').style.display = tab === 'home' ? 'block' : 'none';
-        document.querySelector('.search-bar').style.display = tab === 'search' ? 'block' : 'none';
-        if (tab === 'laic') {
-          openChat('L•AI•C Wellness');
-        } else if (tab === 'copilot') {
-          openChat('AI Copilot');
-        } else {
-          closeChat();
+    const overlay = document.getElementById('canvasOverlay');
+    const closeOverlay = document.getElementById('closeOverlay');
+    const seeForecast = document.getElementById('seeForecast');
+
+    seeForecast.addEventListener('click', () => {
+      overlay.classList.add('open');
+      drawForecast();
+    });
+
+    closeOverlay.addEventListener('click', () => {
+      overlay.classList.remove('open');
+    });
+
+    function drawForecast() {
+      const ctx = document.getElementById('forecastChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Week 1','Week 2','Week 3','Week 4'],
+          datasets: [{
+            label: 'Sessions Booked',
+            data: [12, 15, 18, 20],
+            borderColor: '#1a237e',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          animation: { duration: 2000 },
+          scales: {
+            y: { beginAtZero: true }
+          }
         }
-      };
-    });
-
-    function openChat(title) {
-      document.getElementById('chatTitle').textContent = title;
-      document.getElementById('chatPanel').style.display = 'flex';
-      document.getElementById('contentArea').style.display = 'none';
-      document.querySelector('.search-bar').style.display = 'none';
+      });
     }
-    function closeChat() {
-      document.getElementById('chatPanel').style.display = 'none';
-      document.getElementById('contentArea').style.display = 'block';
-      document.querySelector('.search-bar').style.display = 'block';
-    }
-
-    // Initialize
-    closeChat();
   </script>
 </body>
 </html>
