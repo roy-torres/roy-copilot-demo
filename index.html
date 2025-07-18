@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Time Evanston | AI Forecasting Dashboard</title>
+    <title>Life Time Evanston | Forecasting Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
@@ -288,6 +288,7 @@
             height: 280px;
             position: relative;
             margin-bottom: 20px;
+            transition: height 0.3s ease;
         }
         
         .metrics {
@@ -295,6 +296,7 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 18px;
             margin-bottom: 25px;
+            transition: all 0.3s ease;
         }
         
         .metric-card {
@@ -303,6 +305,7 @@
             border-radius: 12px;
             text-align: center;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
         
         .metric-card h4 {
@@ -316,6 +319,7 @@
             font-weight: 700;
             color: var(--primary);
             font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
         }
         
         .metric-card .trend {
@@ -325,6 +329,7 @@
             align-items: center;
             justify-content: center;
             gap: 5px;
+            transition: all 0.3s ease;
         }
         
         .trend.up {
@@ -345,6 +350,7 @@
             flex-wrap: wrap;
             align-items: center;
             gap: 15px;
+            transition: all 0.3s ease;
         }
         
         .crisis-impact p {
@@ -606,6 +612,27 @@
                 top: 60px;
             }
         }
+        
+        /* Animation classes */
+        .chart-updating {
+            animation: pulse 1.5s infinite;
+        }
+        
+        .metric-updating {
+            animation: colorShift 1s ease;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+        
+        @keyframes colorShift {
+            0% { background-color: var(--light); }
+            50% { background-color: rgba(26, 58, 95, 0.1); }
+            100% { background-color: var(--light); }
+        }
     </style>
 </head>
 <body>
@@ -678,18 +705,18 @@
             <div class="time-filter">
                 <h3><i class="fas fa-calendar-alt"></i> Time Range</h3>
                 <div class="filters">
-                    <button class="filter-btn active"><i class="fas fa-calendar-week"></i> 3 Months</button>
-                    <button class="filter-btn"><i class="fas fa-calendar-day"></i> 6 Months</button>
-                    <button class="filter-btn"><i class="fas fa-calendar"></i> 1 Year</button>
-                    <button class="filter-btn"><i class="fas fa-cog"></i> Custom</button>
+                    <button class="filter-btn active" data-range="3"><i class="fas fa-calendar-week"></i> 3 Months</button>
+                    <button class="filter-btn" data-range="6"><i class="fas fa-calendar-day"></i> 6 Months</button>
+                    <button class="filter-btn" data-range="12"><i class="fas fa-calendar"></i> 1 Year</button>
+                    <button class="filter-btn" data-range="custom"><i class="fas fa-cog"></i> Custom</button>
                 </div>
             </div>
             <div class="model-selector">
                 <h3><i class="fas fa-cogs"></i> Forecasting Model</h3>
                 <div class="filters">
-                    <button class="filter-btn active"><i class="fas fa-chart-line"></i> Linear</button>
-                    <button class="filter-btn"><i class="fas fa-wave-square"></i> Seasonal</button>
-                    <button class="filter-btn"><i class="fas fa-project-diagram"></i> Non-linear</button>
+                    <button class="filter-btn active" data-model="linear"><i class="fas fa-chart-line"></i> Linear</button>
+                    <button class="filter-btn" data-model="seasonal"><i class="fas fa-wave-square"></i> Seasonal</button>
+                    <button class="filter-btn" data-model="nonlinear"><i class="fas fa-project-diagram"></i> Non-linear</button>
                 </div>
             </div>
         </div>
@@ -879,6 +906,11 @@
     </div>
 
     <script>
+        // Initialize chart variables
+        let churnChart, attendanceChart, revenueChart;
+        let currentRange = '3';
+        let currentModel = 'linear';
+        
         // Function to generate time labels
         function generateTimeLabels(months, startDate) {
             const labels = [];
@@ -911,220 +943,289 @@
             });
         }
         
-        // Generate labels for the past 6 months and next 3 months
-        const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 6);
-        const labels = generateTimeLabels(10, startDate);
-        
-        // Chart 1: Membership Churn Risk
-        const churnData = {
-            actual: generateData(labels, 15, 0.4, 0.15, 0.05),
-            forecast: generateData(labels.slice(6), 17.5, 0.6, 0.2, 0.03)
-        };
-        
-        // Chart 2: Class Attendance Demand
-        const attendanceData = {
-            actual: generateData(labels, 320, 3, 0.2, 0.08),
-            forecast: generateData(labels.slice(6), 300, 2, 0.15, 0.05)
-        };
-        
-        // Chart 3: Supplement Sales Revenue
-        const revenueData = {
-            actual: generateData(labels, 2500, 60, 0.25, 0.1),
-            forecast: generateData(labels.slice(6), 2900, 40, 0.3, 0.07)
-        };
-        
-        // Chart configuration
-        const chartConfig = {
-            type: 'line',
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            font: {
-                                size: 13,
-                                family: "'Poppins', sans-serif"
-                            }
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        backgroundColor: 'rgba(26, 58, 95, 0.9)',
-                        titleFont: {
-                            family: "'Montserrat', sans-serif",
-                            size: 14
-                        },
-                        bodyFont: {
-                            family: "'Poppins', sans-serif",
-                            size: 13
-                        },
-                        padding: 12,
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) label += ': ';
-                                if (context.parsed.y !== null) {
-                                    if (context.dataset.label.includes('Churn')) {
-                                        label += context.parsed.y.toFixed(1) + '%';
-                                    } else if (context.dataset.label.includes('Revenue')) {
-                                        label += '$' + context.parsed.y.toFixed(0);
-                                    } else {
-                                        label += context.parsed.y.toFixed(0);
-                                    }
-                                }
-                                return label;
-                            }
-                        }
-                    }
+        // Function to generate chart data based on current settings
+        function generateChartData(range, model) {
+            // Calculate months based on range
+            const months = range === '3' ? 4 : 
+                          range === '6' ? 8 : 
+                          range === '12' ? 15 : 6;
+            
+            // Adjust seasonality based on model
+            const seasonality = model === 'seasonal' ? 0.3 : 
+                               model === 'nonlinear' ? 0.5 : 0.15;
+            
+            // Generate labels for the past and future
+            const startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - (range === '3' ? 3 : 
+                                                      range === '6' ? 6 : 
+                                                      range === '12' ? 12 : 3));
+            const labels = generateTimeLabels(months, startDate);
+            
+            // Calculate historical data points
+            const historicalMonths = range === '3' ? 3 : 
+                                    range === '6' ? 6 : 
+                                    range === '12' ? 12 : 3;
+            
+            // Generate chart data
+            return {
+                churnData: {
+                    actual: generateData(labels, 15, 0.4, seasonality, 0.05),
+                    forecast: generateData(labels.slice(historicalMonths), 17.5, 0.6, seasonality, 0.03)
                 },
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'month',
-                            displayFormats: {
-                                month: 'MMM YY'
-                            }
-                        },
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: {
-                                family: "'Poppins', sans-serif"
-                            }
-                        }
-                    },
-                    y: {
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        },
-                        ticks: {
-                            font: {
-                                family: "'Poppins', sans-serif"
-                            }
-                        }
-                    }
+                attendanceData: {
+                    actual: generateData(labels, 320, 3, seasonality, 0.08),
+                    forecast: generateData(labels.slice(historicalMonths), 300, 2, seasonality, 0.05)
                 },
-                interaction: {
-                    intersect: false,
-                    mode: 'nearest',
-                    axis: 'x'
+                revenueData: {
+                    actual: generateData(labels, 2500, 60, seasonality, 0.1),
+                    forecast: generateData(labels.slice(historicalMonths), 2900, 40, seasonality, 0.07)
+                },
+                labels: labels,
+                historicalMonths: historicalMonths
+            };
+        }
+        
+        // Function to update metrics
+        function updateMetrics() {
+            document.querySelectorAll('.metric-card').forEach(card => {
+                card.classList.add('metric-updating');
+                
+                // Generate new values
+                const valueEl = card.querySelector('.value');
+                const trendEl = card.querySelector('.trend');
+                
+                if (valueEl) {
+                    const currentValue = parseFloat(valueEl.textContent.replace(/[^0-9.]/g, ''));
+                    const newValue = currentValue * (0.95 + Math.random() * 0.1);
+                    
+                    if (valueEl.textContent.includes('$')) {
+                        valueEl.textContent = '$' + newValue.toFixed(0);
+                    } else if (valueEl.textContent.includes('%')) {
+                        valueEl.textContent = newValue.toFixed(1) + '%';
+                    } else {
+                        valueEl.textContent = Math.round(newValue);
+                    }
                 }
-            }
-        };
+                
+                if (trendEl) {
+                    const isUp = Math.random() > 0.5;
+                    const change = (Math.random() * 5).toFixed(1);
+                    
+                    if (isUp) {
+                        trendEl.className = 'trend up';
+                        trendEl.innerHTML = '<i class="fas fa-arrow-up"></i> ' + change + '% from last period';
+                    } else {
+                        trendEl.className = 'trend down';
+                        trendEl.innerHTML = '<i class="fas fa-arrow-down"></i> ' + change + '% from last period';
+                    }
+                }
+                
+                // Remove animation class after delay
+                setTimeout(() => {
+                    card.classList.remove('metric-updating');
+                }, 1000);
+            });
+        }
+        
+        // Function to update charts
+        function updateCharts() {
+            // Add loading state
+            document.querySelectorAll('.chart-container').forEach(container => {
+                container.classList.add('chart-updating');
+            });
+            
+            // Get new data
+            const { churnData, attendanceData, revenueData, labels, historicalMonths } = generateChartData(currentRange, currentModel);
+            
+            // Destroy existing charts
+            if (churnChart) churnChart.destroy();
+            if (attendanceChart) attendanceChart.destroy();
+            if (revenueChart) revenueChart.destroy();
+            
+            // Recreate charts after short delay
+            setTimeout(() => {
+                // Churn Chart
+                const churnCtx = document.getElementById('churnChart').getContext('2d');
+                churnChart = new Chart(churnCtx, getChartConfig('Churn', labels, churnData, historicalMonths, '#ff6b35'));
+                
+                // Attendance Chart
+                const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+                attendanceChart = new Chart(attendanceCtx, getChartConfig('Attendance', labels, attendanceData, historicalMonths, '#ff9800'));
+                
+                // Revenue Chart
+                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+                revenueChart = new Chart(revenueCtx, getChartConfig('Revenue', labels, revenueData, historicalMonths, '#2196f3'));
+                
+                // Remove loading state
+                document.querySelectorAll('.chart-container').forEach(container => {
+                    container.classList.remove('chart-updating');
+                });
+                
+                // Update metrics
+                updateMetrics();
+            }, 800);
+        }
+        
+        // Function to get chart configuration
+        function getChartConfig(type, labels, data, historicalMonths, forecastColor) {
+            const isRevenue = type === 'Revenue';
+            
+            return {
+                type: 'line',
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 13,
+                                    family: "'Poppins', sans-serif"
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(26, 58, 95, 0.9)',
+                            titleFont: {
+                                family: "'Montserrat', sans-serif",
+                                size: 14
+                            },
+                            bodyFont: {
+                                family: "'Poppins', sans-serif",
+                                size: 13
+                            },
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) {
+                                        if (context.dataset.label.includes('Churn')) {
+                                            label += context.parsed.y.toFixed(1) + '%';
+                                        } else if (context.dataset.label.includes('Revenue')) {
+                                            label += '$' + context.parsed.y.toFixed(0);
+                                        } else {
+                                            label += context.parsed.y.toFixed(0);
+                                        }
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'month',
+                                displayFormats: {
+                                    month: 'MMM YY'
+                                }
+                            },
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Poppins', sans-serif"
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Poppins', sans-serif"
+                                },
+                                callback: function(value) {
+                                    return isRevenue ? '$' + value : value;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'nearest',
+                        axis: 'x'
+                    }
+                },
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Actual ' + type,
+                            data: data.actual,
+                            borderColor: type === 'Churn' ? '#2c6a9a' : 
+                                         type === 'Attendance' ? '#4caf50' : '#9c27b0',
+                            backgroundColor: type === 'Churn' ? 'rgba(44, 106, 154, 0.1)' : 
+                                             type === 'Attendance' ? 'rgba(76, 175, 80, 0.1)' : 'rgba(156, 39, 176, 0.1)',
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointBackgroundColor: type === 'Churn' ? '#2c6a9a' : 
+                                                type === 'Attendance' ? '#4caf50' : '#9c27b0',
+                            tension: currentModel === 'linear' ? 0.2 : 
+                                     currentModel === 'seasonal' ? 0.4 : 0.6,
+                            fill: true
+                        },
+                        {
+                            label: 'Forecasted ' + type,
+                            data: [...Array(historicalMonths).fill(null), ...data.forecast],
+                            borderColor: forecastColor,
+                            borderDash: [5, 5],
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointBackgroundColor: forecastColor,
+                            tension: currentModel === 'linear' ? 0.2 : 
+                                     currentModel === 'seasonal' ? 0.4 : 0.6
+                        }
+                    ]
+                }
+            };
+        }
         
         // Initialize charts
         window.onload = function() {
+            // Set up initial data
+            const initialData = generateChartData(currentRange, currentModel);
+            
             // Churn Chart
             const churnCtx = document.getElementById('churnChart').getContext('2d');
-            new Chart(churnCtx, {
-                ...chartConfig,
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Actual Churn Rate',
-                            data: churnData.actual,
-                            borderColor: '#2c6a9a',
-                            backgroundColor: 'rgba(44, 106, 154, 0.1)',
-                            borderWidth: 3,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#2c6a9a',
-                            tension: 0.2,
-                            fill: true
-                        },
-                        {
-                            label: 'Forecasted Churn',
-                            data: [...Array(6).fill(null), ...churnData.forecast],
-                            borderColor: '#ff6b35',
-                            borderDash: [5, 5],
-                            borderWidth: 3,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#ff6b35',
-                            tension: 0.2
-                        }
-                    ]
-                }
-            });
+            churnChart = new Chart(churnCtx, getChartConfig('Churn', initialData.labels, initialData.churnData, initialData.historicalMonths, '#ff6b35'));
             
             // Attendance Chart
             const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
-            new Chart(attendanceCtx, {
-                ...chartConfig,
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Actual Attendance',
-                            data: attendanceData.actual,
-                            borderColor: '#4caf50',
-                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                            borderWidth: 3,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#4caf50',
-                            tension: 0.2,
-                            fill: true
-                        },
-                        {
-                            label: 'Forecasted Attendance',
-                            data: [...Array(6).fill(null), ...attendanceData.forecast],
-                            borderColor: '#ff9800',
-                            borderDash: [5, 5],
-                            borderWidth: 3,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#ff9800',
-                            tension: 0.2
-                        }
-                    ]
-                }
-            });
+            attendanceChart = new Chart(attendanceCtx, getChartConfig('Attendance', initialData.labels, initialData.attendanceData, initialData.historicalMonths, '#ff9800'));
             
             // Revenue Chart
             const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-            new Chart(revenueCtx, {
-                ...chartConfig,
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Actual Revenue',
-                            data: revenueData.actual,
-                            borderColor: '#9c27b0',
-                            backgroundColor: 'rgba(156, 39, 176, 0.1)',
-                            borderWidth: 3,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#9c27b0',
-                            tension: 0.2,
-                            fill: true
-                        },
-                        {
-                            label: 'Forecasted Revenue',
-                            data: [...Array(6).fill(null), ...revenueData.forecast],
-                            borderColor: '#2196f3',
-                            borderDash: [5, 5],
-                            borderWidth: 3,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#2196f3',
-                            tension: 0.2
-                        }
-                    ]
-                }
-            });
+            revenueChart = new Chart(revenueCtx, getChartConfig('Revenue', initialData.labels, initialData.revenueData, initialData.historicalMonths, '#2196f3'));
             
             // Add interactivity to filter buttons
             document.querySelectorAll('.filter-btn').forEach(button => {
                 button.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-btn').forEach(btn => {
+                    // Remove active class from all buttons in this group
+                    const parent = this.closest('.filters');
+                    parent.querySelectorAll('.filter-btn').forEach(btn => {
                         btn.classList.remove('active');
                     });
+                    
+                    // Add active class to clicked button
                     this.classList.add('active');
                     
-                    // In a real app, this would update the chart data
+                    // Determine what type of filter this is
+                    if (this.dataset.range) {
+                        currentRange = this.dataset.range;
+                    } else if (this.dataset.model) {
+                        currentModel = this.dataset.model;
+                    }
+                    
+                    // Update charts with new settings
+                    updateCharts();
                 });
             });
             
