@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Time Evanston | Performance Analytics</title>
+    <title>Life Time Evanston | Performance Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
@@ -429,6 +429,7 @@
         
         .employee-table .low-performer {
             background-color: rgba(244, 67, 54, 0.15);
+            animation: pulse 2s infinite;
         }
         
         .training-grid {
@@ -479,6 +480,42 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
+        }
+        
+        .danger {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        .success {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-high {
+            background-color: var(--success);
+        }
+        
+        .status-medium {
+            background-color: var(--warning);
+        }
+        
+        .status-low {
+            background-color: var(--danger);
+        }
+        
+        @keyframes pulse {
+            0% { background-color: rgba(244, 67, 54, 0.15); }
+            50% { background-color: rgba(244, 67, 54, 0.25); }
+            100% { background-color: rgba(244, 67, 54, 0.15); }
         }
         
         @media (max-width: 768px) {
@@ -572,37 +609,55 @@
                                     <td>1</td>
                                     <td>Lou</td>
                                     <td>$286.22</td>
-                                    <td><span class="success">Top Performer</span></td>
+                                    <td>
+                                        <span class="status-indicator status-high"></span>
+                                        <span class="success">Top Performer</span>
+                                    </td>
                                 </tr>
                                 <tr class="high-performer">
                                     <td>2</td>
                                     <td>April</td>
                                     <td>$67.18</td>
-                                    <td><span class="success">High Performer</span></td>
+                                    <td>
+                                        <span class="status-indicator status-high"></span>
+                                        <span class="success">High Performer</span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
                                     <td>Jacob</td>
                                     <td>$58.61</td>
-                                    <td>Above Average</td>
+                                    <td>
+                                        <span class="status-indicator status-medium"></span>
+                                        <span>Above Average</span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>4</td>
                                     <td>Jacob</td>
                                     <td>$57.18</td>
-                                    <td>Above Average</td>
+                                    <td>
+                                        <span class="status-indicator status-medium"></span>
+                                        <span>Above Average</span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>5</td>
                                     <td>Jacob</td>
                                     <td>$49.80</td>
-                                    <td>Average</td>
+                                    <td>
+                                        <span class="status-indicator status-medium"></span>
+                                        <span>Average</span>
+                                    </td>
                                 </tr>
                                 <tr class="low-performer">
                                     <td>19</td>
                                     <td>Faust</td>
                                     <td>$0.00</td>
-                                    <td><span class="danger">Training Required</span></td>
+                                    <td>
+                                        <span class="status-indicator status-low"></span>
+                                        <span class="danger">Training Required</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
