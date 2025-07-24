@@ -457,7 +457,6 @@
                 <div class="anomaly-count">6 Active Anomalies • Evanston, IL</div>
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
-                <button onclick="alert('JavaScript is working!'); return false;" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Test JS</button>
                 <div style="font-size: 0.9rem; opacity: 0.9;">
                     Powered by L•AI•C Infrastructure • Updated just now
                 </div>
@@ -774,6 +773,9 @@
     </div>
     
     <script>
+        // Track if this is the initial page load
+        let initialLoad = true;
+        
         // Sample detailed data for each trainer
         const trainerDetails = {
             faust: {
@@ -948,11 +950,12 @@
                 });
             });
             
-            // Initialize display
-            updateAnomalyDisplay();
+            // Initialize display without showing notification
+            updateAnomalyDisplay(false);
+            initialLoad = false;
         });
         
-        function updateAnomalyDisplay() {
+        function updateAnomalyDisplay(showNotif = true) {
             const pointAnomalies = document.getElementById('pointAnomalies').checked;
             const changePoint = document.getElementById('changePoint').checked;
             const contextual = document.getElementById('contextual').checked;
@@ -1007,18 +1010,19 @@
             const anomalyCount = document.querySelector('.anomaly-count');
             anomalyCount.textContent = `${visibleCount} Active Anomalies • Evanston, IL`;
             
-            // Update notification
-            const activeTypes = [];
-            if (pointAnomalies) activeTypes.push('Point');
-            if (changePoint) activeTypes.push('Change Point');
-            if (contextual) activeTypes.push('Contextual');
-            if (curveShape) activeTypes.push('Curve Shape');
-            
-            if (activeTypes.length > 0) {
-                showNotification(`Detection updated: ${activeTypes.join(', ')} anomalies active (${visibleCount} cards visible)`, 'success');
-            } else {
-                showNotification('All anomaly detection disabled', 'warning');
-                anomalyCount.textContent = '0 Active Anomalies • Evanston, IL';
+            // Only show notification if not initial load and requested
+            if (showNotif && !initialLoad) {
+                const activeTypes = [];
+                if (pointAnomalies) activeTypes.push('Point');
+                if (changePoint) activeTypes.push('Change Point');
+                if (contextual) activeTypes.push('Contextual');
+                if (curveShape) activeTypes.push('Curve Shape');
+                
+                if (activeTypes.length > 0) {
+                    showNotification(`Detection updated: ${activeTypes.join(', ')} anomalies active (${visibleCount} cards visible)`, 'success');
+                } else {
+                    showNotification('All anomaly detection disabled', 'warning');
+                }
             }
         }
         
