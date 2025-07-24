@@ -73,6 +73,39 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            position: relative;
+        }
+        
+        .control-item:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1f2937;
         }
         
         .anomaly-grid {
@@ -355,12 +388,14 @@
             right: 20px;
             background: #10b981;
             color: white;
-            padding: 1rem 1.5rem;
+            padding: 1rem 2.5rem 1rem 1.5rem;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1000;
             transform: translateX(400px);
             transition: transform 0.3s ease;
+            position: relative;
+            max-width: 400px;
         }
         
         .notification.show {
@@ -373,6 +408,30 @@
         
         .notification.warning {
             background: #f59e0b;
+        }
+        
+        .notification-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .notification-close:hover {
+            color: white;
+            background: rgba(255,255,255,0.2);
         }
         
         @media (max-width: 768px) {
@@ -442,18 +501,22 @@
                 <div class="control-item">
                     <input type="checkbox" id="pointAnomalies" checked>
                     <label for="pointAnomalies">Point Anomalies (Revenue Spikes/Drops)</label>
+                    <div class="tooltip">Sudden revenue spikes or drops (Faust: $0/hr, Lou: $286/hr)</div>
                 </div>
                 <div class="control-item">
                     <input type="checkbox" id="changePoint" checked>
                     <label for="changePoint">Change Point (Sustained Changes)</label>
+                    <div class="tooltip">Persistent performance changes over time (Faust: sustained zero revenue)</div>
                 </div>
                 <div class="control-item">
                     <input type="checkbox" id="contextual" checked>
                     <label for="contextual">Contextual (Seasonal Patterns)</label>
+                    <div class="tooltip">Context-dependent anomalies (Jacob: data integrity, L•AI•C: ecosystem gap)</div>
                 </div>
                 <div class="control-item">
                     <input type="checkbox" id="curveShape" checked>
                     <label for="curveShape">Curve Shape (Performance Trends)</label>
+                    <div class="tooltip">Performance curve pattern anomalies (new hire ramp-up failures)</div>
                 </div>
             </div>
         </div>
@@ -872,7 +935,89 @@
             document.getElementById('detailedView').style.display = 'none';
         }
         
-        // Show notification function
+        // Detection controls functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.detection-controls input[type="checkbox"]');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateAnomalyDisplay();
+                });
+            });
+            
+            // Initialize display
+            updateAnomalyDisplay();
+        });
+        
+        function updateAnomalyDisplay() {
+            const pointAnomalies = document.getElementById('pointAnomalies').checked;
+            const changePoint = document.getElementById('changePoint').checked;
+            const contextual = document.getElementById('contextual').checked;
+            const curveShape = document.getElementById('curveShape').checked;
+            
+            // Get all anomaly cards
+            const cards = document.querySelectorAll('.anomaly-card');
+            let visibleCount = 0;
+            
+            cards.forEach((card, index) => {
+                let shouldShow = true;
+                
+                // Determine which detection types apply to each card
+                const cardName = card.querySelector('.trainer-name').textContent;
+                
+                if (cardName.includes('Faust')) {
+                    // Faust has point and change point anomalies
+                    shouldShow = pointAnomalies || changePoint;
+                } else if (cardName.includes('Lou')) {
+                    // Lou has statistical outlier (point anomaly)
+                    shouldShow = pointAnomalies;
+                } else if (cardName.includes('Jacob')) {
+                    // Jacob has contextual anomaly (data integrity)
+                    shouldShow = contextual;
+                } else if (cardName.includes('April')) {
+                    // April has point anomaly (positive outlier)
+                    shouldShow = pointAnomalies;
+                } else if (cardName.includes('Package Pricing') || cardName.includes('Club-Wide')) {
+                    // Pricing is contextual business anomaly
+                    shouldShow = contextual;
+                } else if (cardName.includes('L•AI•C')) {
+                    // L•AI•C is contextual opportunity
+                    shouldShow = contextual;
+                }
+                
+                // Show/hide or fade based on detection settings
+                if (shouldShow) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                    card.style.filter = 'none';
+                    card.style.pointerEvents = 'auto';
+                    visibleCount++;
+                } else {
+                    card.style.opacity = '0.3';
+                    card.style.transform = 'scale(0.95)';
+                    card.style.filter = 'grayscale(70%)';
+                    card.style.pointerEvents = 'none';
+                }
+            });
+            
+            // Update header count
+            const anomalyCount = document.querySelector('.anomaly-count');
+            anomalyCount.textContent = `${visibleCount} Active Anomalies • Evanston, IL`;
+            
+            // Update notification
+            const activeTypes = [];
+            if (pointAnomalies) activeTypes.push('Point');
+            if (changePoint) activeTypes.push('Change Point');
+            if (contextual) activeTypes.push('Contextual');
+            if (curveShape) activeTypes.push('Curve Shape');
+            
+            if (activeTypes.length > 0) {
+                showNotification(`Detection updated: ${activeTypes.join(', ')} anomalies active (${visibleCount} cards visible)`, 'success');
+            } else {
+                showNotification('All anomaly detection disabled', 'warning');
+                anomalyCount.textContent = '0 Active Anomalies • Evanston, IL';
+            }
+        }
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
