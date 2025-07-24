@@ -456,8 +456,11 @@
                 <h1>🔍 Life Time Anomaly Detection</h1>
                 <div class="anomaly-count">6 Active Anomalies • Evanston, IL</div>
             </div>
-            <div style="font-size: 0.9rem; opacity: 0.9;">
-                Powered by L•AI•C Infrastructure • Updated 2 min ago
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button onclick="alert('Test button works!'); return false;" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Test JS</button>
+                <div style="font-size: 0.9rem; opacity: 0.9;">
+                    Powered by L•AI•C Infrastructure • Updated 2 min ago
+                </div>
             </div>
         </div>
     </div>
@@ -556,9 +559,9 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <button class="action-btn btn-danger" onclick="triggerAction('immediate')">Emergency Review</button>
-                    <button class="action-btn btn-primary" onclick="triggerAction('intensive')">Intensive Support</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('assessment')">Skills Assessment</button>
+                    <button class="action-btn btn-danger" onclick="triggerAction('immediate'); return false;">Emergency Review</button>
+                    <button class="action-btn btn-primary" onclick="triggerAction('intensive'); return false;">Intensive Support</button>
+                    <button class="action-btn btn-secondary" onclick="triggerAction('assessment'); return false;">Skills Assessment</button>
                 </div>
             </div>
             
@@ -595,9 +598,9 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <button class="action-btn btn-primary" onclick="triggerAction('analyze-methods')">Analyze Methods</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('knowledge-transfer')">Knowledge Transfer</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('mentor-program')">Lead Mentor Program</button>
+                    <button class="action-btn btn-primary" onclick="triggerAction('analyze-methods'); return false;">Analyze Methods</button>
+                    <button class="action-btn btn-secondary" onclick="triggerAction('knowledge-transfer'); return false;">Knowledge Transfer</button>
+                    <button class="action-btn btn-secondary" onclick="triggerAction('mentor-program'); return false;">Lead Mentor Program</button>
                 </div>
             </div>
             
@@ -634,9 +637,9 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <button class="action-btn btn-primary" onclick="triggerAction('data-audit')">Data Audit</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('schedule-review')">Schedule Review</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('system-check')">System Check</button>
+                    <button class="action-btn btn-primary" onclick="triggerAction('data-audit'); return false;">Data Audit</button>
+                    <button class="action-btn btn-secondary" onclick="triggerAction('schedule-review'); return false;">Schedule Review</button>
+                    <button class="action-btn btn-secondary" onclick="triggerAction('system-check'); return false;">System Check</button>
                 </div>
             </div>
             
@@ -673,8 +676,8 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <button class="action-btn btn-primary" onclick="triggerAction('best-practices')">Document Best Practices</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('peer-mentor')">Peer Mentoring</button>
+                    <button class="action-btn btn-primary" onclick="triggerAction('best-practices'); return false;">Document Best Practices</button>
+                    <button class="action-btn btn-secondary" onclick="triggerAction('peer-mentor'); return false;">Peer Mentoring</button>
                 </div>
             </div>
             
@@ -711,9 +714,9 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <button class="action-btn btn-danger" onclick="triggerAction('pricing-review')">Pricing Strategy Review</button>
-                    <button class="action-btn btn-primary" onclick="triggerAction('conversion-training')">Conversion Training</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('package-analysis')">Package Analysis</button>
+                    <button class="action-btn btn-danger" onclick="triggerAction('pricing-review'); return false;">Pricing Strategy Review</button>
+                    <button class="action-btn btn-primary" onclick="triggerAction('conversion-training'); return false;">Conversion Training</button>
+                    <button class="action-btn btn-secondary" onclick="triggerAction('package-analysis'); return false;">Package Analysis</button>
                 </div>
             </div>
             
@@ -750,8 +753,8 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <button class="action-btn btn-primary" onclick="triggerAction('integration-plan')">Integration Planning</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('ecosystem-design')">Ecosystem Design</button>
+                    <button class="action-btn btn-primary" onclick="triggerAction('integration-plan'); return false;">Integration Planning</button>
+                    <button class="action-btn btn-secondary" onclick="triggerAction('ecosystem-design'); return false;">Ecosystem Design</button>
                 </div>
             </div>
         </div>
@@ -1034,13 +1037,13 @@
             }, 4000);
         }
         
-        // Trigger actions
+        // Trigger actions - simplified version
         function triggerAction(action) {
             console.log('Action triggered:', action);
             
             // Prevent card click when button is clicked
-            if (window.event) {
-                window.event.stopPropagation();
+            if (event) {
+                event.stopPropagation();
             }
             
             const actions = {
@@ -1059,18 +1062,20 @@
                 'conversion-training': 'Advanced conversion and sales training scheduled',
                 'package-analysis': 'Package pricing and value analysis in progress',
                 'integration-plan': 'L•AI•C integration planning session scheduled',
-                'ecosystem-design': 'AI ecosystem design workshop planned',
-                'schedule': 'One-on-one meeting scheduled for tomorrow 2 PM',
-                'mentor': 'Mentor assignment: Top performer pairing',
-                'coaching': 'Specialized coaching session added to training plan',
-                'member-feedback': 'Member satisfaction survey initiated',
-                'reliability': 'Reliability and attendance assessment scheduled'
+                'ecosystem-design': 'AI ecosystem design workshop planned'
             };
             
             const message = actions[action] || 'Action completed successfully';
             
-            // Show visual notification instead of alert
-            showNotification(`✅ ${message}`, 'success');
+            // Try both alert and notification
+            alert(`✅ Action Triggered: ${message}`);
+            
+            // Also try to show visual notification
+            try {
+                showNotification(`✅ ${message}`, 'success');
+            } catch (e) {
+                console.log('Notification error:', e);
+            }
         }
         
         // Generate chart SVG
