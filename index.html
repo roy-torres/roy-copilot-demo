@@ -3,1128 +3,412 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Time Anomaly Detection System</title>
+    <title>Life Time Evanston - Vocal Performance Optimizer</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #1a3a5f;
+            --secondary: #2c6a9a;
+            --accent: #ff6b35;
+            --success: #4caf50;
+            --danger: #f44336;
+            --light: #f8f9fa;
+            --dark: #212529;
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f1f5f9;
-            color: #1e293b;
+            background: linear-gradient(135deg, #1a3a5f, #2c6a9a);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .header {
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-            color: white;
-            padding: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .header-content {
-            max-width: 1400px;
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header p {
+            opacity: 0.8;
+            max-width: 600px;
             margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .anomaly-count {
-            background: rgba(255,255,255,0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .detection-controls {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .controls-grid {
+        .voice-interface {
+            padding: 30px;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-top: 1rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
         }
         
-        .control-item {
+        .voice-input {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 25px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
-            position: relative;
         }
         
-        .control-item:hover .tooltip {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1f2937;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-        
-        .tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 5px solid transparent;
-            border-top-color: #1f2937;
-        }
-        
-        .anomaly-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .anomaly-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border-left: 4px solid transparent;
+        .mic-container {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #ff8c66);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
         }
         
-        .anomaly-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        .mic-container.listening {
+            animation: pulse 1.5s infinite;
         }
         
-        .critical { border-left-color: #dc2626; }
-        .warning { border-left-color: #f59e0b; }
-        .monitoring { border-left-color: #3b82f6; }
-        .insight { border-left-color: #10b981; }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 107, 53, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0); }
         }
         
-        .trainer-info {
-            flex: 1;
+        .mic-container i {
+            font-size: 4rem;
         }
         
-        .trainer-name {
+        .status {
+            margin: 15px 0;
             font-size: 1.2rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.25rem;
+            height: 30px;
         }
         
-        .trainer-role {
-            font-size: 0.9rem;
-            color: #64748b;
-        }
-        
-        .anomaly-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        
-        .badge-critical { background: #fee2e2; color: #dc2626; }
-        .badge-warning { background: #fef3c7; color: #d97706; }
-        .badge-monitoring { background: #dbeafe; color: #2563eb; }
-        .badge-insight { background: #d1fae5; color: #059669; }
-        
-        .performance-metrics {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .metric {
-            text-align: center;
-            padding: 0.75rem;
-            background: #f8fafc;
-            border-radius: 8px;
-        }
-        
-        .metric-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-        
-        .metric-critical { color: #dc2626; }
-        .metric-warning { color: #f59e0b; }
-        .metric-good { color: #10b981; }
-        
-        .metric-label {
-            font-size: 0.8rem;
-            color: #64748b;
-            font-weight: 600;
-        }
-        
-        .anomaly-description {
-            background: #f8fafc;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border-left: 3px solid #e2e8f0;
-        }
-        
-        .anomaly-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #1e293b;
-        }
-        
-        .anomaly-details {
-            font-size: 0.9rem;
-            color: #475569;
-            line-height: 1.5;
-        }
-        
-        .action-buttons {
+        .voice-output {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 25px;
             display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
+            flex-direction: column;
+        }
+        
+        .response-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            flex-grow: 1;
+            margin-bottom: 25px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            max-width: 80%;
+        }
+        
+        .ai-message {
+            background: rgba(255, 255, 255, 0.15);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .user-message {
+            background: rgba(255, 107, 53, 0.3);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+            margin-left: auto;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
         }
         
         .action-btn {
-            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.15);
             border: none;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: #f1f5f9;
-            color: #475569;
-            border: 1px solid #cbd5e1;
-        }
-        
-        .btn-danger {
-            background: #dc2626;
-            color: white;
+        .action-btn i {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
         }
         
         .action-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
         }
         
-        .detailed-view {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
+        .analytics-panel {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .detailed-content {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            max-width: 800px;
-            width: 90%;
-            max-height: 90%;
-            overflow-y: auto;
-        }
-        
-        .close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #64748b;
-        }
-        
-        .anomaly-chart {
-            width: 100%;
-            height: 200px;
-            background: #f8fafc;
-            border-radius: 8px;
-            margin: 1rem 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .chart-svg {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .threshold-line {
-            stroke: #dc2626;
-            stroke-width: 2;
-            stroke-dasharray: 5,5;
-        }
-        
-        .performance-line {
-            stroke: #3b82f6;
-            stroke-width: 3;
-            fill: none;
-        }
-        
-        .anomaly-point {
-            fill: #dc2626;
-            r: 5;
-        }
-        
-        .normal-point {
-            fill: #10b981;
-            r: 3;
-        }
-        
-        .summary-stats {
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-        }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-critical { color: #dc2626; }
-        .stat-warning { color: #f59e0b; }
-        .stat-good { color: #10b981; }
-        .stat-info { color: #3b82f6; }
-        
-        .filter-tabs {
+        .panel-header {
             display: flex;
-            background: #f1f5f9;
-            border-radius: 8px;
-            padding: 0.25rem;
-            margin-bottom: 2rem;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
         }
         
-        .filter-tab {
-            flex: 1;
-            padding: 0.75rem 1rem;
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .metric-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
+        }
+        
+        .metric-card .value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .metric-card .label {
+            opacity: 0.8;
             font-size: 0.9rem;
         }
         
-        .filter-tab.active {
-            background: white;
-            color: #2563eb;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .critical {
+            color: var(--danger);
         }
         
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #10b981;
-            color: white;
-            padding: 1rem 2.5rem 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            position: relative;
-            max-width: 400px;
-        }
-        
-        .notification.show {
-            transform: translateX(0);
-        }
-        
-        .notification.error {
-            background: #dc2626;
-        }
-        
-        .notification.warning {
-            background: #f59e0b;
-        }
-        
-        .notification-close {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.75rem;
-            background: none;
-            border: none;
-            color: rgba(255,255,255,0.8);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 0;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.2s ease;
-        }
-        
-        .notification-close:hover {
-            color: white;
-            background: rgba(255,255,255,0.2);
+        .positive {
+            color: var(--success);
         }
         
         @media (max-width: 768px) {
-            .anomaly-grid {
+            .voice-interface {
                 grid-template-columns: 1fr;
             }
             
-            .controls-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .stats-grid {
+            .metrics {
                 grid-template-columns: 1fr 1fr;
             }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="header">
-        <div class="header-content">
-            <div class="logo-section">
-                <h1>🔍 Life Time Anomaly Detection</h1>
-                <div class="anomaly-count">6 Active Anomalies • Evanston, IL</div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <div style="font-size: 0.9rem; opacity: 0.9;">
-                    Powered by L•AI•C Infrastructure • Updated just now
-                </div>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-microphone-alt"></i> Vocal Performance Optimizer</h1>
+            <p>Voice-controlled AI system for real-time gym management</p>
         </div>
-    </div>
-    
-    <div class="dashboard-container">
-        <!-- Summary Statistics -->
-        <div class="summary-stats">
-            <h2 style="margin-bottom: 1rem; color: #1e293b;">Life Time Evanston Performance Overview</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number stat-info">19</div>
-                    <div>Total Employees</div>
+        
+        <div class="voice-interface">
+            <div class="voice-input">
+                <h2><i class="fas fa-microphone"></i> Voice Command</h2>
+                <div class="mic-container" id="micButton">
+                    <i class="fas fa-microphone"></i>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number stat-warning">$15.32</div>
-                    <div>Average Rev/Hr</div>
+                <div class="status" id="status">Ready to listen</div>
+                <p>Say "Hey LifeTime" followed by your command</p>
+                <div class="quick-actions">
+                    <button class="action-btn">
+                        <i class="fas fa-user-friends"></i>
+                        Staff Status
+                    </button>
+                    <button class="action-btn">
+                        <i class="fas fa-dumbbell"></i>
+                        Equipment
+                    </button>
+                    <button class="action-btn">
+                        <i class="fas fa-chart-line"></i>
+                        Revenue
+                    </button>
+                    <button class="action-btn">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Urgent Issues
+                    </button>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number stat-critical">$5.05</div>
-                    <div>Median Rev/Hr</div>
+            </div>
+            
+            <div class="voice-output">
+                <h2><i class="fas fa-robot"></i> AI Response</h2>
+                <div class="response-container" id="responseContainer">
+                    <div class="message ai-message">
+                        Hello! I'm your vocal performance assistant. How can I help today?
+                    </div>
+                    <div class="message user-message">
+                        Hey LifeTime, analyze performance
+                    </div>
+                    <div class="message ai-message">
+                        Current status:<br>
+                        - Lou: $286/hr (Excellent)<br>
+                        - April: $67/hr (Good)<br>
+                        - Faust: $0/hr (Needs intervention)<br>
+                        Recommendation: Pair Faust with Lou?
+                    </div>
+                    <div class="message user-message">
+                        Yes, schedule mentorship
+                    </div>
+                    <div class="message ai-message">
+                        Scheduled Lou-Faust session tomorrow at 3PM. Expected revenue impact: +$120.
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number stat-warning">18%</div>
-                    <div>Avg LGS Conversion</div>
+                
+                <div class="quick-actions">
+                    <button class="action-btn">
+                        <i class="fas fa-check-circle"></i>
+                        Approve
+                    </button>
+                    <button class="action-btn">
+                        <i class="fas fa-times-circle"></i>
+                        Reject
+                    </button>
+                    <button class="action-btn">
+                        <i class="fas fa-info-circle"></i>
+                        Details
+                    </button>
+                    <button class="action-btn">
+                        <i class="fas fa-history"></i>
+                        History
+                    </button>
                 </div>
             </div>
         </div>
         
-        <!-- Filter Tabs -->
-        <div class="filter-tabs">
-            <div class="filter-tab active" onclick="filterAnomalies('all')">All Anomalies</div>
-            <div class="filter-tab" onclick="filterAnomalies('critical')">Critical Only</div>
-            <div class="filter-tab" onclick="filterAnomalies('warnings')">Warnings</div>
-            <div class="filter-tab" onclick="filterAnomalies('insights')">Insights</div>
-        </div>
-        
-        <!-- Detection Controls -->
-        <div class="detection-controls">
-            <h3 style="margin-bottom: 1rem;">Detection Settings</h3>
-            <div class="controls-grid">
-                <div class="control-item">
-                    <input type="checkbox" id="pointAnomalies" checked>
-                    <label for="pointAnomalies">Point Anomalies (Revenue Spikes/Drops)</label>
-                    <div class="tooltip">Sudden revenue spikes or drops (Faust: $0/hr, Lou: $286/hr)</div>
-                </div>
-                <div class="control-item">
-                    <input type="checkbox" id="changePoint" checked>
-                    <label for="changePoint">Change Point (Sustained Changes)</label>
-                    <div class="tooltip">Persistent performance changes over time (Faust: sustained zero revenue)</div>
-                </div>
-                <div class="control-item">
-                    <input type="checkbox" id="contextual" checked>
-                    <label for="contextual">Contextual (Seasonal Patterns)</label>
-                    <div class="tooltip">Context-dependent anomalies (Jacob: data integrity, L•AI•C: ecosystem gap)</div>
-                </div>
-                <div class="control-item">
-                    <input type="checkbox" id="curveShape" checked>
-                    <label for="curveShape">Curve Shape (Performance Trends)</label>
-                    <div class="tooltip">Performance curve pattern anomalies (new hire ramp-up failures)</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Anomaly Cards Grid -->
-        <div class="anomaly-grid" id="anomalyGrid">
-            <!-- Critical Anomaly: Zero Revenue -->
-            <div class="anomaly-card critical" data-type="critical" onclick="showDetailed('faust')">
-                <div class="card-header">
-                    <div class="trainer-info">
-                        <div class="trainer-name">Faust (ID: 705)</div>
-                        <div class="trainer-role">Personal Trainer • Revenue/Hr Crisis</div>
-                    </div>
-                    <div class="anomaly-badge badge-critical">CRITICAL</div>
-                </div>
-                
-                <div class="performance-metrics">
-                    <div class="metric">
-                        <div class="metric-value metric-critical">$0.00</div>
-                        <div class="metric-label">Current Rev/Hr</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-critical">0%</div>
-                        <div class="metric-label">LGS Conversion</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-critical">100%</div>
-                        <div class="metric-label">Below Threshold</div>
-                    </div>
-                </div>
-                
-                <div class="anomaly-description">
-                    <div class="anomaly-title">🔴 Point + Change Point Anomaly: Zero Revenue</div>
-                    <div class="anomaly-details">
-                        Generating $0.00/hr vs. club median of $5.05. Extreme underperformance requiring immediate intervention. This represents 100% below crisis threshold.
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="action-btn btn-danger" onclick="triggerAction('immediate')">Emergency Review</button>
-                    <button class="action-btn btn-primary" onclick="triggerAction('intensive')">Intensive Support</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('assessment')">Skills Assessment</button>
-                </div>
+        <div class="analytics-panel">
+            <div class="panel-header">
+                <h2><i class="fas fa-chart-bar"></i> Voice Command Analytics</h2>
+                <div>Real-time monitoring</div>
             </div>
             
-            <!-- Insight: Exceptional Performance -->
-            <div class="anomaly-card insight" data-type="insight" onclick="showDetailed('lou')">
-                <div class="card-header">
-                    <div class="trainer-info">
-                        <div class="trainer-name">Lou (ID: 2)</div>
-                        <div class="trainer-role">Top Performer • Statistical Outlier</div>
-                    </div>
-                    <div class="anomaly-badge badge-insight">INSIGHT</div>
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="label">Active Alerts</div>
+                    <div class="value critical">3</div>
+                    <div class="label">Requiring attention</div>
                 </div>
                 
-                <div class="performance-metrics">
-                    <div class="metric">
-                        <div class="metric-value metric-good">$286.22</div>
-                        <div class="metric-label">Current Rev/Hr</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-good">1,768%</div>
-                        <div class="metric-label">vs Club Median</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-good">Est. 45%</div>
-                        <div class="metric-label">LGS Conversion</div>
-                    </div>
+                <div class="metric-card">
+                    <div class="label">Avg. Response Time</div>
+                    <div class="value">0.8s</div>
+                    <div class="label">AI processing speed</div>
                 </div>
                 
-                <div class="anomaly-description">
-                    <div class="anomaly-title">🟢 Statistical Outlier: Exceptional Performance</div>
-                    <div class="anomaly-details">
-                        Revenue 18.7x above club median ($5.05). Performance suggests premium client base or specialized services. Analysis needed for best practice replication.
-                    </div>
+                <div class="metric-card">
+                    <div class="label">Commands Today</div>
+                    <div class="value">24</div>
+                    <div class="label">Voice interactions</div>
                 </div>
                 
-                <div class="action-buttons">
-                    <button class="action-btn btn-primary" onclick="triggerAction('analyze-methods')">Analyze Methods</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('knowledge-transfer')">Knowledge Transfer</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('mentor-program')">Lead Mentor Program</button>
-                </div>
-            </div>
-            
-            <!-- Warning: Performance Variation -->
-            <div class="anomaly-card warning" data-type="warning" onclick="showDetailed('jacob')">
-                <div class="card-header">
-                    <div class="trainer-info">
-                        <div class="trainer-name">Jacob (Multiple IDs)</div>
-                        <div class="trainer-role">Performance Inconsistency Pattern</div>
-                    </div>
-                    <div class="anomaly-badge badge-warning">WARNING</div>
-                </div>
-                
-                <div class="performance-metrics">
-                    <div class="metric">
-                        <div class="metric-value metric-warning">$55.20</div>
-                        <div class="metric-label">Avg Rev/Hr</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-warning">15%</div>
-                        <div class="metric-label">Performance Range</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-warning">3</div>
-                        <div class="metric-label">Active Records</div>
-                    </div>
-                </div>
-                
-                <div class="anomaly-description">
-                    <div class="anomaly-title">🟡 Contextual Anomaly: Multiple Performance Records</div>
-                    <div class="anomaly-details">
-                        Three active records (IDs: 1262, 1868, 839) with varying performance: $58.61, $57.18, $49.80/hr. Suggests scheduling or system tracking inconsistencies.
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="action-btn btn-primary" onclick="triggerAction('data-audit')">Data Audit</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('schedule-review')">Schedule Review</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('system-check')">System Check</button>
-                </div>
-            </div>
-            
-            <!-- Monitoring: Strong Performance -->
-            <div class="anomaly-card monitoring" data-type="insight" onclick="showDetailed('april')">
-                <div class="card-header">
-                    <div class="trainer-info">
-                        <div class="trainer-name">April (ID: 1206)</div>
-                        <div class="trainer-role">High Performer • Above Average</div>
-                    </div>
-                    <div class="anomaly-badge badge-monitoring">MONITORING</div>
-                </div>
-                
-                <div class="performance-metrics">
-                    <div class="metric">
-                        <div class="metric-value metric-good">$67.18</div>
-                        <div class="metric-label">Current Rev/Hr</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-good">338%</div>
-                        <div class="metric-label">vs Club Average</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-good">Est. 35%</div>
-                        <div class="metric-label">LGS Conversion</div>
-                    </div>
-                </div>
-                
-                <div class="anomaly-description">
-                    <div class="anomaly-title">🔵 Performance Insight: Consistent High Revenue</div>
-                    <div class="anomaly-details">
-                        Generating $67.18/hr, significantly above club average of $15.32. Strong performance suggests effective client management and conversion strategies.
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="action-btn btn-primary" onclick="triggerAction('best-practices')">Document Best Practices</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('peer-mentor')">Peer Mentoring</button>
-                </div>
-            </div>
-            
-            <!-- Critical: Package Value Analysis -->
-            <div class="anomaly-card critical" data-type="critical" onclick="showDetailed('pricing')">
-                <div class="card-header">
-                    <div class="trainer-info">
-                        <div class="trainer-name">Club-Wide Analysis</div>
-                        <div class="trainer-role">Package Conversion Patterns</div>
-                    </div>
-                    <div class="anomaly-badge badge-critical">PRICING ALERT</div>
-                </div>
-                
-                <div class="performance-metrics">
-                    <div class="metric">
-                        <div class="metric-value metric-critical">$1,760</div>
-                        <div class="metric-label">4x/Week Value</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-warning">$600</div>
-                        <div class="metric-label">1x/Week Value</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-critical">193%</div>
-                        <div class="metric-label">Package Range</div>
-                    </div>
-                </div>
-                
-                <div class="anomaly-description">
-                    <div class="anomaly-title">🔴 Business Model Anomaly: Conversion Gap</div>
-                    <div class="anomaly-details">
-                        With median Rev/Hr at $5.05, most trainers need 347+ hours to generate 4x/week package value ($1,760). System detecting structural pricing vs. performance misalignment.
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="action-btn btn-danger" onclick="triggerAction('pricing-review')">Pricing Strategy Review</button>
-                    <button class="action-btn btn-primary" onclick="triggerAction('conversion-training')">Conversion Training</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('package-analysis')">Package Analysis</button>
-                </div>
-            </div>
-            
-            <!-- L•AI•C Integration Insight -->
-            <div class="anomaly-card insight" data-type="insight" onclick="showDetailed('laic')">
-                <div class="card-header">
-                    <div class="trainer-info">
-                        <div class="trainer-name">L•AI•C Integration</div>
-                        <div class="trainer-role">Member AI + Trainer AI Opportunity</div>
-                    </div>
-                    <div class="anomaly-badge badge-insight">ECOSYSTEM</div>
-                </div>
-                
-                <div class="performance-metrics">
-                    <div class="metric">
-                        <div class="metric-value metric-good">NEW</div>
-                        <div class="metric-label">L•AI•C Launch</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-warning">GAP</div>
-                        <div class="metric-label">Trainer Support</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value metric-good">OPPORTUNITY</div>
-                        <div class="metric-label">B2B Integration</div>
-                    </div>
-                </div>
-                
-                <div class="anomaly-description">
-                    <div class="anomaly-title">🔵 Ecosystem Insight: AI Infrastructure Available</div>
-                    <div class="anomaly-details">
-                        Life Time launched L•AI•C for member wellness. Infrastructure exists for trainer business intelligence integration. Opportunity to create complete AI ecosystem.
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="action-btn btn-primary" onclick="triggerAction('integration-plan')">Integration Planning</button>
-                    <button class="action-btn btn-secondary" onclick="triggerAction('ecosystem-design')">Ecosystem Design</button>
+                <div class="metric-card">
+                    <div class="label">Revenue Impact</div>
+                    <div class="value positive">+$560</div>
+                    <div class="label">From AI recommendations</div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Notification Toast -->
-    <div id="notification" class="notification"></div>
-    
-    <!-- Detailed View Modal -->
-    <div class="detailed-view" id="detailedView">
-        <div class="detailed-content">
-            <button class="close-btn" onclick="closeDetailed()">&times;</button>
-            <div id="detailedContent">
-                <!-- Content will be populated by JavaScript -->
-            </div>
-        </div>
-    </div>
-    
+
     <script>
-        // Track if this is the initial page load
-        let initialLoad = true;
-        
-        // Sample detailed data for each trainer
-        const trainerDetails = {
-            faust: {
-                name: "Faust (ID: 705)",
-                role: "Personal Trainer",
-                anomalies: ["Point Anomaly", "Change Point Anomaly"],
-                timeline: "Zero revenue generation",
-                chart: generateChart([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-                recommendations: [
-                    "Emergency performance review required",
-                    "Assess basic competency and training needs",
-                    "Review client assignment and scheduling conflicts", 
-                    "Consider immediate intensive mentoring program",
-                    "Evaluate personal circumstances affecting performance"
-                ]
-            },
-            lou: {
-                name: "Lou (ID: 2)", 
-                role: "Top Performer",
-                anomalies: ["Statistical Outlier"],
-                timeline: "Consistently exceptional performance",
-                chart: generateChart([280, 285, 290, 288, 286, 284, 287, 289, 286, 285, 287, 290, 286, 284, 288, 286]),
-                recommendations: [
-                    "Document methods for knowledge transfer",
-                    "Lead mentorship program for underperformers",
-                    "Analyze client base and pricing strategies",
-                    "Consider specialized service offerings",
-                    "Explore leadership development opportunities"
-                ]
-            },
-            jacob: {
-                name: "Jacob (Multiple IDs)",
-                role: "Performance Inconsistency",
-                anomalies: ["Data Integrity Anomaly"],
-                timeline: "Multiple active records detected",
-                chart: generateChart([58, 57, 50, 58, 57, 49, 58, 57, 50, 58, 57, 49, 58, 57, 50, 58]),
-                recommendations: [
-                    "Audit data integrity and system tracking",
-                    "Consolidate employee records if duplicate",
-                    "Review scheduling system for conflicts",
-                    "Ensure accurate performance attribution",
-                    "Implement single source of truth for employee data"
-                ]
-            },
-            april: {
-                name: "April (ID: 1206)",
-                role: "High Performer",
-                anomalies: ["Positive Performance Outlier"],
-                timeline: "Consistent above-average performance",
-                chart: generateChart([65, 68, 70, 67, 69, 66, 68, 67, 69, 70, 67, 68, 66, 69, 67, 67]),
-                recommendations: [
-                    "Document best practices for team training",
-                    "Consider peer mentoring responsibilities",
-                    "Analyze successful client acquisition methods",
-                    "Explore advanced training opportunities",
-                    "Recognition and retention strategies"
-                ]
-            },
-            pricing: {
-                name: "Package Pricing Analysis",
-                role: "Business Model Review",
-                anomalies: ["Structural Pricing Anomaly"],
-                timeline: "Performance vs pricing misalignment",
-                chart: generateChart([5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]),
-                recommendations: [
-                    "Review package pricing strategy vs market rates",
-                    "Analyze conversion rates by package type",
-                    "Train staff on value-based selling techniques",
-                    "Consider flexible pricing or payment plans",
-                    "Benchmark against successful Life Time locations"
-                ]
-            },
-            laic: {
-                name: "L•AI•C Integration Opportunity",
-                role: "Ecosystem Development",
-                anomalies: ["Infrastructure Opportunity"],
-                timeline: "Recent L•AI•C launch creates integration possibility",
-                chart: generateChart([0, 10, 20, 30, 40, 50, 60, 70, 80, 85, 90, 85, 80, 85, 90, 95]),
-                recommendations: [
-                    "Design integration plan with existing L•AI•C infrastructure",
-                    "Create trainer-specific AI capabilities complementing member AI",
-                    "Develop data sharing protocols between systems",
-                    "Plan rollout strategy for integrated AI ecosystem",
-                    "Establish success metrics for B2B AI implementation"
-                ]
-            }
-        };
-        
-        // Filter anomalies by type
-        function filterAnomalies(type) {
-            const cards = document.querySelectorAll('.anomaly-card');
-            const tabs = document.querySelectorAll('.filter-tab');
-            
-            // Update active tab
-            tabs.forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Show/hide cards
-            cards.forEach(card => {
-                if (type === 'all') {
-                    card.style.display = 'block';
-                } else if (type === 'critical' && card.dataset.type === 'critical') {
-                    card.style.display = 'block';
-                } else if (type === 'warnings' && card.dataset.type === 'warning') {
-                    card.style.display = 'block';
-                } else if (type === 'insights' && card.dataset.type === 'insight') {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-        
-        // Show detailed view
-        function showDetailed(trainerId) {
-            const modal = document.getElementById('detailedView');
-            const content = document.getElementById('detailedContent');
-            const trainer = trainerDetails[trainerId];
-            
-            if (trainer) {
-                content.innerHTML = `
-                    <h2>${trainer.name}</h2>
-                    <p style="color: #64748b; margin-bottom: 2rem;">${trainer.role}</p>
-                    
-                    <div style="margin-bottom: 2rem;">
-                        <h3 style="margin-bottom: 1rem;">Detected Anomalies</h3>
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            ${trainer.anomalies.map(anomaly => 
-                                `<span style="background: #fee2e2; color: #dc2626; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem;">${anomaly}</span>`
-                            ).join('')}
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 2rem;">
-                        <h3 style="margin-bottom: 1rem;">Performance Timeline</h3>
-                        <div class="anomaly-chart">
-                            ${trainer.chart}
-                        </div>
-                        <p style="text-align: center; color: #64748b; font-size: 0.9rem;">
-                            Revenue/Hour over past 16 days (Red line = $5.00 threshold)
-                        </p>
-                    </div>
-                    
-                    <div>
-                        <h3 style="margin-bottom: 1rem;">AI Recommendations</h3>
-                        <ul style="list-style: none; padding: 0;">
-                            ${trainer.recommendations.map(rec => 
-                                `<li style="background: #f1f5f9; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
-                                    ${rec}
-                                </li>`
-                            ).join('')}
-                        </ul>
-                    </div>
-                `;
-                
-                modal.style.display = 'flex';
-            }
-        }
-        
-        // Close detailed view
-        function closeDetailed() {
-            document.getElementById('detailedView').style.display = 'none';
-        }
-        
-        // Detection controls functionality
         document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('.detection-controls input[type="checkbox"]');
+            const micButton = document.getElementById('micButton');
+            const status = document.getElementById('status');
+            const responseContainer = document.getElementById('responseContainer');
             
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    updateAnomalyDisplay();
-                });
+            // Voice command simulation
+            micButton.addEventListener('click', function() {
+                status.textContent = "Listening...";
+                micButton.classList.add('listening');
+                
+                // Simulate voice command processing
+                setTimeout(function() {
+                    status.textContent = "Processing...";
+                    
+                    // Add user message
+                    const userMessage = document.createElement('div');
+                    userMessage.className = 'message user-message';
+                    userMessage.textContent = "Show equipment issues";
+                    responseContainer.appendChild(userMessage);
+                    
+                    // Simulate AI response
+                    setTimeout(function() {
+                        micButton.classList.remove('listening');
+                        status.textContent = "Ready to listen";
+                        
+                        const aiMessage = document.createElement('div');
+                        aiMessage.className = 'message ai-message';
+                        aiMessage.innerHTML = "Equipment status:<br>" + 
+                                              "- Treadmill #7: Vibration anomaly detected<br>" +
+                                              "- Weight rack #3: Missing 25lb dumbbell<br>" +
+                                              "Recommendation: Schedule maintenance?";
+                        responseContainer.appendChild(aiMessage);
+                        
+                        // Scroll to bottom
+                        responseContainer.scrollTop = responseContainer.scrollHeight;
+                    }, 2000);
+                }, 3000);
             });
             
-            // Initialize display without showing notification
-            updateAnomalyDisplay(false);
-            initialLoad = false;
-        });
-        
-        function updateAnomalyDisplay(showNotif = true) {
-            const pointAnomalies = document.getElementById('pointAnomalies').checked;
-            const changePoint = document.getElementById('changePoint').checked;
-            const contextual = document.getElementById('contextual').checked;
-            const curveShape = document.getElementById('curveShape').checked;
+            // Sample conversation starter
+            const sampleCommands = [
+                "Hey LifeTime, show top performers",
+                "Hey LifeTime, check equipment health",
+                "Hey LifeTime, revenue report this week",
+                "Hey LifeTime, urgent issues to address"
+            ];
             
-            // Get all anomaly cards
-            const cards = document.querySelectorAll('.anomaly-card');
-            let visibleCount = 0;
-            
-            cards.forEach((card, index) => {
-                let shouldShow = true;
-                
-                // Determine which detection types apply to each card
-                const cardName = card.querySelector('.trainer-name').textContent;
-                
-                if (cardName.includes('Faust')) {
-                    // Faust has point and change point anomalies
-                    shouldShow = pointAnomalies || changePoint;
-                } else if (cardName.includes('Lou')) {
-                    // Lou has statistical outlier (point anomaly)
-                    shouldShow = pointAnomalies;
-                } else if (cardName.includes('Jacob')) {
-                    // Jacob has contextual anomaly (data integrity)
-                    shouldShow = contextual;
-                } else if (cardName.includes('April')) {
-                    // April has point anomaly (positive outlier)
-                    shouldShow = pointAnomalies;
-                } else if (cardName.includes('Package Pricing') || cardName.includes('Club-Wide')) {
-                    // Pricing is contextual business anomaly
-                    shouldShow = contextual;
-                } else if (cardName.includes('L•AI•C')) {
-                    // L•AI•C is contextual opportunity
-                    shouldShow = contextual;
-                }
-                
-                // Show/hide or fade based on detection settings
-                if (shouldShow) {
-                    card.style.opacity = '1';
-                    card.style.transform = 'scale(1)';
-                    card.style.filter = 'none';
-                    card.style.pointerEvents = 'auto';
-                    visibleCount++;
-                } else {
-                    card.style.opacity = '0.3';
-                    card.style.transform = 'scale(0.95)';
-                    card.style.filter = 'grayscale(70%)';
-                    card.style.pointerEvents = 'none';
-                }
-            });
-            
-            // Update header count
-            const anomalyCount = document.querySelector('.anomaly-count');
-            anomalyCount.textContent = `${visibleCount} Active Anomalies • Evanston, IL`;
-            
-            // Only show notification if not initial load and requested
-            if (showNotif && !initialLoad) {
-                const activeTypes = [];
-                if (pointAnomalies) activeTypes.push('Point');
-                if (changePoint) activeTypes.push('Change Point');
-                if (contextual) activeTypes.push('Contextual');
-                if (curveShape) activeTypes.push('Curve Shape');
-                
-                if (activeTypes.length > 0) {
-                    showNotification(`Detection updated: ${activeTypes.join(', ')} anomalies active (${visibleCount} cards visible)`, 'success');
-                } else {
-                    showNotification('All anomaly detection disabled', 'warning');
-                }
-            }
-        }
-        
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${type}`;
-            
-            // Show notification
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 100);
-            
-            // Hide notification after 4 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 4000);
-        }
-        
-        // Trigger actions - fixed version
-        function triggerAction(action) {
-            const actions = {
-                'immediate': 'Emergency intervention scheduled with HR and management team',
-                'intensive': 'Intensive training and support program enrollment initiated',
-                'assessment': 'Comprehensive skills and performance assessment scheduled',
-                'analyze-methods': 'Performance analysis initiated for best practice documentation',
-                'knowledge-transfer': 'Knowledge transfer sessions scheduled with underperforming trainers',
-                'mentor-program': 'Lead mentorship program role assigned',
-                'data-audit': 'Data integrity audit initiated for employee records',
-                'schedule-review': 'Schedule and assignment review with operations team',
-                'system-check': 'System tracking and attribution verification in progress',
-                'best-practices': 'Best practices documentation and training material development',
-                'peer-mentor': 'Peer mentoring responsibilities assigned',
-                'pricing-review': 'Comprehensive pricing strategy review initiated',
-                'conversion-training': 'Advanced conversion and sales training scheduled',
-                'package-analysis': 'Package pricing and value analysis in progress',
-                'integration-plan': 'L•AI•C integration planning session scheduled',
-                'ecosystem-design': 'AI ecosystem design workshop planned'
-            };
-            
-            const message = actions[action] || 'Action completed successfully';
-            
-            // Show alert
-            alert(`✅ Action Triggered: ${message}`);
-            
-            // Also show visual notification
-            showNotification(`✅ ${message}`, 'success');
-            
-            // Prevent card click when button is clicked
-            return false;
-        }
-        
-        // Generate chart SVG
-        function generateChart(data) {
-            const points = data.map((value, index) => {
-                const x = (index / (data.length - 1)) * 580 + 10;
-                const y = 180 - (value / 20) * 160;
-                return `${x},${y}`;
-            }).join(' ');
-            
-            return `
-                <svg class="chart-svg" viewBox="0 0 600 200">
-                    <defs>
-                        <pattern id="grid" width="40" height="20" patternUnits="userSpaceOnUse">
-                            <path d="M 40 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="1"/>
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#grid)" />
-                    <line class="threshold-line" x1="10" y1="140" x2="590" y2="140"/>
-                    <text x="595" y="145" fill="#dc2626" font-size="12">$5.00</text>
-                    <polyline class="performance-line" points="${points}"/>
-                    ${data.map((value, index) => {
-                        const x = (index / (data.length - 1)) * 580 + 10;
-                        const y = 180 - (value / 20) * 160;
-                        const isAnomalous = value < 5;
-                        return `<circle class="${isAnomalous ? 'anomaly-point' : 'normal-point'}" cx="${x}" cy="${y}"/>`;
-                    }).join('')}
-                </svg>
-            `;
-        }
-        
-        // Real-time updates simulation
-        function simulateRealTimeUpdates() {
-            const elements = document.querySelectorAll('.metric-value');
-            elements.forEach(element => {
-                if (Math.random() < 0.1) { // 10% chance of update
-                    element.style.background = '#fef3c7';
-                    setTimeout(() => {
-                        element.style.background = 'transparent';
-                    }, 1000);
-                }
-            });
-        }
-        
-        // Initialize real-time simulation
-        setInterval(simulateRealTimeUpdates, 3000);
-        
-        // Close modal when clicking outside
-        document.getElementById('detailedView').addEventListener('click', function(event) {
-            if (event.target === this) {
-                closeDetailed();
-            }
+            // Rotate sample commands in status area
+            let commandIndex = 0;
+            setInterval(() => {
+                status.textContent = 'Try: ' + sampleCommands[commandIndex];
+                commandIndex = (commandIndex + 1) % sampleCommands.length;
+            }, 5000);
         });
     </script>
 </body>
