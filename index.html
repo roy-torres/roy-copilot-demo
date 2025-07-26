@@ -18,6 +18,7 @@
             --accent: #ff6b35;
             --success: #4caf50;
             --danger: #f44336;
+            --warning: #ff9800;
             --light: #f8f9fa;
             --dark: #212529;
         }
@@ -113,6 +114,8 @@
             margin: 15px 0;
             font-size: 1.2rem;
             height: 30px;
+            text-align: center;
+            min-height: 1.5em;
         }
         
         .voice-output {
@@ -131,13 +134,22 @@
             margin-bottom: 25px;
             overflow-y: auto;
             max-height: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         
         .message {
-            margin-bottom: 15px;
             padding: 12px 15px;
             border-radius: 12px;
             max-width: 80%;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .ai-message {
@@ -151,6 +163,13 @@
             align-self: flex-end;
             border-bottom-right-radius: 5px;
             margin-left: auto;
+        }
+        
+        .action-message {
+            background: rgba(42, 157, 244, 0.2);
+            align-self: center;
+            text-align: center;
+            max-width: 95%;
         }
         
         .quick-actions {
@@ -172,6 +191,27 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-btn:after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+        
+        .action-btn:hover:after {
+            opacity: 1;
+            top: -20%;
+            left: -20%;
         }
         
         .action-btn i {
@@ -182,6 +222,10 @@
         .action-btn:hover {
             background: rgba(255, 255, 255, 0.25);
             transform: translateY(-3px);
+        }
+        
+        .action-btn:active {
+            transform: translateY(1px);
         }
         
         .analytics-panel {
@@ -208,6 +252,12 @@
             border-radius: 15px;
             padding: 20px;
             text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            background: rgba(0, 0, 0, 0.4);
         }
         
         .metric-card .value {
@@ -223,10 +273,21 @@
         
         .critical {
             color: var(--danger);
+            animation: pulseColor 2s infinite;
+        }
+        
+        @keyframes pulseColor {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
         }
         
         .positive {
             color: var(--success);
+        }
+        
+        .warning {
+            color: var(--warning);
         }
         
         @media (max-width: 768px) {
@@ -257,19 +318,19 @@
                 <div class="status" id="status">Ready to listen</div>
                 <p>Say "Hey LifeTime" followed by your command</p>
                 <div class="quick-actions">
-                    <button class="action-btn">
+                    <button class="action-btn" id="staffStatusBtn">
                         <i class="fas fa-user-friends"></i>
                         Staff Status
                     </button>
-                    <button class="action-btn">
+                    <button class="action-btn" id="equipmentBtn">
                         <i class="fas fa-dumbbell"></i>
                         Equipment
                     </button>
-                    <button class="action-btn">
+                    <button class="action-btn" id="revenueBtn">
                         <i class="fas fa-chart-line"></i>
                         Revenue
                     </button>
-                    <button class="action-btn">
+                    <button class="action-btn" id="urgentBtn">
                         <i class="fas fa-exclamation-triangle"></i>
                         Urgent Issues
                     </button>
@@ -301,19 +362,19 @@
                 </div>
                 
                 <div class="quick-actions">
-                    <button class="action-btn">
+                    <button class="action-btn" id="approveBtn">
                         <i class="fas fa-check-circle"></i>
                         Approve
                     </button>
-                    <button class="action-btn">
+                    <button class="action-btn" id="rejectBtn">
                         <i class="fas fa-times-circle"></i>
                         Reject
                     </button>
-                    <button class="action-btn">
+                    <button class="action-btn" id="detailsBtn">
                         <i class="fas fa-info-circle"></i>
                         Details
                     </button>
-                    <button class="action-btn">
+                    <button class="action-btn" id="historyBtn">
                         <i class="fas fa-history"></i>
                         History
                     </button>
@@ -342,7 +403,7 @@
                 
                 <div class="metric-card">
                     <div class="label">Commands Today</div>
-                    <div class="value">24</div>
+                    <div class="value warning">24</div>
                     <div class="label">Voice interactions</div>
                 </div>
                 
@@ -361,6 +422,48 @@
             const status = document.getElementById('status');
             const responseContainer = document.getElementById('responseContainer');
             
+            // Get all action buttons
+            const staffStatusBtn = document.getElementById('staffStatusBtn');
+            const equipmentBtn = document.getElementById('equipmentBtn');
+            const revenueBtn = document.getElementById('revenueBtn');
+            const urgentBtn = document.getElementById('urgentBtn');
+            const approveBtn = document.getElementById('approveBtn');
+            const rejectBtn = document.getElementById('rejectBtn');
+            const detailsBtn = document.getElementById('detailsBtn');
+            const historyBtn = document.getElementById('historyBtn');
+            
+            // Function to add message to conversation
+            function addMessage(text, type) {
+                const message = document.createElement('div');
+                message.className = `message ${type}`;
+                message.textContent = text;
+                responseContainer.appendChild(message);
+                responseContainer.scrollTop = responseContainer.scrollHeight;
+                
+                // Add slight delay for AI responses
+                if (type === 'ai-message') {
+                    message.style.opacity = '0';
+                    setTimeout(() => {
+                        message.style.opacity = '1';
+                    }, 300);
+                }
+            }
+            
+            // Function to simulate AI response
+            function simulateAIResponse(userMessage, aiResponse) {
+                // Add user message
+                addMessage(userMessage, 'user-message');
+                
+                // Show processing status
+                status.textContent = "Processing...";
+                
+                // Simulate AI processing delay
+                setTimeout(() => {
+                    status.textContent = "Ready to listen";
+                    addMessage(aiResponse, 'ai-message');
+                }, 1500);
+            }
+            
             // Voice command simulation
             micButton.addEventListener('click', function() {
                 status.textContent = "Listening...";
@@ -371,28 +474,73 @@
                     status.textContent = "Processing...";
                     
                     // Add user message
-                    const userMessage = document.createElement('div');
-                    userMessage.className = 'message user-message';
-                    userMessage.textContent = "Show equipment issues";
-                    responseContainer.appendChild(userMessage);
+                    addMessage("Show equipment issues", 'user-message');
                     
                     // Simulate AI response
                     setTimeout(function() {
                         micButton.classList.remove('listening');
                         status.textContent = "Ready to listen";
                         
-                        const aiMessage = document.createElement('div');
-                        aiMessage.className = 'message ai-message';
-                        aiMessage.innerHTML = "Equipment status:<br>" + 
-                                              "- Treadmill #7: Vibration anomaly detected<br>" +
-                                              "- Weight rack #3: Missing 25lb dumbbell<br>" +
-                                              "Recommendation: Schedule maintenance?";
-                        responseContainer.appendChild(aiMessage);
-                        
-                        // Scroll to bottom
-                        responseContainer.scrollTop = responseContainer.scrollHeight;
+                        addMessage("Equipment status:\n- Treadmill #7: Vibration anomaly detected\n- Weight rack #3: Missing 25lb dumbbell\nRecommendation: Schedule maintenance?", 'ai-message');
                     }, 2000);
                 }, 3000);
+            });
+            
+            // Button click handlers
+            staffStatusBtn.addEventListener('click', function() {
+                simulateAIResponse(
+                    "Show staff status", 
+                    "Staff Performance Summary:\n\n⭐ Lou: $286/hr (Top performer)\n✅ April: $67/hr (Meeting targets)\n⚠️ Faust: $0/hr (Needs coaching)\n\nRecommendation: Activate mentorship program for Faust?"
+                );
+            });
+            
+            equipmentBtn.addEventListener('click', function() {
+                simulateAIResponse(
+                    "Check equipment status", 
+                    "Equipment Health Report:\n\n✅ 12 Treadmills: Normal\n✅ 8 Ellipticals: Normal\n⚠️ Treadmill #7: Bearing vibration detected (87% match to failure pattern)\n🔧 Weight Station 3: Missing 25lb dumbbell\n\nAction: Schedule maintenance for Treadmill #7?"
+                );
+            });
+            
+            revenueBtn.addEventListener('click', function() {
+                simulateAIResponse(
+                    "Revenue report", 
+                    "Revenue Analysis:\n\n📈 Today: $2,450 (+12% vs yesterday)\n📊 Week-to-date: $15,200 (on track for $22k weekly target)\n\nTop Revenue Drivers:\n1. Personal Training: $9,200\n2. Supplements: $3,800\n3. Classes: $2,200\n\nOpportunity: Evening classes at 65% capacity - suggest promotion?"
+                );
+            });
+            
+            urgentBtn.addEventListener('click', function() {
+                simulateAIResponse(
+                    "Show urgent issues", 
+                    "🚨 Critical Issues Requiring Attention:\n\n1. Faust: 0 revenue hours for 3 consecutive days\n   - Recommended: Mandatory coaching session\n\n2. Treadmill #7: Predictive failure warning\n   - Recommended: Maintenance before 5PM\n\n3. Locker Room C: Water leak detected\n   - Recommended: Close section for repairs"
+                );
+            });
+            
+            approveBtn.addEventListener('click', function() {
+                addMessage("Approved recommendation", 'action-message');
+                setTimeout(() => {
+                    addMessage("Action confirmed: Lou-Faust mentorship activated. Coaching session scheduled for tomorrow 3PM. Tracking progress metrics.", 'ai-message');
+                }, 800);
+            });
+            
+            rejectBtn.addEventListener('click', function() {
+                addMessage("Rejected recommendation", 'action-message');
+                setTimeout(() => {
+                    addMessage("Action canceled. Would you like alternative solutions for Faust's performance issue?", 'ai-message');
+                }, 800);
+            });
+            
+            detailsBtn.addEventListener('click', function() {
+                addMessage("Show details for Faust", 'action-message');
+                setTimeout(() => {
+                    addMessage("Faust Performance Details:\n\n- Member engagement: 12%\n- Session completion: 65%\n- Upsell success: 0%\n- Avg session revenue: $0\n\nPattern: Primarily works 2-4PM weekdays with low traffic. Recommendation: Shift to morning hours with Lou?", 'ai-message');
+                }, 1000);
+            });
+            
+            historyBtn.addEventListener('click', function() {
+                addMessage("Show coaching history", 'action-message');
+                setTimeout(() => {
+                    addMessage("Coaching Intervention History:\n\n1. June 12: Lou → Faust (1hr)\n   - Result: +$80 revenue next day\n\n2. May 30: April → Jacob (1.5hr)\n   - Result: +$120 revenue over 3 days\n\n3. May 15: Manager → Faust (2hr)\n   - Result: No improvement", 'ai-message');
+                }, 1000);
             });
             
             // Sample conversation starter
