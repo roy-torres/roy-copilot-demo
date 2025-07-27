@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Time AI: Bookending Innovation Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 40, 200, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(40, 120, 200, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(200, 40, 120, 0.2) 0%, transparent 50%);
+            animation: gradientShift 20s ease infinite;
+            z-index: -1;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeInDown 1s ease forwards;
+        }
+
+        @keyframes fadeInDown {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            font-weight: 300;
+        }
+
+        .pivot-wheel {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .center-hub {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 50px rgba(120, 40, 200, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .center-hub:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 70px rgba(120, 40, 200, 0.7);
+        }
+
+        .center-text {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .center-text h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .center-text p {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .pivot-node {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: rgba(30, 30, 40, 0.9);
+            border: 2px solid transparent;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .pivot-node:hover {
+            transform: scale(1.1);
+            background: rgba(50, 50, 70, 0.95);
+            box-shadow: 0 0 30px currentColor;
+        }
+
+        .pivot-node.active {
+            transform: scale(1.15);
+            background: rgba(70, 50, 90, 0.95);
+            box-shadow: 0 0 40px currentColor;
+        }
+
+        .pivot-node span {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .pivot-connection {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+            transform-origin: left center;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .detail-panel {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: rgba(20, 20, 30, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            z-index: 100;
+            border-left: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .detail-panel.active {
+            right: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: rotate(90deg);
+        }
+
+        .detail-content h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .detail-content h3 {
+            margin: 20px 0 10px;
+            color: #aaa;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .detail-content p {
+            line-height: 1.6;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: #ddd;
+        }
+
+        .insight-box {
+            background: rgba(120, 40, 200, 0.2);
+            border: 1px solid rgba(120, 40, 200, 0.4);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .pivot-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .pivot-wheel {
+                width: 600px;
+                height: 600px;
+            }
+            
+            .center-hub {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .pivot-node {
+                width: 100px;
+                height: 100px;
+                padding: 15px;
+            }
+            
+            .detail-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bookending Innovation Explorer</h1>
+            <p class="subtitle">8 Radical Pivots for Life Time's AI Crisis Management System</p>
+        </header>
+
+        <div class="pivot-wheel" id="pivotWheel">
+            <div class="center-hub" onclick="showDetail('core')">
+                <div class="center-text">
+                    <h3>Core Design</h3>
+                    <p>Crisis Management AI</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-panel" id="detailPanel">
+        <button class="close-btn" onclick="closeDetail()">×</button>
+        <div class="detail-content" id="detailContent">
+            <!-- Content will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        const pivots = [
+            {
+                id: 'multiplayer',
+                title: 'Multiplayer',
+                icon: '🎭',
+                color: '#FF6B6B',
+                description: 'The Trainer Alliance Network',
+                features: [
+                    'Prospect Sharing Pool',
+                    'Skill Trading Marketplace', 
+                    'Team Challenges',
+                    'Mentorship Matching'
+                ],
+                insight: 'Crisis becomes community. The $75k loss is everyone\'s problem.'
+            },
+            {
+                id: 'timeReverse',
+                title: 'Time Reverse',
+                icon: '🔄',
+                color: '#4ECDC4',
+                description: 'The Retroactive Success Analyzer',
+                features: [
+                    'Success Archaeology',
+                    'Temporal Pattern Mining',
+                    'Reverse Forecasting',
+                    'Time Machine Interface'
+                ],
+                insight: 'Reverse engineer from success stories to provide hope and concrete actions.'
+            },
+            {
+                id: 'performative',
+                title: 'Public Display',
+                icon: '🎪',
+                color: '#FFE66D',
+                description: 'The Transparent Trainer Dashboard',
+                features: [
+                    'Public Progress Boards',
+                    'Member Investment Metrics',
+                    'Live Intervention Feed',
+                    'Success Story Theater'
+                ],
+                insight: 'Transparency transforms shame into support.'
+            },
+            {
+                id: 'ambient',
+                title: 'Environmental',
+                icon: '🌊',
+                color: '#A8E6CF',
+                description: 'The Invisible Optimization Layer',
+                features: [
+                    'Smart Scheduling Surfaces',
+                    'Proximity Alerts',
+                    'Environmental Matching',
+                    'Invisible Introductions'
+                ],
+                insight: 'Make the entire gym a sensing and responding organism.'
+            },
+            {
+                id: 'financial',
+                title: 'Financial',
+                icon: '💰',
+                color: '#C7CEEA',
+                description: 'The Trainer Futures Market',
+                features: [
+                    'Performance Bonds',
+                    'Member Investment Options',
+                    'Risk Pooling',
+                    'Success Derivatives'
+                ],
+                insight: 'Financial engineering creates liquidity and aligns incentives.'
+            },
+            {
+                id: 'biological',
+                title: 'Organic',
+                icon: '🧬',
+                color: '#FFDAB9',
+                description: 'The Adaptive Fitness Organism',
+                features: [
+                    'Metabolic Rate Monitoring',
+                    'Symbiotic Pairing',
+                    'Immune Response',
+                    'Evolution Engine'
+                ],
+                insight: 'Strengthen the whole organism, not just treat symptoms.'
+            },
+            {
+                id: 'deterministic',
+                title: 'Scripted',
+                icon: '🎮',
+                color: '#B19CD9',
+                description: 'The Guaranteed Success Playbook',
+                features: [
+                    'Daily Quest System',
+                    'Conversation Scripts',
+                    'Guaranteed Outcomes',
+                    'No-Choice Mode'
+                ],
+                insight: 'In crisis, rigid structure might be the kindest design.'
+            },
+            {
+                id: 'temporal',
+                title: 'Multi-Time',
+                icon: '🌐',
+                color: '#98D8C8',
+                description: 'The Temporal Strategy System',
+                features: [
+                    'Micro-Moment Capture',
+                    'Power Hour Planning',
+                    'Week Wave Patterns',
+                    'Quarter Quest Arcs'
+                ],
+                insight: 'Design for all timescales simultaneously.'
+            }
+        ];
+
+        const coreDetail = {
+            id: 'core',
+            title: 'Crisis Management AI',
+            icon: '🎯',
+            description: 'Current State: Data-Driven Trainer Survival System',
+            features: [
+                'Real-time crisis tracking with 12-day countdown',
+                'AI-powered prospect recommendations',
+                'Statistical forecasting dashboard',
+                'Anomaly detection for early intervention'
+            ],
+            insight: 'Traditional approach: Individual trainers using AI tools to overcome personal crisis.'
+        };
+
+        function createPivotWheel() {
+            const wheel = document.getElementById('pivotWheel');
+            const radius = 300;
+            const angleStep = (2 * Math.PI) / pivots.length;
+
+            pivots.forEach((pivot, index) => {
+                const angle = angleStep * index - Math.PI / 2;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+
+                // Create connection line
+                const connection = document.createElement('div');
+                connection.className = 'pivot-connection';
+                connection.style.width = `${radius}px`;
+                connection.style.left = '50%';
+                connection.style.top = '50%';
+                connection.style.transform = `rotate(${angle}rad)`;
+                wheel.appendChild(connection);
+
+                // Create pivot node
+                const node = document.createElement('div');
+                node.className = 'pivot-node';
+                node.style.left = `calc(50% + ${x}px - 60px)`;
+                node.style.top = `calc(50% + ${y}px - 60px)`;
+                node.style.borderColor = pivot.color;
+                node.style.color = pivot.color;
+                node.innerHTML = `
+                    <div>
+                        <div class="pivot-icon">${pivot.icon}</div>
+                        <span>${pivot.title}</span>
+                    </div>
+                `;
+                node.onclick = () => showDetail(pivot.id);
+                
+                // Stagger the animation
+                node.style.opacity = '0';
+                node.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    node.style.transition = 'all 0.5s ease';
+                    node.style.opacity = '1';
+                    node.style.transform = 'scale(1)';
+                }, 100 * index + 500);
+                
+                wheel.appendChild(node);
+            });
+        }
+
+        function showDetail(pivotId) {
+            const panel = document.getElementById('detailPanel');
+            const content = document.getElementById('detailContent');
+            
+            let data = pivotId === 'core' ? coreDetail : pivots.find(p => p.id === pivotId);
+            
+            content.innerHTML = `
+                <h2 style="color: ${data.color || '#fff'}">${data.icon} ${data.title}</h2>
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">${data.description}</p>
+                
+                <h3>Key Features</h3>
+                <ul class="feature-list">
+                    ${data.features.map(f => `<li>${f}</li>`).join('')}
+                </ul>
+                
+                <div class="insight-box">
+                    <h3>Novel Insight</h3>
+                    <p>${data.insight}</p>
+                </div>
+            `;
+            
+            panel.classList.add('active');
+            
+            // Update active state
+            document.querySelectorAll('.pivot-node').forEach(node => {
+                node.classList.remove('active');
+            });
+            if (pivotId !== 'core') {
+                const activeNode = Array.from(document.querySelectorAll('.pivot-node'))
+                    .find(node => node.textContent.includes(data.title));
+                if (activeNode) activeNode.classList.add('active');
+            }
+        }
+
+        function closeDetail() {
+            document.getElementById('detailPanel').classList.remove('active');
+            document.querySelectorAll('.pivot-node').forEach(node => {
+                node.classList.remove('active');
+            });
+        }
+
+        // Initialize
+        createPivotWheel();
+    </script>
+</body>
+</html>
